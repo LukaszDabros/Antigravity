@@ -1,0 +1,3 @@
+@echo off
+echo Uruchamianie skryptu porzadkuj.ps1...
+PowerShell -NoProfile -ExecutionPolicy Bypass -Command "& '%~dp0porzadkuj.ps1'"

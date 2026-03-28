@@ -1,0 +1,4 @@
+<?php
+// submit_thumbnail.php - Internal helper or integrated into add/update
+// We will update add_presentation.php to handle the file upload.
+?>

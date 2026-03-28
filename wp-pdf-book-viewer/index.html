@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profesjonalny Czytnik PDF (Turn.js)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+    <!-- PDF.js - silnik renderujący -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+    <!-- jQuery wymagane dla turn.js -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <!-- Turn.js (wykorzystujemy zaktualizowaną wersję wspierającą dzisiejsze powiększanie) -->
+    <script src="http://www.turnjs.com/lib/turn.min.js"></script>
+</head>
+
+<body>
+    <!-- HEADER / Pasek zadań -->
+    <header class="topbar">
+        <div class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+            </svg>
+            <h2>Czytnik PDF</h2>
+        </div>
+
+        <div class="controls">
+            <!-- Przycisk spisu treści -->
+            <button id="toggle-toc-btn" class="icon-btn" title="Spis Treści">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+
+            <!-- Przyciski zoomu -->
+            <div class="zoom-controls">
+                <button id="zoom-out-btn" class="icon-btn" title="Oddal">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        <line x1="8" y1="11" x2="14" y2="11"></line>
+                    </svg>
+                </button>
+                <span id="zoom-level">100%</span>
+                <button id="zoom-in-btn" class="icon-btn" title="Przybliż">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        <line x1="11" y1="8" x2="11" y2="14"></line>
+                        <line x1="8" y1="11" x2="14" y2="11"></line>
+                    </svg>
+                </button>
+            </div>
+            <!-- Wczytywanie -->
+            <label class="btn btn-primary" for="file-upload">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="17 8 12 3 7 8" />
+                    <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
+                Otwórz PDF
+            </label>
+            <input type="file" id="file-upload" accept="application/pdf" hidden>
+        </div>
+    </header>
+
+    <!-- Sidebar ze spisem treści -->
+    <div id="sidebar" class="sidebar hidden">
+        <div class="sidebar-header">
+            <h3>Spis Treści</h3>
+            <button id="close-sidebar-btn" class="icon-btn">✕</button>
+        </div>
+        <div id="toc-content" class="toc-content">
+            <div class="toc-empty">Brak spisu treści</div>
+        </div>
+    </div>
+
+    <!-- LOADING SCREEN -->
+    <div id="loading" class="loading-overlay hidden">
+        <div class="loader"></div>
+        <p id="loading-text">Inicjowanie...</p>
+    </div>
+
+    <!-- MAIN WORKSPACE -->
+    <main class="workspace">
+        <!-- Strzałka: Wstecz -->
+        <button id="nav-prev" class="nav-arrow hidden">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 18l-6-6 6-6" />
+            </svg>
+        </button>
+
+        <!-- KONTENER NA MAGIĘ KSIĄŻKI -->
+        <div class="book-container">
+            <div id="flipbook" class="flipbook">
+                <!-- Strony będą ładowane tutaj przez JavaScript -->
+            </div>
+        </div>
+
+        <!-- Strzałka: Dalej -->
+        <button id="nav-next" class="nav-arrow hidden">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 18l6-6-6-6" />
+            </svg>
+        </button>
+    </main>
+
+    <!-- STOPKA / Status Książki -->
+    <footer id="footer" class="bottombar hidden">
+        <div class="page-status">
+            Strona <span id="current-page">0</span> z <span id="total-pages">0</span>
+        </div>
+    </footer>
+
+    <!-- GŁÓWNA LOGIKA -->
+    <script src="app.js"></script>
+</body>
+
+</html>

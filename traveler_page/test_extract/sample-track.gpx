@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="Example">
+  <trk>
+    <name>Przykładowy Szlak</name>
+    <trkseg>
+      <trkpt lat="49.179" lon="20.088"><ele>1500</ele></trkpt>
+      <trkpt lat="49.180" lon="20.090"><ele>1550</ele></trkpt>
+      <trkpt lat="49.182" lon="20.095"><ele>1620</ele></trkpt>
+      <trkpt lat="49.185" lon="20.098"><ele>1700</ele></trkpt>
+      <trkpt lat="49.188" lon="20.096"><ele>1850</ele></trkpt>
+      <trkpt lat="49.190" lon="20.094"><ele>1950</ele></trkpt>
+      <trkpt lat="49.192" lon="20.090"><ele>2100</ele></trkpt>
+    </trkseg>
+  </trk>
+</gpx>

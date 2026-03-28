@@ -1,0 +1,141 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #0f172a;
+    /* Ciemny, strzelnicowy granat */
+    overflow: hidden;
+    /* Ukryj paski przewijania */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: white;
+    /* Ukrycie kursora w oknie by w pełni poczuć immersję bronią */
+    cursor: none;
+}
+
+/* UI Nakładka */
+#ui-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+    /* Pozwala "klikać" przez panel w Canvas pod spodem */
+    z-index: 10;
+}
+
+#status-text {
+    font-size: 2rem;
+    color: #94a3b8;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+#score-text {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #10b981;
+    /* Zielonkawy sznyt HUD-u */
+}
+
+/* Przycisk (widoczny tylko by wejsc w pelny ekran przed gra) */
+#start-btn {
+    margin-top: 20px;
+    padding: 15px 30px;
+    font-size: 1.5rem;
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    pointer-events: auto;
+    /* Przycisk musi byc klikalny myszka na poczatku */
+    transition: background 0.2s;
+}
+
+#start-btn:hover {
+    background-color: #dc2626;
+}
+
+/* Główne Płótno */
+#gameCanvas {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+}
+
+/* Sekcja Polecanego Sprzętu */
+.gear-section {
+    margin-top: 40px;
+    background: rgba(30, 41, 59, 0.8);
+    border-radius: 12px;
+    padding: 20px 30px;
+    max-width: 600px;
+    text-align: center;
+    border: 1px solid #334155;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+    pointer-events: auto; /* Pozwala na klikanie linków na przekór #ui-layer */
+}
+
+.gear-section h2 {
+    color: #94a3b8;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.gear-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.gear-item {
+    display: flex;
+    align-items: center;
+    background: #0f172a;
+    padding: 15px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #e2e8f0;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.gear-item:hover {
+    background: #1e293b;
+    border-color: #3b82f6;
+    transform: translateY(-2px);
+}
+
+.gear-icon {
+    font-size: 2.2rem;
+    margin-right: 20px;
+}
+
+.gear-details {
+    text-align: left;
+}
+
+.gear-details h3 {
+    color: #38bdf8;
+    margin-bottom: 5px;
+    font-size: 1.1rem;
+}
+
+.gear-details p {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}

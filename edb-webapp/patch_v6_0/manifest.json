@@ -1,0 +1,16 @@
+{
+    "short_name": "EdB Portal",
+    "name": "Edukacja dla Bezpieczeństwa - Portal",
+    "icons": [
+        {
+            "src": "/favicon/favicon.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "start_url": ".",
+    "display": "standalone",
+    "theme_color": "#c31a1a",
+    "background_color": "#0f172a"
+}

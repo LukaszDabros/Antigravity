@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wirtualna Strzelnica</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Ekran startowy przed kalibracją/grą -->
+    <div id="ui-layer">
+        <h1 id="status-text">Oczekiwanie na połączenie z kamerą...</h1>
+        <p id="score-text" style="display: none;">Punkty: <span id="score">0</span></p>
+        <button id="start-btn" style="display: none;">Rozpocznij Grę</button>
+
+        <!-- Polecany Sprzęt -->
+        <div id="recommended-gear" class="gear-section" style="display: none;">
+            <h2>Zalecany Sprzęt</h2>
+            <div class="gear-list">
+                <a href="https://pl.aliexpress.com/item/1005007444230543.html" target="_blank" class="gear-item" style="border-color: #f59e0b; background: rgba(245, 158, 11, 0.1);">
+                    <span class="gear-icon">⚡</span>
+                    <div class="gear-details">
+                        <h3 style="color: #fcd34d;">Laser Wibracyjny ASG (Plug & Play)</h3>
+                        <p>Najlepsze rozwiązanie! Emituje laser pod wpływem wibracji po strzale. Montowany na gwint lufy lub szynę – <b>nie wymaga żadnych modyfikacji w replice!</b></p>
+                    </div>
+                </a>
+                <a href="https://www.taiwangun.com/pl/karabin-szturmowy-aeg/replika-karabinka-m4-sopmod-block-3-11-5-sports-line-etu-s-t" target="_blank" class="gear-item">
+                    <span class="gear-icon">🔫</span>
+                    <div class="gear-details">
+                        <h3>Karabinek M4 SOPMOD Block 3</h3>
+                        <p>Znakomita do treningu CQB, idealna pod moduły laserowe.</p>
+                    </div>
+                </a>
+                <a href="https://www.taiwangun.com/pl/pistolet-co2/pt24-7-co2-kwc" target="_blank" class="gear-item">
+                    <span class="gear-icon">🔫</span>
+                    <div class="gear-details">
+                        <h3>Pistolet PT24/7 CO2</h3>
+                        <p>Realistyczna waga, świetny wybór do treningu strzeleckiego.</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Płótno gry -->
+    <canvas id="gameCanvas"></canvas>
+
+    <script src="game.js"></script>
+</body>
+
+</html>

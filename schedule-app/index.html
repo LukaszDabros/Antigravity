@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grafik Zajęć WF - Szkoły Prezentek</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #0b1120;
+            color: #f8fafc;
+            /* Subtle sporty background: dynamic diagonal stripes matching slightly with school theme (navy/white/blue) */
+            background-image: repeating-linear-gradient(45deg,
+                    rgba(255, 255, 255, 0.015) 0px,
+                    rgba(255, 255, 255, 0.015) 2px,
+                    transparent 2px,
+                    transparent 10px);
+        }
+
+        .glass-card {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-top: 2px solid rgba(96, 165, 250, 0.2);
+            /* Changed to blue-400 to match logo */
+        }
+
+        .gradient-text {
+            /* Adjusted to school colors (Navy to Light Blue variant that still looks sporty) */
+            background: linear-gradient(to right, #38bdf8, #2563eb);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .sporty-badge {
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
+            padding: 0.25rem 1rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #38bdf8;
+        }
+
+        .school-logo {
+            filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.3));
+            transition: transform 0.3s ease;
+        }
+
+        .school-logo:hover {
+            transform: scale(1.05) rotate(-2deg);
+        }
+    </style>
+    <script src="schedule_data.js"></script>
+</head>
+
+<body class="min-h-screen flex flex-col items-center p-4 sm:p-8 relative overflow-x-hidden">
+
+    <!-- Subtle glow effects tuned to blue/cyan -->
+    <div
+        class="absolute top-[-100px] left-[-100px] w-96 h-96 bg-cyan-500/10 rounded-full blur-[100px] pointer-events-none">
+    </div>
+    <div
+        class="absolute bottom-[-100px] right-[-100px] w-96 h-96 bg-blue-600/10 rounded-full blur-[100px] pointer-events-none">
+    </div>
+
+    <!-- Header -->
+    <header
+        class="w-full max-w-5xl flex flex-col md:flex-row justify-between items-center mb-8 gap-6 z-10 animate-fade-in">
+        <div class="flex items-center gap-5">
+            <!-- School Logo -->
+            <a href="https://szkolyprezentekkrakow.pl/" target="_blank" rel="noopener noreferrer">
+                <img src="logo.png" alt="Szkoły Prezentek Kraków" class="h-16 w-auto school-logo sm:h-20"
+                    onerror="this.onerror=null; this.src='https://szkolyprezentekkrakow.pl/wp-content/uploads/elementor/thumbs/logo_2szkoly_medium-pgfqbz1chye81rtge62bkwv5uq6f3rh3djxt2o270g.png'">
+            </a>
+
+            <div class="hidden sm:block h-12 w-px bg-slate-700/80 rounded-full"></div>
+
+            <div>
+                <h1
+                    class="text-3xl sm:text-4xl font-black gradient-text tracking-tighter uppercase italic drop-shadow-sm pr-2">
+                    Grafik WF</h1>
+                <p class="text-slate-400 mt-1 font-medium tracking-wide">Sezon 2025/2026</p>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div
+            class="glass-card p-3 sm:p-4 rounded-2xl flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto shadow-2xl">
+            <div class="flex items-center gap-3">
+                <button id="prevWeekBtn"
+                    class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 hover:text-cyan-400 transition-colors text-slate-300 border border-slate-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
+                        </path>
+                    </svg>
+                </button>
+                <div class="flex flex-col items-center min-w-[150px]">
+                    <span id="weekInfoLabel"
+                        class="text-xs font-bold text-cyan-400 uppercase tracking-widest sporty-badge bg-cyan-500/10 mb-1 inline-block border border-cyan-500/20">Tydzień
+                        A</span>
+                    <span id="dateRangeLabel" class="text-sm text-slate-300 font-semibold tracking-wide">02.03 -
+                        06.03</span>
+                </div>
+                <button id="nextWeekBtn"
+                    class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 hover:text-cyan-400 transition-colors text-slate-300 border border-slate-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="h-8 w-px bg-slate-700 hidden sm:block"></div>
+            <div
+                class="flex items-center w-full sm:w-auto overflow-hidden rounded-xl border border-slate-700 bg-slate-800/50 p-1 hover:border-cyan-500/50 transition-colors">
+                <input type="date" id="dateSelector"
+                    class="w-full bg-transparent text-slate-200 px-3 py-1 font-medium focus:outline-none focus:text-cyan-400 transition-colors cursor-pointer">
+            </div>
+        </div>
+    </header>
+
+    <!-- Days Navigation -->
+    <nav class="w-full max-w-5xl flex overflow-x-auto gap-3 mb-8 pb-3 snap-x z-10" id="daysNav">
+        <!-- Populated by JS -->
+    </nav>
+
+    <!-- Schedule Content -->
+    <main class="w-full max-w-5xl z-10" id="scheduleContainer">
+        <!-- Populated by JS -->
+    </main>
+
+    <script>
+        const daysENtoPL = {
+            'monday': 'Poniedziałek', 'tuesday': 'Wtorek', 'wednesday': 'Środa', 'thursday': 'Czwartek', 'friday': 'Piątek'
+        };
+
+        const BASE_DATE = new Date('2026-03-02T00:00:00');
+        let currentDate = new Date();
+        if (currentDate.getDay() === 0) {
+            currentDate.setDate(currentDate.getDate() + 1);
+        } else if (currentDate.getDay() === 6) {
+            currentDate.setDate(currentDate.getDate() + 2);
+        }
+        let activeDay = 'monday';
+
+        const prevWeekBtn = document.getElementById('prevWeekBtn');
+        const nextWeekBtn = document.getElementById('nextWeekBtn');
+        const dateSelector = document.getElementById('dateSelector');
+        const weekInfoLabel = document.getElementById('weekInfoLabel');
+        const dateRangeLabel = document.getElementById('dateRangeLabel');
+        const daysNav = document.getElementById('daysNav');
+        const scheduleContainer = document.getElementById('scheduleContainer');
+
+        function getMonday(d) {
+            d = new Date(d);
+            var day = d.getDay(), diff = d.getDate() - day + (day == 0 ? -6 : 1);
+            return new Date(d.setDate(diff));
+        }
+
+        function updateState() {
+            const currentMonday = getMonday(currentDate);
+            const baseMonday = getMonday(BASE_DATE);
+            const diffTime = currentMonday - baseMonday;
+            const diffWeeks = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7));
+
+            const weekIndex2 = ((diffWeeks % 2) + 2) % 2;
+            const weekIndex3 = ((diffWeeks % 3) + 3) % 3;
+
+            const friday = new Date(currentMonday);
+            friday.setDate(friday.getDate() + 4);
+            const formatDt = (dt) => dt.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' });
+            dateRangeLabel.textContent = `${formatDt(currentMonday)} - ${formatDt(friday)}`;
+
+            weekInfoLabel.textContent = `2T: ${weekIndex2 + 1}  •  3T: ${weekIndex3 + 1}`;
+
+            // Fix timezone issue when setting the date selector value
+            const year = currentDate.getFullYear();
+            const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+            const day = String(currentDate.getDate()).padStart(2, '0');
+            dateSelector.value = `${year}-${month}-${day}`;
+
+            const dayOfWeek = currentDate.getDay();
+            const daysArray = Object.keys(scheduleData);
+            activeDay = (dayOfWeek >= 1 && dayOfWeek <= 5) ? daysArray[dayOfWeek - 1] : 'monday';
+
+            renderTabs();
+            renderSchedule(weekIndex2, weekIndex3);
+        }
+
+        function renderTabs() {
+            daysNav.innerHTML = '';
+            Object.keys(scheduleData).forEach(day => {
+                const isActive = day === activeDay;
+                const btn = document.createElement('button');
+                // Cyan/Blue theme for active tab
+                btn.className = `snap-start whitespace-nowrap px-6 py-3 rounded-xl font-bold uppercase text-sm tracking-wide transition-all duration-300 border-b-2 ${isActive ? 'bg-slate-800 border-cyan-400 text-cyan-400 shadow-[0_4px_20px_-4px_rgba(34,211,238,0.2)]' : 'bg-transparent border-transparent text-slate-500 hover:text-slate-300 hover:bg-slate-800/50'}`;
+                btn.textContent = daysENtoPL[day];
+                btn.onclick = () => {
+                    const currentMonday = getMonday(currentDate);
+                    const dayOffset = Object.keys(scheduleData).indexOf(day);
+                    currentDate = new Date(currentMonday);
+                    currentDate.setDate(currentMonday.getDate() + dayOffset);
+                    updateState();
+                };
+                daysNav.appendChild(btn);
+            });
+        }
+
+        function renderSchedule(w2, w3) {
+            scheduleContainer.innerHTML = '';
+            const dayData = scheduleData[activeDay] || [];
+
+            if (dayData.length === 0) {
+                scheduleContainer.innerHTML = '<div class="glass-card rounded-2xl text-center text-slate-500 py-16 font-medium text-lg italic">Brak zaplanowanych treningów</div>';
+                return;
+            }
+
+            const grid = document.createElement('div');
+            grid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
+
+            dayData.forEach(lessonObj => {
+                const card = document.createElement('div');
+                card.className = 'glass-card rounded-2xl rounded-tr-[2rem] p-6 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(56,189,248,0.15)] transition-all duration-300';
+
+                const header = document.createElement('div');
+                header.className = 'flex items-center gap-3 mb-5 pb-4 border-b border-slate-700/50';
+                header.innerHTML = `
+          <div class="bg-blue-500/10 text-blue-400 p-2.5 rounded-xl border border-blue-500/20 shadow-inner">
+             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6l3 3"/>
+             </svg>
+          </div>
+          <h2 class="text-2xl font-black text-white italic tracking-tight">LEKCJA ${lessonObj.lesson.replace('l.', '').trim()}</h2>
+        `;
+                card.appendChild(header);
+
+                const list = document.createElement('div');
+                list.className = 'space-y-4';
+
+                lessonObj.teachers.forEach((t, index) => {
+                    let groupText = t.groups.length === 1 ? t.groups[0] :
+                        (t.groups.length === 2 ? (t.groups[w2] || t.groups[0]) :
+                            (t.groups[w3] || t.groups[0]));
+                    if (!groupText) return;
+
+                    const tItem = document.createElement('div');
+
+                    // Alternating strong background colors based on index matching school theme
+                    const bgClass = index % 2 === 0 ? 'bg-blue-900/40 shadow-sm' : 'bg-[rgba(108,33,110,0.6)]';
+
+                    tItem.className = `${bgClass} rounded-xl rounded-l-none pl-4 pr-3 py-3 border ${index % 2 === 0 ? 'border-blue-500/30 border-l-cyan-500 hover:border-l-cyan-300 hover:bg-slate-800' : 'border-purple-600/30 border-l-purple-500 hover:border-l-pink-400 hover:bg-[rgba(108,33,110,0.8)]'} border-l-4 transition-all relative group overflow-hidden`;
+
+                    tItem.innerHTML = `
+            <div class="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-cyan-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">${t.teacher}</span>
+            </div>
+            <div class="text-base font-semibold text-white group-hover:text-cyan-300 transition-colors">
+              ${groupText}
+            </div>
+          `;
+                    list.appendChild(tItem);
+                });
+
+                card.appendChild(list);
+                grid.appendChild(card);
+            });
+
+            scheduleContainer.appendChild(grid);
+        }
+
+        prevWeekBtn.addEventListener('click', () => { currentDate.setDate(currentDate.getDate() - 7); updateState(); });
+        nextWeekBtn.addEventListener('click', () => { currentDate.setDate(currentDate.getDate() + 7); updateState(); });
+        dateSelector.addEventListener('change', (e) => { if (e.target.value) { currentDate = new Date(e.target.value); updateState(); } });
+
+        updateState();
+    </script>
+</body>
+
+</html>

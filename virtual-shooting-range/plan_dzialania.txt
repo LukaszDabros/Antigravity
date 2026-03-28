@@ -1,0 +1,40 @@
+===================================================================
+PODSUMOWANIE PROJEKTU I PLAN ROZWOJU - WIRTUALNA STRZELNICA V1.0
+===================================================================
+
+[1] CO JUŻ MAMY (MVP)
+-------------------------------------------------------------------
+1. Silnik Detekcji (Python / OpenCV) - laser_tracker.py
+   - System kalibracji "4-punktowej" z wykorzystaniem macierzy homografii.
+   - Wykrywanie światła lasera z wykorzystaniem filtrowania jasności (ponad 240/255).
+   - Asynchroniczny serwer WebSocket przesyłający logi o strzałach w czasie rzeczywistym.
+
+2. Platforma Gier (HTML / JavaScript) - folder web_app/
+   - Interfejs przygotowany pod rzutnik z ciemnym motywem.
+   - Odbiór danych z WebSocketu i renderowanie "śladów po kulach" na płótnie Canvas.
+   - Prosta mechanika gry licząca trafienia/pudła (matematyka oparta na dystansie euklidesowym).
+
+3. Dokumentacja (README.md)
+   - Udokumentowany wybór kamer na szybkich przetwornikach (np. PS3 Eye).
+   - Wybrany system Plug & Play - zastosowanie wibracyjnych wektorów laserowych mocowanych do luf na replikach, co eliminuje konieczność lutowania elektroniki.
+
+===================================================================
+[2] PLAN DZIAŁANIA NA DALSZE ETAPY (ETAPY 2 - 4)
+-------------------------------------------------------------------
+
+ETAP 2: Mechanika Kalibracji i Poprawa "UX" (User Experience)
+- Automatyczna kalibracja ekranu (ArUco / QR Code): Wyświetlanie znaczników na ekranie aplikacji HTML tak, aby Python odnalazł rogi ekranu w kadrze kamery i nagiął obraz macierzą, bez ręcznego strzelania w rogi po uruchomieniu.
+- Szybki Reset i Nawigacja: Dodanie interaktywnych elementów UI (przycisków na ekranie rzutnika), po strzeleniu w które menu obsługiwane jest laserowo (zamiast powrotu do stanowiska z myszką).
+- Oprawa Audio (SFX): Dźwięki do strzałów i trafień - np. "BING" po trafieniu w cel metalowy, oraz odliczanie do końca rundy.
+
+ETAP 3: Rozbudowa Silnika Gry (HTML5)
+- Menu Główne: System nawigacji pomiędzy różnymi grami treningowymi.
+- Tryby Czasowe (Time Attack / IPSC): Ograniczenie gier czasem (np. zebranie najwyższego wyniku w 60 sekund).
+- Tryb Reflex (Pamięć Mięśniowa): Tarcze pojawiające się w losowych miejscach na ułamki sekund.
+- Cele Ruchome (Dynamic Track): Cele przelatujące z jednej strony na drugą po wyznaczonych wektorach wymuszające na graczu śledzenie lufą (strzelanie z wyprzedzeniem).
+- Cele "Shoot / No-Shoot": Elementy w innym kolorze (np. cywil/zakładnik), za trafienie których odejmowane są punkty. Niezbędne rozwiązanie dla treningu podejmowania decyzji pod presją.
+
+ETAP 4: Tablica Wyników (Leaderboards) i Personalizacja
+- Rankingi (Top Scores API/Local Storage): Zapisywanie do pamięci przeglądarki najlepszych wyników i czasów by budować rywalizacyjną atmosferę lokalną.
+- Ustawianie Poziomów trudności: Suwaki i przyciski do sterowania rozmiarem i marginesem tolerancji kul oraz rodzajem tarczy (Francuz, Torse, Kółka precyzyjne).
+===================================================================
