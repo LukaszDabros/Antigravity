@@ -9,14 +9,16 @@ const dCtx = detectionCanvas.getContext('2d', { willReadFrequently: true });
 const uiCtx = uiCanvas.getContext('2d');
 const shotSound = document.getElementById('shot-sound');
 
-const avgValEl = document.getElementById('avg-val');
 const scoreEl = document.getElementById('score-val');
-const maxValEl = document.getElementById('max-val');
+const avgValEl = document.getElementById('avg-val');
+const modeValEl = document.getElementById('mode-val');
 const lastValEl = document.getElementById('last-val');
+const sessionCountdown = document.getElementById('session-countdown');
+const resultModal = document.getElementById('result-modal');
+const resScoreEl = document.getElementById('res-score');
+const resShotsEl = document.getElementById('res-shots');
+const resAvgEl = document.getElementById('res-avg');
 const calibrationOverlay = document.getElementById('calibration-overlay');
-const dots = document.querySelectorAll('.dot');
-const zoomInBtn = document.getElementById('zoom-in');
-const zoomOutBtn = document.getElementById('zoom-out');
 
 // Stan aplikacji
 let state = {
@@ -25,14 +27,22 @@ let state = {
     corners: [], // [tl, tr, br, bl]
     score: 0,
     shots: 0,
-    maxScore: 0,
-    avgScore: 0,
+    sessionShots: 0,
+    sessionScore: 0,
     isArmed: true, 
     threshold: 230,
     lastShotTime: 0,
     zoom: 1.0,
+    
+    // Sesje
+    mode: 'FREE', // FREE, PRECISION, SPEED
+    sessionState: 'IDLE', // IDLE, COUNTDOWN, ACTIVE
+    timeLeft: 0,
+    
+    // Drag & Drop
     isDragging: false,
-    dragIndex: -1
+    dragIndex: -1,
+    dragOffset: { x: 0, y: 0 }
 };
 
 // Ładowanie ustawień
@@ -52,40 +62,31 @@ function loadSettings() {
     }
 }
 
-// 1. Inicjalizacja kamery
+// 1. Inicjalizacja kamery i Zoomu
 async function initCamera() {
     loadSettings();
     try {
         const stream = await navigator.mediaDevices.getUserMedia({
-            video: {
-                facingMode: 'environment',
-                width: { ideal: 1280 },
-                height: { ideal: 720 }
-            }
+            video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
         });
         video.srcObject = stream;
-        
         video.onloadedmetadata = () => {
             uiCanvas.width = video.videoWidth;
             uiCanvas.height = video.videoHeight;
             detectionCanvas.width = video.videoWidth / 4;
             detectionCanvas.height = video.videoHeight / 4;
-            
             requestAnimationFrame(detectionLoop);
         };
-    } catch (err) {
-        console.error("Camera error:", err);
-    }
+    } catch (err) { console.error(err); }
 }
 
-// Zoom
 function applyZoom() {
     video.style.transform = `scale(${state.zoom})`;
     localStorage.setItem('laser_range_zoom', state.zoom);
 }
 
-zoomInBtn.onclick = () => { state.zoom += 0.2; applyZoom(); };
-zoomOutBtn.onclick = () => { if(state.zoom > 1) state.zoom -= 0.2; applyZoom(); };
+document.getElementById('zoom-in').onclick = () => { state.zoom += 0.2; applyZoom(); };
+document.getElementById('zoom-out').onclick = () => { if(state.zoom > 1) state.zoom -= 0.2; applyZoom(); };
 
 // 2. Detekcja
 function detectionLoop() {
@@ -93,11 +94,10 @@ function detectionLoop() {
     const data = dCtx.getImageData(0, 0, detectionCanvas.width, detectionCanvas.height).data;
     
     let brightestX = -1, brightestY = -1, maxBrightness = 0;
-
     for (let i = 0; i < data.length; i += 4) {
-        const brightness = (data[i] + data[i+1] + data[i+2]) / 3;
-        if (brightness > state.threshold && brightness > maxBrightness) {
-            maxBrightness = brightness;
+        const b = (data[i] + data[i+1] + data[i+2]) / 3;
+        if (b > state.threshold && b > maxBrightness) {
+            maxBrightness = b;
             brightestX = (i / 4) % detectionCanvas.width;
             brightestY = Math.floor((i / 4) / detectionCanvas.width);
         }
@@ -134,26 +134,94 @@ function calculateScore(x, y) {
     return 0;
 }
 
+// 3. Punktacja i Sesje
 function processShot(x, y) {
     if (Date.now() - state.lastShotTime < 400) return;
+    
+    // Jeśli sesja jest aktywna, sprawdzamy warunki
+    if (state.sessionState !== 'ACTIVE' && state.mode !== 'FREE') return;
 
     const points = calculateScore(x, y);
     if (points === 0) return;
 
     state.shots++;
     state.score += points;
-    if (points > state.maxScore) state.maxScore = points;
-    state.avgScore = (state.score / state.shots).toFixed(1);
-
-    scoreEl.innerText = state.score;
-    avgValEl.innerText = state.avgScore;
-    maxValEl.innerText = state.maxScore;
-    lastValEl.innerText = points;
     
+    // Statystyki sesji
+    state.sessionShots++;
+    state.sessionScore += points;
+
+    updateUI();
     shotSound.currentTime = 0;
     shotSound.play().catch(() => {});
     drawHit(x, y);
+    state.lastShotTime = Date.now();
+
+    // Koniec sesji "Precyzja"
+    if (state.mode === 'PRECISION' && state.sessionShots >= 10) {
+        endSession();
+    }
 }
+
+function updateUI() {
+    scoreEl.innerText = state.score;
+    avgValEl.innerText = state.shots > 0 ? (state.score / state.shots).toFixed(1) : "0.0";
+    modeValEl.innerText = state.mode;
+}
+
+// Tryby treningowe
+document.getElementById('mode-toggle').onclick = () => {
+    const modes = ['FREE', 'PRECISION', 'SPEED'];
+    let idx = modes.indexOf(state.mode);
+    state.mode = modes[(idx + 1) % modes.length];
+    updateUI();
+};
+
+document.getElementById('start-session-btn').onclick = startSession;
+
+function startSession() {
+    if (state.isCalibrating) return alert("Najpierw skalibruj tarczę!");
+    
+    state.sessionState = 'COUNTDOWN';
+    state.sessionScore = 0;
+    state.sessionShots = 0;
+    uiCtx.clearRect(0, 0, uiCanvas.width, uiCanvas.height); // Czyścimy stare ślady
+    drawTarget();
+    
+    let count = 3;
+    sessionCountdown.classList.add('active');
+    const timer = setInterval(() => {
+        sessionCountdown.querySelector('.huge-text').innerText = count > 0 ? count : "START!";
+        if (count === 0) {
+            clearInterval(timer);
+            state.sessionState = 'ACTIVE';
+            setTimeout(() => { sessionCountdown.classList.remove('active'); }, 500);
+            if (state.mode === 'SPEED') startSpeedTimer();
+        }
+        count--;
+    }, 1000);
+}
+
+function startSpeedTimer() {
+    state.timeLeft = 30;
+    const timer = setInterval(() => {
+        state.timeLeft--;
+        if (state.timeLeft <= 0 || state.sessionState !== 'ACTIVE') {
+            clearInterval(timer);
+            if (state.sessionState === 'ACTIVE') endSession();
+        }
+    }, 1000);
+}
+
+function endSession() {
+    state.sessionState = 'IDLE';
+    resScoreEl.innerText = state.sessionScore;
+    resShotsEl.innerText = state.sessionShots;
+    resAvgEl.innerText = state.sessionShots > 0 ? (state.sessionScore / state.sessionShots).toFixed(1) : "0.0";
+    resultModal.classList.add('active');
+}
+
+document.getElementById('close-result').onclick = () => resultModal.classList.remove('active');
 
 function drawTarget() {
     if (state.corners.length < 4) return;
@@ -190,51 +258,55 @@ function drawHit(x, y) {
     uiCtx.fill();
 }
 
-// 4. Kalibracja i Drag & Drop
-window.addEventListener('mousedown', startDrag);
-window.addEventListener('touchstart', (e) => startDrag(e.touches[0]));
-window.addEventListener('mousemove', doDrag);
-window.addEventListener('touchmove', (e) => { e.preventDefault(); doDrag(e.touches[0]); }, {passive: false});
-window.addEventListener('mouseup', stopDrag);
-window.addEventListener('touchend', stopDrag);
+// 4. Drag & Drop (Poprawione dla Motorola G85 - contain fit)
+function getMousePos(e) {
+    const rect = video.getBoundingClientRect();
+    
+    // Logika dla object-fit: contain
+    const videoRatio = video.videoWidth / video.videoHeight;
+    const containerRatio = rect.width / rect.height;
+    
+    let actualWidth, actualHeight, offsetX = 0, offsetY = 0;
+    
+    if (containerRatio > videoRatio) {
+        actualHeight = rect.height;
+        actualWidth = actualHeight * videoRatio;
+        offsetX = (rect.width - actualWidth) / 2;
+    } else {
+        actualWidth = rect.width;
+        actualHeight = actualWidth / videoRatio;
+        offsetY = (rect.height - actualHeight) / 2;
+    }
+
+    const x = ((e.clientX - rect.left - offsetX) / actualWidth) * uiCanvas.width;
+    const y = ((e.clientY - rect.top - offsetY) / actualHeight) * uiCanvas.height;
+    
+    return { x, y };
+}
 
 function startDrag(e) {
     if (state.isCalibrating) {
-        handleFirstCalibration(e);
+        const pos = getMousePos(e);
+        state.corners.push(pos);
+        if (state.corners.length === 4) finishCalibration();
         return;
     }
     
-    const rect = uiCanvas.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * uiCanvas.width;
-    const y = ((e.clientY - rect.top) / rect.height) * uiCanvas.height;
-
+    const pos = getMousePos(e);
     state.corners.forEach((p, i) => {
-        const dist = Math.sqrt(Math.pow(x - p.x, 2) + Math.pow(y - p.y, 2));
-        if (dist < 50) { 
+        const d = Math.sqrt(Math.pow(pos.x - p.x, 2) + Math.pow(pos.y - p.y, 2));
+        if (d < 60) {
             state.isDragging = true;
             state.dragIndex = i;
+            state.dragOffset = { x: pos.x - p.x, y: pos.y - p.y };
         }
     });
 }
 
-function handleFirstCalibration(e) {
-    const rect = uiCanvas.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * uiCanvas.width;
-    const y = ((e.clientY - rect.top) / rect.height) * uiCanvas.height;
-
-    state.corners.push({x, y});
-    dots[state.calibrationStep].classList.add('active');
-    state.calibrationStep++;
-    if (state.calibrationStep === 4) finishCalibration();
-}
-
 function doDrag(e) {
     if (!state.isDragging) return;
-    const rect = uiCanvas.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * uiCanvas.width;
-    const y = ((e.clientY - rect.top) / rect.height) * uiCanvas.height;
-
-    state.corners[state.dragIndex] = {x, y};
+    const pos = getMousePos(e);
+    state.corners[state.dragIndex] = { x: pos.x - state.dragOffset.x, y: pos.y - state.dragOffset.y };
     updateHandles();
     drawTarget();
 }
@@ -275,5 +347,13 @@ document.getElementById('calibrate-btn').onclick = () => {
     calibrationOverlay.classList.add('active');
     updateHandles();
 };
+
+// Event Listeners
+window.addEventListener('mousedown', startDrag);
+window.addEventListener('touchstart', (e) => startDrag(e.touches[0]));
+window.addEventListener('mousemove', doDrag);
+window.addEventListener('touchmove', (e) => { e.preventDefault(); doDrag(e.touches[0]); }, {passive: false});
+window.addEventListener('mouseup', stopDrag);
+window.addEventListener('touchend', stopDrag);
 
 initCamera();

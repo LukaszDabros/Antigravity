@@ -17,44 +17,53 @@
         </div>
 
         <!-- Nakładka UI (HUD) -->
-        <div id="hud">
-            <div class="top-bar">
+        <div id="hud" class="flex-column">
+            <div class="top-bar flex-row">
                 <div class="stat-box">
-                    <span class="label">ŚREDNIA</span>
-                    <span id="avg-val" class="value">0.0</span>
+                    <span class="label">TRYB</span>
+                    <span id="mode-val" class="value small">FREE</span>
                 </div>
                 <div class="stat-box">
                     <span class="label">PUNKTY</span>
                     <span id="score-val" class="value">0</span>
                 </div>
                 <div class="stat-box">
-                    <span class="label">MAX</span>
-                    <span id="max-val" class="value">0</span>
+                    <span class="label">ŚREDNIA</span>
+                    <span id="avg-val" class="value">0.0</span>
                 </div>
             </div>
 
-            <!-- Sterowanie Zoomem -->
-            <div class="zoom-controls">
-                <button id="zoom-in" class="zoom-btn">+</button>
-                <button id="zoom-out" class="zoom-btn">-</button>
+            <!-- Odliczanie (Sesje) -->
+            <div id="session-countdown" class="overlay">
+                <div class="huge-text">READY?</div>
             </div>
 
-            <div id="calibration-overlay" class="overlay active">
-                <div class="overlay-content">
-                    <h1>KALIBRACJA</h1>
-                    <p>Wskaż 4 rogi tarczy na ścianie (zaczynając od LG zgodnie z zegarem)</p>
-                    <div class="progress-dots">
-                        <span class="dot active"></span>
-                        <span class="dot"></span>
-                        <span class="dot"></span>
-                        <span class="dot"></span>
+            <!-- Podsumowanie Wyników -->
+            <div id="result-modal" class="overlay">
+                <div class="overlay-content result-card">
+                    <h2>SESJA ZAKOŃCZONA</h2>
+                    <div class="result-stats">
+                        <div class="res-item"><span class="res-label">WYNIK:</span> <span id="res-score" class="res-value">0</span></div>
+                        <div class="res-item"><span class="res-label">STRZAŁY:</span> <span id="res-shots" class="res-value">0</span></div>
+                        <div class="res-item"><span class="res-label">ŚREDNIA:</span> <span id="res-avg" class="res-value">0.0</span></div>
                     </div>
+                    <button id="close-result" class="glass-btn primary">ZAMKNIJ</button>
                 </div>
             </div>
 
-            <div class="controls">
+            <!-- Sterowanie Zoomem i Trybami -->
+            <div class="side-controls flex-column">
+                <div class="zoom-controls">
+                    <button id="zoom-in" class="zoom-btn">+</button>
+                    <button id="zoom-out" class="zoom-btn">-</button>
+                </div>
+                <button id="mode-toggle" class="mode-btn">Zmień Tryb</button>
+            </div>
+
+            <div class="controls flex-row">
                 <button id="reset-btn" class="glass-btn">RESET</button>
-                <button id="calibrate-btn" class="glass-btn primary">KALIBRACJA</button>
+                <button id="start-session-btn" class="glass-btn primary big-btn">START SESJA</button>
+                <button id="calibrate-btn" class="glass-btn">KALIBRACJA</button>
             </div>
             
             <div id="last-shot-box">
