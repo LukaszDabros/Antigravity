@@ -133,19 +133,77 @@ body, html {
     text-transform: uppercase;
 }
 
+/* Nakładki (Overlays) */
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 5; /* Poniżej przycisków HUD (10), ale powyżej wideo (1) */
+    pointer-events: auto;
+}
+
+.overlay.active {
+    display: flex;
+}
+
+.overlay-content {
+    text-align: center;
+    padding: 30px;
+    border-radius: 20px;
+    background: var(--glass-bg);
+    border: 2px solid var(--neon-blue);
+    box-shadow: 0 0 30px rgba(0, 243, 255, 0.3);
+    pointer-events: auto;
+    width: 90%;
+    max-width: 500px;
+}
+
 /* Odliczanie */
 .huge-text {
-    font-size: 8rem;
+    font-size: 12vw; /* Bezpieczniejsze skalowanie dla wąskich ekranów */
     font-weight: 900;
     color: var(--neon-blue);
     text-shadow: 0 0 30px var(--neon-blue);
     animation: zoomPulse 1s infinite;
+    white-space: nowrap;
 }
 
 @keyframes zoomPulse {
     0% { transform: scale(0.8); opacity: 0.5; }
     50% { transform: scale(1.1); opacity: 1; }
     100% { transform: scale(0.8); opacity: 0.5; }
+}
+
+/* Przycisk szklany */
+.glass-btn {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: white;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    flex: 1;
+    backdrop-filter: blur(10px);
+    transition: 0.2s;
+    pointer-events: auto;
+}
+
+.glass-btn.primary {
+    border-color: var(--neon-blue);
+    color: var(--neon-blue);
+}
+
+.glass-btn:active {
+    transform: scale(0.95);
+    background: rgba(255, 255, 255, 0.1);
 }
 
 /* Karta wyników */

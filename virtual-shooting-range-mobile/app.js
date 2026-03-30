@@ -288,6 +288,11 @@ function startDrag(e) {
     if (state.isCalibrating) {
         const pos = getMousePos(e);
         state.corners.push(pos);
+        
+        // Aktualizacja kropek
+        const dots = document.querySelectorAll('.dot');
+        if (dots[state.corners.length - 1]) dots[state.corners.length - 1].classList.add('active');
+        
         if (state.corners.length === 4) finishCalibration();
         return;
     }
