@@ -22,7 +22,7 @@ const calibrationOverlay = document.getElementById('calibration-overlay');
 
 // Stan aplikacji
 let state = {
-    isCalibrating: true,
+    isCalibrating: false,
     calibrationStep: 0,
     corners: [], // [tl, tr, br, bl]
     isArmed: true, 
@@ -39,40 +39,65 @@ let state = {
         { name: "Gracz 5", score: 0, shots: 0, hits: [] }
     ],
     activePlayer: 0,
+    isMultiplayer: true,
     
     // Sesje
     mode: 'FREE', // FREE, PRECISION, SPEED
     sessionState: 'IDLE', // IDLE, COUNTDOWN, ACTIVE
     timeLeft: 0,
     
-    // Drag & Drop
+    // Drag & Drop / Editing
     isEditing: false,
     isDragging: false,
     dragIndex: -1,
     dragOffset: { x: 0, y: 0 }
 };
 
+// Selektory pomocnicze
+const settingsModal = document.getElementById('settings-modal');
+const namesInputs = document.querySelectorAll('.name-input');
+const playersList = document.getElementById('players-list');
+
 // Ładowanie ustawień
 function loadSettings() {
     const saved = localStorage.getItem('laser_range_calib');
     const savedZoom = localStorage.getItem('laser_range_zoom');
     const savedPlayers = localStorage.getItem('laser_range_players');
+    const savedMulti = localStorage.getItem('laser_range_multi');
     
     if (saved) {
         state.corners = JSON.parse(saved);
-        state.isCalibrating = false;
-        calibrationOverlay.classList.remove('active');
         updateHandles();
         setTimeout(drawTarget, 500);
+    } else {
+        startCalibration();
     }
+    
     if (savedZoom) {
         state.zoom = parseFloat(savedZoom);
         applyZoom();
     }
+    
     if (savedPlayers) {
         state.players = JSON.parse(savedPlayers);
-        updatePlayerButtons();
     }
+    
+    if (savedMulti !== null) {
+        state.isMultiplayer = savedMulti === 'true';
+    }
+
+    updatePlayerButtons();
+    syncSettingsUI();
+}
+
+function syncSettingsUI() {
+    namesInputs.forEach((input, i) => {
+        input.value = state.players[i].name;
+    });
+    
+    document.getElementById('solo-mode-btn').classList.toggle('active', !state.isMultiplayer);
+    document.getElementById('multi-mode-btn').classList.toggle('active', state.isMultiplayer);
+    playersList.style.display = state.isMultiplayer ? 'flex' : 'none';
 }
 
 // 1. Inicjalizacja kamery i Zoomu
@@ -147,30 +172,21 @@ function calculateScore(x, y) {
     return 0;
 }
 
-// 3. Zarządzanie Graczami
+// 3. Zarządzanie Graczami i Ustawienia
 function updatePlayerButtons() {
     const btns = document.querySelectorAll('.player-btn');
     btns.forEach((btn, i) => {
+        if (!state.players[i]) return;
         const p = state.players[i];
-        // Inicjał z imienia (np. "Adam" -> "1. A")
         const initial = p.name ? p.name.charAt(0).toUpperCase() : '?';
         btn.innerText = `${i+1}. ${initial}`;
         btn.classList.toggle('active', i === state.activePlayer);
-        
-        // Zdarzenia dla przycisków graczy
         btn.onclick = () => switchPlayer(i);
-        
-        // Długie naciśnięcie dla edycji imienia
-        let timer;
-        btn.onmousedown = btn.ontouchstart = () => {
-            timer = setTimeout(() => editPlayerName(i), 800);
-        };
-        btn.onmouseup = btn.ontouchend = () => clearTimeout(timer);
     });
 }
 
 function switchPlayer(index) {
-    if (state.sessionState === 'ACTIVE') return alert("Zakończ sesję przed zmianą gracza!");
+    if (state.sessionState === 'ACTIVE') return;
     state.activePlayer = index;
     updatePlayerButtons();
     updateUI();
@@ -178,14 +194,39 @@ function switchPlayer(index) {
     if(navigator.vibrate) navigator.vibrate(20);
 }
 
-function editPlayerName(index) {
-    const newName = prompt("Wpisz imię zawodnika:", state.players[index].name);
-    if (newName && newName.trim().length > 0) {
-        state.players[index].name = newName.trim();
+// Obsługa Menu
+document.getElementById('settings-open-btn').onclick = () => {
+    settingsModal.classList.add('active');
+    if(navigator.vibrate) navigator.vibrate(20);
+};
+
+document.getElementById('settings-close-btn').onclick = () => {
+    settingsModal.classList.remove('active');
+    if(navigator.vibrate) navigator.vibrate(20);
+};
+
+// Edycja imion w menu
+namesInputs.forEach((input, i) => {
+    input.oninput = () => {
+        state.players[i].name = input.value || `Gracz ${i+1}`;
         localStorage.setItem('laser_range_players', JSON.stringify(state.players));
         updatePlayerButtons();
-    }
-}
+    };
+});
+
+// Solo vs Multi
+document.getElementById('solo-mode-btn').onclick = () => {
+    state.isMultiplayer = false;
+    localStorage.setItem('laser_range_multi', 'false');
+    syncSettingsUI();
+    switchPlayer(0);
+};
+
+document.getElementById('multi-mode-btn').onclick = () => {
+    state.isMultiplayer = true;
+    localStorage.setItem('laser_range_multi', 'true');
+    syncSettingsUI();
+};
 
 // 4. Punktacja i Sesje
 function processShot(x, y) {
@@ -229,7 +270,7 @@ document.getElementById('mode-selector').onclick = () => {
 };
 
 document.getElementById('reset-session-btn').onclick = () => {
-    if (confirm("Wyczyścić tarcze i wyniki tylko dla tego gracza?")) {
+    if (confirm("Wyczyścić wyniki aktualnego gracza?")) {
         const p = state.players[state.activePlayer];
         p.score = 0;
         p.shots = 0;
@@ -436,44 +477,35 @@ function updateHandles() {
     });
 }
 
+function startCalibration() {
+    state.isCalibrating = true;
+    state.corners = [];
+    document.getElementById('calibration-overlay').classList.add('active');
+    settingsModal.classList.remove('active');
+}
+
 function finishCalibration() {
     state.isCalibrating = false;
-    state.isEditing = false;
-    calibrationOverlay.classList.remove('active');
-    localStorage.setItem('laser_range_calib', JSON.stringify(state.corners));
+    document.getElementById('calibration-overlay').classList.remove('active');
     updateHandles();
     drawTarget();
 }
 
-document.getElementById('reset-btn').onclick = () => { 
-    if (confirm("Czy na pewno chcesz zresetować wszystkie ustawienia i kalibrację?")) {
-        localStorage.clear(); 
-        location.reload(); 
+document.getElementById('full-reset-btn').onclick = () => {
+    if (confirm("UWAGA: To wyczyści kalibrację i WSZYSTKIE wyniki! Kontynuować?")) {
+        localStorage.clear();
+        location.reload();
     }
 };
 
 document.getElementById('calibrate-btn').onclick = () => {
-    if(navigator.vibrate) navigator.vibrate(20);
-    state.isEditing = !state.isEditing;
-    const btn = document.getElementById('calibrate-btn');
-    if (state.isEditing) {
-        btn.classList.add('editing');
-        btn.innerText = "ZAKOŃCZ";
-    } else {
-        btn.classList.remove('editing');
-        btn.innerText = "KALIBRACJA";
-    }
-    updateHandles();
+    startCalibration();
 };
 
-// Event Listeners
-window.addEventListener('mousedown', startDrag);
-window.addEventListener('touchstart', (e) => startDrag(e.touches[0]));
-window.addEventListener('mousemove', doDrag);
-window.addEventListener('touchmove', (e) => { e.preventDefault(); doDrag(e.touches[0]); }, {passive: false});
-window.addEventListener('mouseup', stopDrag);
-window.addEventListener('touchend', stopDrag);
+document.getElementById('close-result').onclick = () => {
+    resultModal.classList.remove('active');
+    if(navigator.vibrate) navigator.vibrate(20);
+};
 
-// Inicjalizacja przycisków na starcie
 updatePlayerButtons();
 initCamera();

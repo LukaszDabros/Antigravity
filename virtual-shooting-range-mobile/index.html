@@ -16,83 +16,112 @@
             <canvas id="ui-canvas"></canvas>
         </div>
 
-        <!-- Nakładka UI (HUD) -->
+        <!-- HUD -->
         <div id="hud" class="flex-column">
-            <!-- Pasek Graczy -->
-            <div id="players-bar" class="flex-row">
-                <button class="player-btn active" data-id="0">1. P</button>
-                <button class="player-btn" data-id="1">2. P</button>
-                <button class="player-btn" data-id="2">3. P</button>
-                <button class="player-btn" data-id="3">4. P</button>
-                <button class="player-btn" data-id="4">5. P</button>
-            </div>
-
-            <div class="top-bar flex-row">
-                <div class="stat-box" id="mode-selector">
-                    <span class="label">TRYB</span>
-                    <span id="mode-val" class="value small">FREE</span>
-                </div>
-                <div class="stat-box">
-                    <span class="label">PUNKTY</span>
-                    <div class="flex-row stat-row">
-                        <span id="score-val" class="value">0</span>
-                        <button id="reset-session-btn" title="Resetuj wyniki gracza">🗑️</button>
-                    </div>
-                </div>
-                <div class="stat-box">
-                    <span class="label">ŚREDNIA</span>
-                    <span id="avg-val" class="value">0.0</span>
-                </div>
-            </div>
-
-            <!-- Odliczanie (Sesje) -->
-            <div id="session-countdown" class="overlay">
-                <div class="huge-text">READY?</div>
-            </div>
-
-            <!-- Podsumowanie Wyników -->
-            <div id="result-modal" class="overlay">
-                <div class="overlay-content result-card">
-                    <h2>SESJA ZAKOŃCZONA</h2>
-                    <div class="result-stats">
-                        <div class="res-item"><span class="res-label">WYNIK:</span> <span id="res-score" class="res-value">0</span></div>
-                        <div class="res-item"><span class="res-label">STRZAŁY:</span> <span id="res-shots" class="res-value">0</span></div>
-                        <div class="res-item"><span class="res-label">ŚREDNIA:</span> <span id="res-avg" class="res-value">0.0</span></div>
-                    </div>
-                    <button id="close-result" class="glass-btn primary">ZAMKNIJ</button>
-                </div>
-            </div>
-
-            <!-- Kalibracja (Overlay) -->
-            <div id="calibration-overlay" class="overlay active">
-                <div class="overlay-content">
-                    <h1>KALIBRACJA</h1>
-                    <p>Wskaż 4 rogi tarczy na ścianie (zaczynając od LG zgodnie z zegarem)</p>
-                    <div class="progress-dots">
-                        <span class="dot active"></span>
-                        <span class="dot"></span>
-                        <span class="dot"></span>
-                        <span class="dot"></span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sterowanie Zoomem -->
-            <div class="side-controls flex-column">
-                <div class="zoom-controls">
-                    <button id="zoom-in" class="zoom-btn">+</button>
-                    <button id="zoom-out" class="zoom-btn">-</button>
-                </div>
-            </div>
-
-            <div class="controls flex-row">
-                <button id="reset-btn" class="glass-btn">RESET</button>
-                <button id="start-session-btn" class="glass-btn primary big-btn">START SESJA</button>
-                <button id="calibrate-btn" class="glass-btn">KALIBRACJA</button>
-            </div>
             
+            <!-- GÓRA: Gracze i Ustawienia -->
+            <div id="top-section" class="flex-column">
+                <div id="players-row" class="flex-row">
+                    <div id="players-list" class="flex-row">
+                        <button class="player-btn active" data-id="0">1. P</button>
+                        <button class="player-btn" data-id="1">2. P</button>
+                        <button class="player-btn" data-id="2">3. P</button>
+                        <button class="player-btn" data-id="3">4. P</button>
+                        <button class="player-btn" data-id="4">5. P</button>
+                    </div>
+                    <button id="settings-open-btn" class="icon-btn">⚙️</button>
+                </div>
+
+                <div id="stats-row" class="flex-row">
+                    <div class="stat-box" id="mode-selector">
+                        <span class="label">TRYB</span>
+                        <span id="mode-val" class="value small">FREE</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="label">PUNKTY</span>
+                        <span id="score-val" class="value">0</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="label">ŚREDNIA</span>
+                        <span id="avg-val" class="value">0.0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BOK: Pionowy Zoom -->
+            <div id="side-controls" class="flex-column">
+                <button id="zoom-in" class="zoom-btn">+</button>
+                <div class="zoom-label">ZOOM</div>
+                <button id="zoom-out" class="zoom-btn">-</button>
+            </div>
+
+            <!-- DÓŁ: Przyciski Akcji -->
+            <div id="bottom-section" class="flex-row">
+                <button id="reset-session-btn" class="glass-btn danger">RESET WYNIKU</button>
+                <button id="start-session-btn" class="glass-btn primary big-btn">START SESJA</button>
+            </div>
+
+            <!-- Ostatni strzał (Pływający) -->
             <div id="last-shot-box">
                 OSTATNI: <span id="last-val">0</span>
+            </div>
+        </div>
+
+        <!-- PANEL USTAWIEŃ (MODAL) -->
+        <div id="settings-modal" class="overlay">
+            <div class="overlay-content settings-card">
+                <h2>USTAWIENIA</h2>
+                
+                <div class="settings-group">
+                    <label>TRYB GRY</label>
+                    <div class="flex-row">
+                        <button id="solo-mode-btn" class="glass-btn">SOLO</button>
+                        <button id="multi-mode-btn" class="glass-btn active">GRUPA 5</button>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <label>NAZWY ZAWODNIKÓW</label>
+                    <div id="names-inputs" class="flex-column">
+                        <input type="text" data-id="0" class="name-input" placeholder="Gracz 1">
+                        <input type="text" data-id="1" class="name-input" placeholder="Gracz 2">
+                        <input type="text" data-id="2" class="name-input" placeholder="Gracz 3">
+                        <input type="text" data-id="3" class="name-input" placeholder="Gracz 4">
+                        <input type="text" data-id="4" class="name-input" placeholder="Gracz 5">
+                    </div>
+                </div>
+
+                <div class="settings-group flex-column">
+                    <button id="calibrate-btn" class="glass-btn">🛠️ URUCHOM KALIBRACJĘ</button>
+                    <button id="full-reset-btn" class="glass-btn danger">⚠️ RESET WSZYSTKIEGO</button>
+                </div>
+
+                <button id="settings-close-btn" class="glass-btn primary">POWRÓT</button>
+            </div>
+        </div>
+
+        <!-- Nakładki pomocnicze (Odliczanie, Kalibracja, Wyniki) -->
+        <div id="session-countdown" class="overlay">
+            <div class="huge-text">READY?</div>
+        </div>
+
+        <div id="result-modal" class="overlay">
+            <div class="overlay-content result-card">
+                <h2>WYNIKI</h2>
+                <div class="result-stats" id="res-list">
+                    <!-- Dynamicznie wypełniane -->
+                </div>
+                <button id="close-result" class="glass-btn primary">DALEJ</button>
+            </div>
+        </div>
+
+        <div id="calibration-overlay" class="overlay">
+            <div class="overlay-content">
+                <h1>KALIBRACJA</h1>
+                <p>Kliknij 4 rogi tarczy (LG -> PG -> PD -> LD)</p>
+                <div class="progress-dots">
+                    <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                </div>
             </div>
         </div>
 
