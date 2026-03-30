@@ -424,27 +424,14 @@ function drawHit(x, y) {
 // 4. Drag & Drop (Poprawione dla Motorola G85 - contain fit)
 function getMousePos(e) {
     const rect = video.getBoundingClientRect();
+    if (!uiCanvas.width || !uiCanvas.height) return { x: 0, y: 0 };
     
-    // Logika dla object-fit: contain
-    const videoRatio = video.videoWidth / video.videoHeight;
-    const containerRatio = rect.width / rect.height;
-    
-    let actualWidth, actualHeight, offsetX = 0, offsetY = 0;
-    
-    if (containerRatio > videoRatio) {
-        actualHeight = rect.height;
-        actualWidth = actualHeight * videoRatio;
-        offsetX = (rect.width - actualWidth) / 2;
-    } else {
-        actualWidth = rect.width;
-        actualHeight = actualWidth / videoRatio;
-        offsetY = (rect.height - actualHeight) / 2;
-    }
-
-    const x = ((e.clientX - rect.left - offsetX) / actualWidth) * uiCanvas.width;
-    const y = ((e.clientY - rect.top - offsetY) / actualHeight) * uiCanvas.height;
-    
-    return { x, y };
+    // Proste mapowanie: poz. na ekranie → poz. w przestrzeni canvasu
+    // Działa poprawnie dla object-fit: cover (wideo wypełnia cały ekran)
+    return {
+        x: (e.clientX - rect.left) / rect.width  * uiCanvas.width,
+        y: (e.clientY - rect.top)  / rect.height * uiCanvas.height
+    };
 }
 
 function startDrag(e) {
@@ -481,7 +468,9 @@ function doDrag(e) {
 }
 
 function stopDrag() {
-    if (state.isDragging) localStorage.setItem('laser_range_calib', JSON.stringify(state.corners));
+    if (state.isDragging) {
+        localStorage.setItem('laser_range_calib', JSON.stringify(state.corners));
+    }
     state.isDragging = false;
     state.dragIndex = -1;
 }
@@ -525,6 +514,8 @@ function startCalibration() {
 function finishCalibration() {
     state.isCalibrating = false;
     document.getElementById('calibration-overlay').classList.remove('active');
+    // Zapisz kalibrację do localStorage!
+    localStorage.setItem('laser_range_calib', JSON.stringify(state.corners));
     updateHandles();
     drawTarget();
 }
