@@ -22,13 +22,25 @@ let state = {
     corners: [], // [tl, tr, br, bl]
     score: 0,
     shots: 0,
-    isArmed: true, // Czy system czeka na strzał
-    threshold: 230, // Próg jasności (0-255)
+    isArmed: true, 
+    threshold: 230,
     lastShotTime: 0
 };
 
+// Ładowanie kalibracji z pamięci
+function loadSettings() {
+    const saved = localStorage.getItem('laser_range_calib');
+    if (saved) {
+        state.corners = JSON.parse(saved);
+        state.isCalibrating = false;
+        calibrationOverlay.classList.remove('active');
+        setTimeout(drawTarget, 500); // Rysuj po zainicjowaniu canvasa
+    }
+}
+
 // 1. Inicjalizacja kamery
 async function initCamera() {
+    loadSettings();
     try {
         const stream = await navigator.mediaDevices.getUserMedia({
             video: {
@@ -123,21 +135,91 @@ function processShot(x, y) {
 }
 
 function calculateScore(x, y) {
-    // Tymczasowo: Losowy wynik 7-10 dla demonstracji, dopóki kalibracja nie jest w pełni zapięta matematycznie
-    return Math.floor(Math.random() * 4) + 7;
+    if (state.corners.length < 4) return 0;
+    
+    // Obliczanie środka tarczy (punkt 10)
+    const centerX = (state.corners[0].x + state.corners[1].x + state.corners[2].x + state.corners[3].x) / 4;
+    const centerY = (state.corners[0].y + state.corners[1].y + state.corners[2].y + state.corners[3].y) / 4;
+    
+    // Obliczanie przybliżonego "promienia" tarczy (połowa średniej szerokości)
+    const w1 = Math.sqrt(Math.pow(state.corners[1].x - state.corners[0].x, 2) + Math.pow(state.corners[1].y - state.corners[0].y, 2));
+    const w2 = Math.sqrt(Math.pow(state.corners[2].x - state.corners[3].x, 2) + Math.pow(state.corners[2].y - state.corners[3].y, 2));
+    const avgW = (w1 + w2) / 2;
+    const targetRadius = avgW / 2;
+
+    // Odległość trafienia od środka
+    const dist = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+    const relDist = dist / targetRadius; // 0.0 to środek, 1.0 to krawędź tarczy (50cm)
+
+    // Logika pierścieni TS-2 (promienie 25mm, 50mm, 75mm... w skali 500mm)
+    // tzn. 10 punktów to relDist < 0.1 (średnica 10 to 50mm / 500mm = 0.1)
+    for (let p = 10; p >= 1; p--) {
+        const ringRadius = (11 - p) * 0.1; // 10: 0.1, 9: 0.2, 8: 0.3...
+        // W tarczy TS-2 pistoletowej promienie idą co 25mm (co 0.1 skali tarczy 500mm)
+        if (relDist <= ringRadius / 2) return p;
+    }
+
+    return 0;
 }
 
-function drawHit(x, y) {
-    uiCtx.beginPath();
-    uiCtx.arc(x, y, 10, 0, Math.PI * 2);
-    uiCtx.fillStyle = 'rgba(255, 0, 255, 0.8)';
-    uiCtx.fill();
-    uiCtx.strokeStyle = 'white';
+function drawTarget() {
+    if (state.corners.length < 4) return;
+    uiCtx.clearRect(0, 0, uiCanvas.width, uiCanvas.height);
+    
+    const centerX = (state.corners[0].x + state.corners[1].x + state.corners[2].x + state.corners[3].x) / 4;
+    const centerY = (state.corners[0].y + state.corners[1].y + state.corners[2].y + state.corners[3].y) / 4;
+    
+    const w1 = Math.sqrt(Math.pow(state.corners[1].x - state.corners[0].x, 2) + Math.pow(state.corners[1].y - state.corners[0].y, 2));
+    const targetRadius = w1 / 2;
+
+    // Rysowanie pierścieni (1-10)
+    uiCtx.lineWidth = 1;
+    for (let p = 1; p <= 10; p++) {
+        const r = (targetRadius * (11 - p)) / 10;
+        uiCtx.beginPath();
+        uiCtx.arc(centerX, centerY, r, 0, Math.PI * 2);
+        uiCtx.strokeStyle = p >= 7 ? 'rgba(0, 243, 255, 0.3)' : 'rgba(255, 255, 255, 0.1)';
+        uiCtx.stroke();
+        if (p === 10) {
+            uiCtx.fillStyle = 'rgba(0, 243, 255, 0.2)';
+            uiCtx.fill();
+        }
+    }
+
+    // Rysowanie obrysu zewnętrznego
+    uiCtx.strokeStyle = 'cyan';
     uiCtx.lineWidth = 2;
+    uiCtx.beginPath();
+    uiCtx.moveTo(state.corners[0].x, state.corners[0].y);
+    uiCtx.lineTo(state.corners[1].x, state.corners[1].y);
+    uiCtx.lineTo(state.corners[2].x, state.corners[2].y);
+    uiCtx.lineTo(state.corners[3].x, state.corners[3].y);
+    uiCtx.closePath();
     uiCtx.stroke();
 }
 
-// 4. Kalibracja
+function drawHit(x, y) {
+    // Rysowanie trwałego śladu na warstwie UI
+    uiCtx.beginPath();
+    uiCtx.arc(x, y, 4, 0, Math.PI * 2);
+    uiCtx.fillStyle = '#ff00ff';
+    uiCtx.shadowBlur = 10;
+    uiCtx.shadowColor = '#ff00ff';
+    uiCtx.fill();
+    uiCtx.shadowBlur = 0;
+}
+
+function finishCalibration() {
+    state.isCalibrating = false;
+    calibrationOverlay.classList.remove('active');
+    
+    // Zapisywanie do pamięci
+    localStorage.setItem('laser_range_calib', JSON.stringify(state.corners));
+    
+    drawTarget();
+}
+
+// 4. Obsługa kliknięć (Kalibracja)
 window.addEventListener('click', (e) => {
     if (!state.isCalibrating) return;
 
@@ -153,23 +235,6 @@ window.addEventListener('click', (e) => {
         finishCalibration();
     }
 });
-
-function finishCalibration() {
-    state.isCalibrating = false;
-    calibrationOverlay.classList.remove('active');
-    uiCtx.clearRect(0, 0, uiCanvas.width, uiCanvas.height);
-    
-    // Rysowanie obrysu tarczy
-    uiCtx.strokeStyle = '#00f3ff';
-    uiCtx.lineWidth = 3;
-    uiCtx.beginPath();
-    uiCtx.moveTo(state.corners[0].x, state.corners[0].y);
-    uiCtx.lineTo(state.corners[1].x, state.corners[1].y);
-    uiCtx.lineTo(state.corners[2].x, state.corners[2].y);
-    uiCtx.lineTo(state.corners[3].x, state.corners[3].y);
-    uiCtx.closePath();
-    uiCtx.stroke();
-}
 
 document.getElementById('reset-btn').onclick = () => location.reload();
 document.getElementById('calibrate-btn').onclick = () => {
