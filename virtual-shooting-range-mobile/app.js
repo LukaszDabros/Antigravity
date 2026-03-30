@@ -497,12 +497,21 @@ function startDrag(e) {
     });
 }
 
+let doDragRafPending = false;
 function doDrag(e) {
-    if (!state.isDragging) return;
-    const pos = getMousePos(e);
-    state.corners[state.dragIndex] = { x: pos.x - state.dragOffset.x, y: pos.y - state.dragOffset.y };
-    updateHandles();
-    drawTarget();
+    if (!state.isDragging || doDragRafPending) return;
+    
+    doDragRafPending = true;
+    requestAnimationFrame(() => {
+        const pos = getMousePos(e);
+        state.corners[state.dragIndex] = { 
+            x: pos.x - state.dragOffset.x, 
+            y: pos.y - state.dragOffset.y 
+        };
+        updateHandles();
+        drawTarget();
+        doDragRafPending = false;
+    });
 }
 
 function stopDrag() {
@@ -514,29 +523,35 @@ function stopDrag() {
 }
 
 function updateHandles() {
-    document.querySelectorAll('.calib-handle').forEach(h => h.remove());
-    if (state.isCalibrating || !state.isEditing || state.corners.length < 4) return;
+    if (state.isCalibrating || !state.isEditing || state.corners.length < 4) {
+        document.querySelectorAll('.calib-handle').forEach(h => h.remove());
+        return;
+    }
 
     const rect = video.getBoundingClientRect();
     const videoRatio = video.videoWidth / video.videoHeight;
     const containerRatio = rect.width / rect.height;
 
-    let scale, offsetX = 0, offsetY = 0;
+    let scale, offX = 0, offY = 0;
     if (containerRatio > videoRatio) {
         scale = rect.width / video.videoWidth;
-        offsetY = (rect.height - video.videoHeight * scale) / 2;
+        offY = (rect.height - video.videoHeight * scale) / 2;
     } else {
         scale = rect.height / video.videoHeight;
-        offsetX = (rect.width - video.videoWidth * scale) / 2;
+        offX = (rect.width - video.videoWidth * scale) / 2;
     }
 
     state.corners.forEach((p, i) => {
-        const handle = document.createElement('div');
-        handle.className = 'calib-handle';
-        handle.style.left = (p.x * scale + rect.left + offsetX) + 'px';
-        handle.style.top = (p.y * scale + rect.top + offsetY) + 'px';
-        handle.style.pointerEvents = 'auto'; // Muszą być klikalne by drag działał precyzyjnie
-        document.body.appendChild(handle);
+        let el = document.getElementById(`calib-h-${i}`);
+        if (!el) {
+            el = document.createElement('div');
+            el.id = `calib-h-${i}`;
+            el.className = 'calib-handle';
+            el.style.pointerEvents = 'auto';
+            document.body.appendChild(el);
+        }
+        el.style.left = (p.x * scale + rect.left + offX) + 'px';
+        el.style.top  = (p.y * scale + rect.top + offY) + 'px';
     });
 }
 
@@ -587,8 +602,10 @@ let dragCornerStart = { x: 0, y: 0 };
  */
 function detectTarget() {
     const SCALE = 6;
-    const w = Math.floor((video.videoWidth  || window.innerWidth)  / SCALE);
-    const h = Math.floor((video.videoHeight || window.innerHeight) / SCALE);
+    const vW = video.videoWidth || 1280;
+    const vH = video.videoHeight || 720;
+    const w = Math.floor(vW / SCALE);
+    const h = Math.floor(vH / SCALE);
     if (w < 10 || h < 10) return null;
 
     const tmp = document.createElement('canvas');
@@ -597,48 +614,47 @@ function detectTarget() {
     ctx.drawImage(video, 0, 0, w, h);
     const data = ctx.getImageData(0, 0, w, h).data;
 
-    // 1. Znajdź max jasność w kadrze
     let maxBright = 0;
     for (let i = 0; i < data.length; i += 4) {
         const b = (data[i] + data[i+1] + data[i+2]) / 3;
         if (b > maxBright) maxBright = b;
     }
 
-    // 2. Adaptywny próg: 75% maksimum (był 82% - zwiększamy czułość)
     const THRESH = Math.max(130, maxBright * 0.75);
-
-    let minX = w, maxX = 0, minY = h, maxY = 0, cnt = 0;
-    const MARGIN = 2;
+    const MARGIN = 3; // Zwiększony margines dla stabilności
+    
+    let tlP = { x: w, y: h, val: 9999 }, trP = { x: 0, y: h, val: -9999 };
+    let brP = { x: 0, y: 0, val: -9999 }, blP = { x: w, y: 0, val: 9999 };
+    let cnt = 0;
 
     for (let y = MARGIN; y < h - MARGIN; y++) {
         for (let x = MARGIN; x < w - MARGIN; x++) {
             const i = (y * w + x) * 4;
-            const bright = (data[i] + data[i+1] + data[i+2]) / 3;
-            if (bright > THRESH) {
-                if (x < minX) minX = x;
-                if (x > maxX) maxX = x;
-                if (y < minY) minY = y;
-                if (y > maxY) maxY = y;
+            const b = (data[i] + data[i+1] + data[i+2]) / 3;
+            if (b > THRESH) {
                 cnt++;
+                const s = x + y, d = x - y;
+                if (s < tlP.val) tlP = { x, y, val: s };
+                if (d > trP.val) trP = { x, y, val: d };
+                if (s > brP.val) brP = { x, y, val: s };
+                if (d < blP.val) blP = { x, y, val: d };
             }
         }
     }
 
-    const coverage = cnt / (w * h);
-    // Odrzuc jeśli za mało lub za dużo (cała scena jest jasna)
-    if (coverage < 0.01 || coverage > 0.80) return null;
-    if ((maxX - minX) < w * 0.05 || (maxY - minY) < h * 0.05) return null;
+    // Za mało punktów = brak tarczy
+    if (cnt < (w * h * 0.003)) return null;
 
     const cw = uiCanvas.width  || window.innerWidth;
     const ch = uiCanvas.height || window.innerHeight;
-    const scaleW = cw / (video.videoWidth  || window.innerWidth);
-    const scaleH = ch / (video.videoHeight || window.innerHeight);
+    const sW = cw / vW * SCALE;
+    const sH = ch / vH * SCALE;
 
     return [
-        { x: minX * SCALE * scaleW, y: minY * SCALE * scaleH }, // TL
-        { x: maxX * SCALE * scaleW, y: minY * SCALE * scaleH }, // TR
-        { x: maxX * SCALE * scaleW, y: maxY * SCALE * scaleH }, // BR
-        { x: minX * SCALE * scaleW, y: maxY * SCALE * scaleH }  // BL
+        { x: tlP.x * sW, y: tlP.y * sH },
+        { x: trP.x * sW, y: trP.y * sH },
+        { x: brP.x * sW, y: brP.y * sH },
+        { x: blP.x * sW, y: blP.y * sH }
     ];
 }
 
@@ -679,48 +695,42 @@ function drawPreviewRect() {
 
 /** Renderuje 4 uchwyty rogów w overlaycie auto-kalibracji */
 function renderCornerHandles() {
-    cornerHandlesEl.innerHTML = '';
     const labels = ['LG','PG','PD','LD'];
-    const sw = window.innerWidth, sh = window.innerHeight;
-    const cw = uiCanvas.width  || sw;
-    const ch = uiCanvas.height || sh;
+    const rect = video.getBoundingClientRect();
+    const videoRatio = video.videoWidth / video.videoHeight;
+    const containerRatio = rect.width / rect.height;
+    
+    let scale, offX = 0, offY = 0;
+    if (containerRatio > videoRatio) {
+        scale = rect.width / video.videoWidth;
+        offY = (rect.height - video.videoHeight * scale) / 2;
+    } else {
+        scale = rect.height / video.videoHeight;
+        offX = (rect.width - video.videoWidth * scale) / 2;
+    }
 
     autoCorners.forEach((c, i) => {
-        const el = document.createElement('div');
-        el.className = 'corner-handle';
-        el.textContent = labels[i];
-        // Przelicz z wideo-space → screen-space (analogicznie do updateHandles)
-        const rect = video.getBoundingClientRect();
-        const videoRatio = video.videoWidth / video.videoHeight;
-        const containerRatio = rect.width / rect.height;
-        let scale, offsetX = 0, offsetY = 0;
-        if (containerRatio > videoRatio) {
-            scale = rect.width / video.videoWidth;
-            offsetY = (rect.height - video.videoHeight * scale) / 2;
-        } else {
-            scale = rect.height / video.videoHeight;
-            offsetX = (rect.width - video.videoWidth * scale) / 2;
+        let el = document.getElementById(`corner-h-${i}`);
+        if (!el) {
+            el = document.createElement('div');
+            el.id = `corner-h-${i}`;
+            el.className = 'corner-handle';
+            el.textContent = labels[i];
+            
+            el.addEventListener('touchstart', (e) => {
+                e.stopPropagation();
+                dragCornerIdx = i;
+            }, { passive: true });
+            
+            el.addEventListener('mousedown', (e) => {
+                e.stopPropagation();
+                dragCornerIdx = i;
+            });
+            cornerHandlesEl.appendChild(el);
         }
-
-        el.style.left = (c.x * scale + rect.left + offsetX) + 'px';
-        el.style.top  = (c.y * scale + rect.top + offsetY) + 'px';
-
-        // Obsługa ciągnięcia (touch)
-        el.addEventListener('touchstart', (e) => {
-            e.stopPropagation();
-            dragCornerIdx = i;
-            const t = e.changedTouches[0];
-            dragCornerStart = { x: t.clientX, y: t.clientY };
-        }, { passive: true });
-
-        // Obsługa ciągnięcia (mouse)
-        el.addEventListener('mousedown', (e) => {
-            e.stopPropagation();
-            dragCornerIdx = i;
-            dragCornerStart = { x: e.clientX, y: e.clientY };
-        });
-
-        cornerHandlesEl.appendChild(el);
+        
+        el.style.left = (c.x * scale + rect.left + offX) + 'px';
+        el.style.top  = (c.y * scale + rect.top + offY) + 'px';
     });
 }
 
@@ -739,17 +749,21 @@ window.addEventListener('mousemove', (e) => {
 window.addEventListener('touchend', () => { dragCornerIdx = -1; });
 window.addEventListener('mouseup',   () => { dragCornerIdx = -1; });
 
+let isRafPending = false;
 function moveCorner(clientX, clientY) {
-    if (dragCornerIdx < 0) return;
-    const sw = window.innerWidth, sh = window.innerHeight;
-    const cw = uiCanvas.width  || sw;
-    const ch = uiCanvas.height || sh;
-    autoCorners[dragCornerIdx] = {
-        x: Math.max(0, Math.min(cw, clientX / sw * cw)),
-        y: Math.max(0, Math.min(ch, clientY / sh * ch))
-    };
-    renderCornerHandles();
-    drawPreviewRect();
+    if (dragCornerIdx < 0 || isRafPending) return;
+    
+    isRafPending = true;
+    requestAnimationFrame(() => {
+        const pos = getMousePos({ clientX, clientY });
+        autoCorners[dragCornerIdx] = {
+            x: Math.max(0, Math.min(uiCanvas.width, pos.x)),
+            y: Math.max(0, Math.min(uiCanvas.height, pos.y))
+        };
+        renderCornerHandles();
+        drawPreviewRect();
+        isRafPending = false;
+    });
 }
 
 /** Uruchamia automatyczną kalibrację */
