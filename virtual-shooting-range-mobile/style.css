@@ -165,23 +165,7 @@ body, html {
     max-width: 500px;
 }
 
-/* Odliczanie */
-.huge-text {
-    font-size: 12vw; /* Bezpieczniejsze skalowanie dla wąskich ekranów */
-    font-weight: 900;
-    color: var(--neon-blue);
-    text-shadow: 0 0 30px var(--neon-blue);
-    animation: zoomPulse 1s infinite;
-    white-space: nowrap;
-}
-
-@keyframes zoomPulse {
-    0% { transform: scale(0.8); opacity: 0.5; }
-    50% { transform: scale(1.1); opacity: 1; }
-    100% { transform: scale(0.8); opacity: 0.5; }
-}
-
-/* Przycisk szklany */
+/* Przycisk szklany - Rozbudowany Feedback */
 .glass-btn {
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
@@ -192,18 +176,50 @@ body, html {
     font-size: 0.9rem;
     flex: 1;
     backdrop-filter: blur(10px);
-    transition: 0.2s;
+    transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: auto;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 .glass-btn.primary {
     border-color: var(--neon-blue);
     color: var(--neon-blue);
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);
 }
 
 .glass-btn:active {
-    transform: scale(0.95);
-    background: rgba(255, 255, 255, 0.1);
+    transform: scale(0.9) translateY(2px); /* Silny efekt naciśnięcia */
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 20px var(--neon-blue), inset 0 0 10px rgba(255,255,255,0.2);
+    border-color: white;
+    color: white;
+}
+
+/* Tryb Edycji - Wizualne rozróżnienie */
+.glass-btn.editing {
+    background: var(--neon-pink);
+    color: white;
+    box-shadow: 0 0 20px var(--neon-pink);
+    border-color: white;
+}
+
+/* Odliczanie - Animacja tylko po dodaniu klasy */
+.huge-text {
+    font-size: 12vw;
+    font-weight: 900;
+    color: var(--neon-blue);
+    text-shadow: 0 0 30px var(--neon-blue);
+    white-space: nowrap;
+}
+
+.huge-text.animating {
+    animation: zoomPulse 1s infinite;
+}
+
+@keyframes zoomPulse {
+    0% { transform: scale(0.8); opacity: 0.5; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(0.8); opacity: 0.5; }
 }
 
 /* Karta wyników */

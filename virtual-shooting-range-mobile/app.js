@@ -40,6 +40,7 @@ let state = {
     timeLeft: 0,
     
     // Drag & Drop
+    isEditing: false,
     isDragging: false,
     dragIndex: -1,
     dragOffset: { x: 0, y: 0 }
@@ -85,8 +86,8 @@ function applyZoom() {
     localStorage.setItem('laser_range_zoom', state.zoom);
 }
 
-document.getElementById('zoom-in').onclick = () => { state.zoom += 0.2; applyZoom(); };
-document.getElementById('zoom-out').onclick = () => { if(state.zoom > 1) state.zoom -= 0.2; applyZoom(); };
+document.getElementById('zoom-in').onclick = () => { state.zoom += 0.2; applyZoom(); if(navigator.vibrate) navigator.vibrate(20); };
+document.getElementById('zoom-out').onclick = () => { if(state.zoom > 1) state.zoom -= 0.2; applyZoom(); if(navigator.vibrate) navigator.vibrate(20); };
 
 // 2. Detekcja
 function detectionLoop() {
@@ -175,6 +176,7 @@ document.getElementById('mode-toggle').onclick = () => {
     let idx = modes.indexOf(state.mode);
     state.mode = modes[(idx + 1) % modes.length];
     updateUI();
+    if(navigator.vibrate) navigator.vibrate(20);
 };
 
 document.getElementById('start-session-btn').onclick = startSession;
@@ -185,21 +187,28 @@ function startSession() {
     state.sessionState = 'COUNTDOWN';
     state.sessionScore = 0;
     state.sessionShots = 0;
-    uiCtx.clearRect(0, 0, uiCanvas.width, uiCanvas.height); // Czyścimy stare ślady
+    uiCtx.clearRect(0, 0, uiCanvas.width, uiCanvas.height); 
     drawTarget();
     
     let count = 3;
+    const countEl = sessionCountdown.querySelector('.huge-text');
     sessionCountdown.classList.add('active');
+    countEl.classList.add('animating');
+    
     const timer = setInterval(() => {
-        sessionCountdown.querySelector('.huge-text').innerText = count > 0 ? count : "START!";
+        countEl.innerText = count > 0 ? count : "START!";
         if (count === 0) {
             clearInterval(timer);
             state.sessionState = 'ACTIVE';
-            setTimeout(() => { sessionCountdown.classList.remove('active'); }, 500);
+            setTimeout(() => { 
+                sessionCountdown.classList.remove('active'); 
+                countEl.classList.remove('animating');
+            }, 600);
             if (state.mode === 'SPEED') startSpeedTimer();
         }
         count--;
     }, 1000);
+    if(navigator.vibrate) navigator.vibrate(50);
 }
 
 function startSpeedTimer() {
@@ -221,7 +230,10 @@ function endSession() {
     resultModal.classList.add('active');
 }
 
-document.getElementById('close-result').onclick = () => resultModal.classList.remove('active');
+document.getElementById('close-result').onclick = () => {
+    resultModal.classList.remove('active');
+    if(navigator.vibrate) navigator.vibrate(20);
+};
 
 function drawTarget() {
     if (state.corners.length < 4) return;
@@ -289,13 +301,14 @@ function startDrag(e) {
         const pos = getMousePos(e);
         state.corners.push(pos);
         
-        // Aktualizacja kropek
         const dots = document.querySelectorAll('.dot');
         if (dots[state.corners.length - 1]) dots[state.corners.length - 1].classList.add('active');
         
         if (state.corners.length === 4) finishCalibration();
         return;
     }
+
+    if (!state.isEditing) return; // Zablokowane
     
     const pos = getMousePos(e);
     state.corners.forEach((p, i) => {
@@ -324,32 +337,60 @@ function stopDrag() {
 
 function updateHandles() {
     document.querySelectorAll('.calib-handle').forEach(h => h.remove());
-    if (state.isCalibrating) return;
+    if (state.isCalibrating || !state.isEditing) return;
 
     state.corners.forEach((p, i) => {
         const handle = document.createElement('div');
         handle.className = 'calib-handle';
-        const rect = uiCanvas.getBoundingClientRect();
-        handle.style.left = (p.x / uiCanvas.width * rect.width + rect.left) + 'px';
-        handle.style.top = (p.y / uiCanvas.height * rect.height + rect.top) + 'px';
+        const rect = video.getBoundingClientRect();
+        
+        // Obliczanie pozycji z uwzględnieniem contain fit
+        const videoRatio = video.videoWidth / video.videoHeight;
+        const containerRatio = rect.width / rect.height;
+        let actualWidth, actualHeight, offsetX = 0, offsetY = 0;
+        if (containerRatio > videoRatio) {
+            actualHeight = rect.height;
+            actualWidth = actualHeight * videoRatio;
+            offsetX = (rect.width - actualWidth) / 2;
+        } else {
+            actualWidth = rect.width;
+            actualHeight = actualWidth / videoRatio;
+            offsetY = (rect.height - actualHeight) / 2;
+        }
+
+        handle.style.left = (p.x / uiCanvas.width * actualWidth + rect.left + offsetX) + 'px';
+        handle.style.top = (p.y / uiCanvas.height * actualHeight + rect.top + offsetY) + 'px';
         document.body.appendChild(handle);
     });
 }
 
 function finishCalibration() {
     state.isCalibrating = false;
+    state.isEditing = false;
     calibrationOverlay.classList.remove('active');
     localStorage.setItem('laser_range_calib', JSON.stringify(state.corners));
     updateHandles();
     drawTarget();
 }
 
-document.getElementById('reset-btn').onclick = () => { localStorage.clear(); location.reload(); };
+document.getElementById('reset-btn').onclick = () => { 
+    if (confirm("Czy na pewno chcesz zresetować wszystkie ustawienia i kalibrację?")) {
+        localStorage.clear(); 
+        location.reload(); 
+    }
+};
+
 document.getElementById('calibrate-btn').onclick = () => {
-    state.isCalibrating = true;
-    state.calibrationStep = 0;
-    state.corners = [];
-    calibrationOverlay.classList.add('active');
+    if(navigator.vibrate) navigator.vibrate(20);
+    state.isEditing = !state.isEditing;
+    const btn = document.getElementById('calibrate-btn');
+    if (state.isEditing) {
+        btn.classList.add('editing');
+        btn.innerText = "ZAKOŃCZ";
+    } else {
+        btn.classList.remove('editing');
+        btn.innerText = "KALIBRACJA";
+    }
     updateHandles();
 };
 
