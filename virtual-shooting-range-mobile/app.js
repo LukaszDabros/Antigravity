@@ -175,28 +175,52 @@ function calculateScore(x, y) {
 // 3. Zarządzanie Graczami i Ustawienia
 function updatePlayerButtons() {
     const btns = document.querySelectorAll('.player-btn');
-    
-    // Zasada: min 3 graczy, 4 i 5 tylko jeśli mają zmienione imię
-    let playersCount = 3;
-    for (let i = 4; i >= 3; i--) {
-        if (state.players[i].name !== `Gracz ${i+1}`) {
-            playersCount = i + 1;
-            break;
-        }
+
+    if (!state.isMultiplayer) {
+        // SOLO – tylko gracz 1
+        btns.forEach((btn, i) => {
+            if (i === 0) {
+                const p = state.players[0];
+                const initial = p.name ? p.name.charAt(0).toUpperCase() : 'G';
+                btn.innerText = `1. ${initial}`;
+                btn.classList.add('active');
+                btn.style.display = 'flex';
+                btn.onclick = () => switchPlayer(0);
+            } else {
+                btn.style.display = 'none';
+            }
+        });
+        return;
     }
 
+    // GRUPA – pokaż tylko graczy z wpisanym niestandardowym imieniem
+    // "Gracz N" = domyślne, puste lub niezmodyfikowane
+    let visibleCount = 0;
     btns.forEach((btn, i) => {
-        if (i < playersCount) {
-            const p = state.players[i];
-            const initial = p.name ? p.name.charAt(0).toUpperCase() : '?';
-            btn.innerText = `${i+1}. ${initial}`;
+        const p = state.players[i];
+        const isCustomName = p.name && p.name.trim() !== '' && p.name !== `Gracz ${i + 1}`;
+
+        if (isCustomName) {
+            const initial = p.name.charAt(0).toUpperCase();
+            btn.innerText = `${i + 1}. ${initial}`;
             btn.classList.toggle('active', i === state.activePlayer);
             btn.style.display = 'flex';
             btn.onclick = () => switchPlayer(i);
+            visibleCount++;
         } else {
             btn.style.display = 'none';
         }
     });
+
+    // Minimum 1 gracz zawsze widoczny (gracz 1 jako fallback)
+    if (visibleCount === 0) {
+        const btn = btns[0];
+        const p = state.players[0];
+        btn.innerText = `1. G`;
+        btn.classList.add('active');
+        btn.style.display = 'flex';
+        btn.onclick = () => switchPlayer(0);
+    }
 }
 
 function switchPlayer(index) {
