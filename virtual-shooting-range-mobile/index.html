@@ -6,6 +6,12 @@
     <title>Laser Range Mobile</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    
+    <!-- PWA / Mobile Meta -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#00f3ff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
     <div id="app">
@@ -51,6 +57,18 @@
                 </div>
             </div>
 
+            <!-- Nowy rząd postępu session -->
+            <div id="progress-row">
+                <div class="progress-item">
+                    <span class="stat-label">SERIA</span>
+                    <span id="series-val" class="stat-value">1 / 5</span>
+                </div>
+                <div class="progress-item">
+                    <span class="stat-label">STRZAŁ</span>
+                    <span id="shot-count-val" class="stat-value">0 / 10</span>
+                </div>
+            </div>
+
         </div><!-- /#hud -->
 
         <!-- BOK: Pionowy Zoom (oddzielnie od HUD, absolute) -->
@@ -63,6 +81,7 @@
         <!-- DÓŁ: Przyciski akcji (absolute, bottom) -->
         <div id="bottom-bar">
             <button id="reset-session-btn" class="action-btn danger">↺ RESET</button>
+            <button id="finish-series-btn" class="action-btn secondary">🎯 ZAKOŃCZ SERIĘ</button>
             <button id="start-session-btn" class="action-btn primary">▶ START SESJA</button>
         </div>
 
@@ -73,6 +92,14 @@
             <div class="overlay-content settings-card">
                 <button id="settings-close-btn" class="close-btn">✕</button>
                 <h2>⚙ USTAWIENIA</h2>
+
+                <div class="settings-group">
+                    <label>SESJA I RANKING</label>
+                    <div style="display:flex; align-items:center; gap:10px; margin-top:5px;">
+                        <span style="font-size:0.8rem;opacity:0.7">Serie na sesję:</span>
+                        <input type="number" id="target-series-input" value="5" min="1" max="20" style="width:60px; padding:8px; background:rgba(255,255,255,0.08); border:1px solid var(--neon-blue); color:white; border-radius:5px; text-align:center; font-family:'JetBrains Mono',monospace;">
+                    </div>
+                </div>
 
                 <div class="settings-group">
                     <label>TRYB GRY</label>
@@ -145,6 +172,12 @@
                 </div>
                 <button id="auto-calib-manual" class="action-btn" style="width:100%;margin-top:8px;font-size:0.8rem">&#x270F;&#xFE0F; Przełącz na ręczną</button>
             </div>
+        </div>
+        
+        <!-- Magnifier w czasie kalibracji -->
+        <div id="magnifier">
+            <canvas id="magnifier-canvas"></canvas>
+            <div class="magnifier-cross"></div>
         </div>
 
         <!-- Audio -->

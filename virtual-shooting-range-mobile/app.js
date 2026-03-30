@@ -19,6 +19,11 @@ const resScoreEl = document.getElementById('res-score');
 const resShotsEl = document.getElementById('res-shots');
 const resAvgEl = document.getElementById('res-avg');
 const calibrationOverlay = document.getElementById('calibration-overlay');
+const magnifier = document.getElementById('magnifier');
+const magnifierCanvas = document.getElementById('magnifier-canvas');
+const magnifierCtx = magnifierCanvas.getContext('2d', { alpha: false });
+magnifierCanvas.width = 140;
+magnifierCanvas.height = 140;
 
 // Stan aplikacji
 let state = {
@@ -50,8 +55,17 @@ let state = {
     isEditing: false,
     isDragging: false,
     dragIndex: -1,
-    dragOffset: { x: 0, y: 0 }
+    dragOffset: { x: 0, y: 0 },
+    
+    // Serie
+    currentSeries: 1,
+    targetSeries: 5,
+    shotsInCurrentSeries: 0
 };
+
+// Selektory postępu
+const seriesValEl = document.getElementById('series-val');
+const shotCountValEl = document.getElementById('shot-count-val');
 
 // Selektory pomocnicze
 const settingsModal = document.getElementById('settings-modal');
@@ -64,6 +78,8 @@ function loadSettings() {
     const savedZoom = localStorage.getItem('laser_range_zoom');
     const savedPlayers = localStorage.getItem('laser_range_players');
     const savedMulti = localStorage.getItem('laser_range_multi');
+    const savedSeries = localStorage.getItem('laser_range_current_series');
+    const savedTarget = localStorage.getItem('laser_range_target_series');
     
     if (saved) {
         state.corners = JSON.parse(saved);
@@ -80,10 +96,24 @@ function loadSettings() {
     
     if (savedPlayers) {
         state.players = JSON.parse(savedPlayers);
+        // Upewnij się, że gracze mają zainicjowane pola
+        state.players.forEach(p => {
+            if (!p.top10) p.top10 = [];
+            if (!p.completedSeries) p.completedSeries = 0;
+        });
     }
     
     if (savedMulti !== null) {
         state.isMultiplayer = savedMulti === 'true';
+    }
+
+    if (savedSeries) {
+        state.currentSeries = parseInt(savedSeries);
+    }
+    
+    if (savedTarget) {
+        state.targetSeries = parseInt(savedTarget);
+        document.getElementById('target-series-input').value = state.targetSeries;
     }
 
     updatePlayerButtons();
@@ -103,6 +133,14 @@ function syncSettingsUI() {
 // 1. Inicjalizacja kamery i Zoomu
 async function initCamera() {
     loadSettings();
+    
+    // Rejestracja Service Workera (Offline)
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js')
+            .then(() => console.log('SW Registered'))
+            .catch(err => console.error('SW Error:', err));
+    }
+    
     try {
         const stream = await navigator.mediaDevices.getUserMedia({
             video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
@@ -150,25 +188,36 @@ function detectionLoop() {
     requestAnimationFrame(detectionLoop);
 }
 
-// 3. Punktacja PPN 10m (17x17cm)
-function calculateScore(x, y) {
+/** 3. Homografia (Perspektywa) - mapowanie Quad -> Unit Square */
+function findH(src) {
+    const x0 = src[0].x, y0 = src[0].y;
+    const x1 = src[1].x, y1 = src[1].y;
+    const x2 = src[2].x, y2 = src[2].y;
+    const x3 = src[3].x, y3 = src[3].y;
+    const dx1 = x1 - x2, dx2 = x3 - x2, dx3 = x0 - x1 + x2 - x3;
+    const dy1 = y1 - y2, dy2 = y3 - y2, dy3 = y0 - y1 + y2 - y3;
+    const det = dx1 * dy2 - dx2 * dy1;
+    const a13 = (dx3 * dy2 - dx2 * dy3) / (det || 0.001);
+    const a23 = (dx1 * dy3 - dx3 * dy1) / (det || 0.001);
+    const m = [x1 - x0 + a13 * x1, x3 - x0 + a23 * x3, x0, y1 - y0 + a13 * y1, y3 - y0 + a23 * y3, y0, a13, a23, 1];
+    const detM = m[0]*(m[4]*m[8]-m[5]*m[7]) - m[1]*(m[3]*m[8]-m[5]*m[6]) + m[2]*(m[3]*m[7]-m[4]*m[6]);
+    const invH = [
+        (m[4]*m[8]-m[5]*m[7])/detM, (m[2]*m[7]-m[1]*m[8])/detM, (m[1]*m[5]-m[2]*m[4])/detM,
+        (m[5]*m[6]-m[3]*m[8])/detM, (m[0]*m[8]-m[2]*m[6])/detM, (m[2]*m[3]-m[0]*m[5])/detM,
+        (m[3]*m[7]-m[4]*m[6])/detM, (m[1]*m[6]-m[0]*m[7])/detM, (m[0]*m[4]-m[1]*m[3])/detM
+    ];
+    return invH;
+}
+
+function calculateScore(px, py) {
     if (state.corners.length < 4) return 0;
-    
-    const centerX = (state.corners[0].x + state.corners[1].x + state.corners[2].x + state.corners[3].x) / 4;
-    const centerY = (state.corners[0].y + state.corners[1].y + state.corners[2].y + state.corners[3].y) / 4;
-    
-    const w1 = Math.sqrt(Math.pow(state.corners[1].x - state.corners[0].x, 2) + Math.pow(state.corners[1].y - state.corners[0].y, 2));
-    const targetRadius = w1 / 2; // Połowa szerokości tarczy (85mm w skali 170mm)
-
-    const dist = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
-    const relDist = dist / targetRadius; 
-
-    // Promienie PPN 10m względem promienia tarczy (85mm)
-    const ppnRadii = [5.75, 13.75, 21.75, 29.75, 37.75, 45.75, 53.75, 61.75, 69.75, 77.75].map(r => r / 85);
-
-    for (let i = 0; i < ppnRadii.length; i++) {
-        if (relDist <= ppnRadii[i]) return 10 - i;
-    }
+    const H = findH(state.corners);
+    const z = H[6] * px + H[7] * py + H[8];
+    const u = (H[0] * px + H[1] * py + H[2]) / (z || 1);
+    const v = (H[3] * px + H[4] * py + H[5]) / (z || 1);
+    const du = u - 0.5, dv = v - 0.5, dist = Math.sqrt(du * du + dv * dv) * 2;
+    const radii = [0.034, 0.081, 0.128, 0.175, 0.222, 0.269, 0.316, 0.363, 0.410, 0.457];
+    for (let i = 0; i < radii.length; i++) if (dist <= radii[i]) return 10 - i;
     return 0;
 }
 
@@ -193,43 +242,34 @@ function updatePlayerButtons() {
         return;
     }
 
-    // GRUPA – pokaż tylko graczy z wpisanym niestandardowym imieniem
-    // "Gracz N" = domyślne, puste lub niezmodyfikowane
-    let visibleCount = 0;
+    // GRUPA – pokaż wszystkich graczy, którzy mają jakąkolwiek nazwę (domyślną lub nie)
     btns.forEach((btn, i) => {
         const p = state.players[i];
-        const isCustomName = p.name && p.name.trim() !== '' && p.name !== `Gracz ${i + 1}`;
-
-        if (isCustomName) {
-            const initial = p.name.charAt(0).toUpperCase();
-            btn.innerText = `${i + 1}. ${initial}`;
-            btn.classList.toggle('active', i === state.activePlayer);
-            btn.style.display = 'flex';
-            btn.onclick = () => switchPlayer(i);
-            visibleCount++;
-        } else {
-            btn.style.display = 'none';
-        }
+        const initial = p.name ? p.name.charAt(0).toUpperCase() : (i + 1);
+        
+        btn.innerText = `${i + 1}. ${initial}`;
+        btn.classList.toggle('active', i === state.activePlayer);
+        // Pokaż przycisk jeśli nazwa nie jest pusta
+        btn.style.display = (p.name && p.name.trim() !== '') ? 'flex' : 'none';
+        btn.onclick = () => switchPlayer(i);
     });
-
-    // Minimum 1 gracz zawsze widoczny (gracz 1 jako fallback)
-    if (visibleCount === 0) {
-        const btn = btns[0];
-        const p = state.players[0];
-        btn.innerText = `1. G`;
-        btn.classList.add('active');
-        btn.style.display = 'flex';
-        btn.onclick = () => switchPlayer(0);
-    }
 }
 
 function switchPlayer(index) {
-    if (state.sessionState === 'ACTIVE') return;
     state.activePlayer = index;
+    
+    // Przy ręcznej zmianie resetujemy licznik strzałów serii (zaczynamy nową dla tego gracza?)
+    // Użytkownik chce by seria trwała 10 strzałów. 
+    state.shotsInCurrentSeries = 0; 
+    
     updatePlayerButtons();
     updateUI();
+    
+    uiCtx.clearRect(0, 0, uiCanvas.width, uiCanvas.height);
     drawTarget();
+    
     if(navigator.vibrate) navigator.vibrate(20);
+    saveSession();
 }
 
 // Obsługa Menu
@@ -268,27 +308,42 @@ document.getElementById('multi-mode-btn').onclick = () => {
 
 // 4. Punktacja i Sesje
 function processShot(x, y) {
-    if (Date.now() - state.lastShotTime < 400) return;
+    if (Date.now() - state.lastShotTime < 450) return;
     if (state.sessionState !== 'ACTIVE' && state.mode !== 'FREE') return;
 
     const points = calculateScore(x, y);
     if (points === 0) return;
 
-    // Dodanie trefienia do aktywnego gracza
     const p = state.players[state.activePlayer];
     p.shots++;
     p.score += points;
     p.hits.push({ x, y, points, time: Date.now() });
+    
+    state.shotsInCurrentSeries++;
+
+    // Śledzenie TOP 10 dla każdego gracza
+    if (!p.top10) p.top10 = [];
+    p.top10.push(points);
+    p.top10.sort((a, b) => b - a);
+    p.top10 = p.top10.slice(0, 10);
 
     updateUI();
+    saveSession();
+    
     shotSound.currentTime = 0;
     shotSound.play().catch(() => {});
     drawHit(x, y);
     state.lastShotTime = Date.now();
 
-    if (state.mode === 'PRECISION' && p.shots >= 10) {
-        endSession();
+    // Automatyczny koniec serii po 10 strzałach
+    if (state.shotsInCurrentSeries >= 10) {
+        setTimeout(finishSeries, 800); // Małe opóźnienie by zobaczyć ostatni strzał
     }
+}
+
+function saveSession() {
+    localStorage.setItem('laser_range_players', JSON.stringify(state.players));
+    localStorage.setItem('laser_range_current_series', state.currentSeries);
 }
 
 function updateUI() {
@@ -297,6 +352,10 @@ function updateUI() {
     avgValEl.innerText = p.shots > 0 ? (p.score / p.shots).toFixed(1) : "0.0";
     modeValEl.innerText = state.mode;
     lastValEl.innerText = p.hits.length > 0 ? p.hits[p.hits.length - 1].points : "0";
+    
+    // Postęp sesji
+    seriesValEl.innerText = `${state.currentSeries} / ${state.targetSeries}`;
+    shotCountValEl.innerText = `${state.shotsInCurrentSeries} / 10`;
 }
 
 document.getElementById('mode-selector').onclick = () => {
@@ -307,16 +366,66 @@ document.getElementById('mode-selector').onclick = () => {
     if(navigator.vibrate) navigator.vibrate(30);
 };
 
-document.getElementById('reset-session-btn').onclick = () => {
-    if (confirm("Wyczyścić wyniki aktualnego gracza?")) {
-        const p = state.players[state.activePlayer];
-        p.score = 0;
-        p.shots = 0;
-        p.hits = [];
-        updateUI();
-        drawTarget();
-        if(navigator.vibrate) navigator.vibrate(50);
+document.getElementById('finish-series-btn').onclick = () => {
+    finishSeries();
+};
+
+function finishSeries() {
+    const p = state.players[state.activePlayer];
+    
+    if(navigator.vibrate) navigator.vibrate(50);
+    
+    // Czyścimy wizualne trafienia, ale punkty zostają
+    p.hits = []; 
+    state.shotsInCurrentSeries = 0;
+    p.completedSeries++;
+    
+    uiCtx.clearRect(0, 0, uiCanvas.width, uiCanvas.height);
+    drawTarget();
+    updateUI();
+    saveSession();
+    
+    // Jeśli w trybie multiplayer, przejdź do następnego gracza
+    if (state.isMultiplayer) {
+        let next = (state.activePlayer + 1) % 5;
+        // Szukaj następnego gracza z imieniem
+        let checked = 0;
+        while (!isCustomPlayer(next) && checked < 5) {
+            next = (next + 1) % 5;
+            checked++;
+        }
+        
+        // Jeśli wróciliśmy do pierwszego lub mniejszego ID, sprawdzamy serię
+        if (next <= state.activePlayer) {
+            if (state.currentSeries >= state.targetSeries) {
+                showRanking();
+                // Nie resetujemy serii automatycznie - użytkownik musi kliknąć Reset
+            } else {
+                state.currentSeries++;
+                switchPlayer(next);
+            }
+        } else {
+            switchPlayer(next);
+        }
+    } else {
+        // Solo mode
+        if (state.currentSeries >= state.targetSeries) {
+            showRanking();
+        } else {
+            state.currentSeries++;
+            updateUI();
+        }
     }
+}
+
+function isCustomPlayer(idx) {
+    const p = state.players[idx];
+    return p.name && p.name.trim() !== '';
+}
+
+document.getElementById('target-series-input').onchange = (e) => {
+    state.targetSeries = parseInt(e.target.value) || 5;
+    localStorage.setItem('laser_range_target_series', state.targetSeries);
 };
 
 document.getElementById('start-session-btn').onclick = startSession;
@@ -370,10 +479,45 @@ function startSpeedTimer() {
 
 function endSession() {
     state.sessionState = 'IDLE';
-    const p = state.players[state.activePlayer];
-    resScoreEl.innerText = p.score;
-    resShotsEl.innerText = p.shots;
-    resAvgEl.innerText = p.shots > 0 ? (p.score / p.shots).toFixed(1) : "0.0";
+    updateUI();
+    showRanking();
+}
+
+/** Wylicza i wyświetla ranking zawodników */
+function showRanking() {
+    const sorted = [...state.players]
+        .filter(p => p.shots > 0)
+        .sort((a, b) => b.score - a.score);
+
+    let html = `
+        <table class="ranking-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Gracz</th>
+                    <th>Suma</th>
+                    <th>Śr.</th>
+                    <th>Top 10</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    sorted.forEach((p, idx) => {
+        const top10Sum = (p.top10 || []).reduce((acc, v) => acc + v, 0);
+        html += `
+            <tr>
+                <td>${idx + 1}</td>
+                <td><b>${p.name}</b></td>
+                <td>${p.score}</td>
+                <td>${(p.score / p.shots).toFixed(1)}</td>
+                <td>${top10Sum}</td>
+            </tr>
+        `;
+    });
+
+    html += '</tbody></table>';
+    document.getElementById('res-list').innerHTML = html;
     resultModal.classList.add('active');
 }
 
@@ -503,13 +647,15 @@ function doDrag(e) {
     
     doDragRafPending = true;
     requestAnimationFrame(() => {
-        const pos = getMousePos(e);
+        const t = e.changedTouches ? e.changedTouches[0] : e;
+        const pos = getMousePos(t);
         state.corners[state.dragIndex] = { 
             x: pos.x - state.dragOffset.x, 
             y: pos.y - state.dragOffset.y 
         };
         updateHandles();
         drawTarget();
+        updateMagnifier(t.clientX, t.clientY, state.corners[state.dragIndex]);
         doDragRafPending = false;
     });
 }
@@ -520,6 +666,7 @@ function stopDrag() {
     }
     state.isDragging = false;
     state.dragIndex = -1;
+    magnifier.classList.remove('active');
 }
 
 function updateHandles() {
@@ -762,8 +909,28 @@ function moveCorner(clientX, clientY) {
         };
         renderCornerHandles();
         drawPreviewRect();
+        updateMagnifier(clientX, clientY, autoCorners[dragCornerIdx]);
         isRafPending = false;
     });
+}
+
+/** Rysuje powiększony widok pod palcem */
+function updateMagnifier(screenX, screenY, canvasPos) {
+    magnifier.classList.add('active');
+    magnifier.style.left = screenX + 'px';
+    magnifier.style.top  = screenY + 'px';
+    
+    const zoom = 2.5; // Powiększenie
+    const size = 140; 
+    const sourceSize = size / zoom;
+    
+    magnifierCtx.drawImage(
+        video, 
+        canvasPos.x - sourceSize / 2, canvasPos.y - sourceSize / 2, 
+        sourceSize, sourceSize,
+        0, 0, 
+        size, size
+    );
 }
 
 /** Uruchamia automatyczną kalibrację */

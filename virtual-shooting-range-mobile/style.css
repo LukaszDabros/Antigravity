@@ -187,6 +187,29 @@ body, html {
     line-height: 1.2;
 }
 
+/* Rząd postępu (serie/strzały) */
+#progress-row {
+    display: flex;
+    gap: 8px;
+    padding: 0 4px;
+}
+
+.progress-item {
+    flex: 1;
+    background: rgba(0, 243, 255, 0.05);
+    border-bottom: 2px solid rgba(0, 243, 255, 0.2);
+    padding: 4px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 4px;
+}
+
+.progress-item .stat-value {
+    font-size: 0.9rem;
+    color: var(--neon-blue);
+}
+
 /* ===== BOK: PIONOWY ZOOM (fixed, prawa krawędź) ===== */
 #side-controls {
     position: fixed;
@@ -243,11 +266,10 @@ body, html {
 #bottom-bar {
     position: fixed;
     /*
-     * 65px = bezpieczny margines ponad paskiem Chrome na Androidzie
-     * (pasek przeglądarki to ~56px). W fullscreen przyciski będą
-     * trochę wyżej niż trzeba, ale zawsze widoczne.
+     * 85px = bezpieczny margines ponad paskiem Chrome na Androidzie
+     * (pasek przeglądarki to ~56px). 
      */
-    bottom: 65px;
+    bottom: 85px;
     left: 0;
     width: 100%;
     z-index: 20;
@@ -587,4 +609,73 @@ body, html {
     animation: scanPulse 1.5s infinite;
     border-color: rgba(255,255,255,0.4);
     background: rgba(255,255,255,0.1);
+}
+
+/* ===== MAGNIFIER (LUPA) ===== */
+#magnifier {
+    position: fixed;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    border: 3px solid var(--neon-blue);
+    box-shadow: 0 0 25px rgba(0, 243, 255, 0.4), inset 0 0 10px rgba(0,0,0,0.8);
+    background: #000;
+    overflow: hidden;
+    z-index: 200;
+    pointer-events: none;
+    display: none;
+    /* Centrujemy względem pozycji palca z lekkim przesunięciem w górę */
+    transform: translate(-50%, -100%); 
+}
+
+#magnifier.active {
+    display: block;
+}
+
+#magnifier-canvas {
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
+
+.magnifier-cross {
+    position: absolute;
+    inset: 0;
+}
+.magnifier-cross::before, .magnifier-cross::after {
+    content: '';
+    position: absolute;
+    background: var(--neon-pink);
+    box-shadow: 0 0 5px var(--neon-pink);
+}
+.magnifier-cross::before { width: 1px; height: 100%; left: 50%; top: 0; }
+.magnifier-cross::after  { height: 1px; width: 100%; top: 50%; left: 0; }
+
+/* ===== RANKING TABLE ===== */
+.ranking-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: white;
+}
+.ranking-table th {
+    text-align: left;
+    padding: 8px;
+    border-bottom: 2px solid var(--neon-blue);
+    color: var(--neon-blue);
+    text-transform: uppercase;
+    font-size: 0.7rem;
+}
+.ranking-table td {
+    padding: 10px 8px;
+    border-bottom: 1px solid rgba(0, 243, 255, 0.1);
+}
+.ranking-table tr:last-child td {
+    border-bottom: none;
+}
+.ranking-table b {
+    color: #fff;
+    text-shadow: 0 0 5px rgba(255,255,255,0.3);
 }

@@ -1,0 +1,8 @@
+{
+  "appId": "com.laser.range.mobile",
+  "appName": "Laser Range",
+  "webDir": ".",
+  "server": {
+    "androidScheme": "https"
+  }
+}
