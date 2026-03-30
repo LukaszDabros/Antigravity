@@ -175,13 +175,27 @@ function calculateScore(x, y) {
 // 3. Zarządzanie Graczami i Ustawienia
 function updatePlayerButtons() {
     const btns = document.querySelectorAll('.player-btn');
+    
+    // Zasada: min 3 graczy, 4 i 5 tylko jeśli mają zmienione imię
+    let playersCount = 3;
+    for (let i = 4; i >= 3; i--) {
+        if (state.players[i].name !== `Gracz ${i+1}`) {
+            playersCount = i + 1;
+            break;
+        }
+    }
+
     btns.forEach((btn, i) => {
-        if (!state.players[i]) return;
-        const p = state.players[i];
-        const initial = p.name ? p.name.charAt(0).toUpperCase() : '?';
-        btn.innerText = `${i+1}. ${initial}`;
-        btn.classList.toggle('active', i === state.activePlayer);
-        btn.onclick = () => switchPlayer(i);
+        if (i < playersCount) {
+            const p = state.players[i];
+            const initial = p.name ? p.name.charAt(0).toUpperCase() : '?';
+            btn.innerText = `${i+1}. ${initial}`;
+            btn.classList.toggle('active', i === state.activePlayer);
+            btn.style.display = 'flex';
+            btn.onclick = () => switchPlayer(i);
+        } else {
+            btn.style.display = 'none';
+        }
     });
 }
 
