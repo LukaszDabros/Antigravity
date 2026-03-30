@@ -20,13 +20,23 @@
         <div id="hud">
             <div class="top-bar">
                 <div class="stat-box">
+                    <span class="label">ŚREDNIA</span>
+                    <span id="avg-val" class="value">0.0</span>
+                </div>
+                <div class="stat-box">
                     <span class="label">PUNKTY</span>
                     <span id="score-val" class="value">0</span>
                 </div>
                 <div class="stat-box">
-                    <span class="label">STRZAŁY</span>
-                    <span id="shots-val" class="value">0</span>
+                    <span class="label">MAX</span>
+                    <span id="max-val" class="value">0</span>
                 </div>
+            </div>
+
+            <!-- Sterowanie Zoomem -->
+            <div class="zoom-controls">
+                <button id="zoom-in" class="zoom-btn">+</button>
+                <button id="zoom-out" class="zoom-btn">-</button>
             </div>
 
             <div id="calibration-overlay" class="overlay active">
