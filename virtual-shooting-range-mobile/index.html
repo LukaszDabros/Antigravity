@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Laser Range Mobile</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+</head>
+<body class="cyber-theme">
+    <div id="app">
+        <!-- Warstwa tła (Kamera) -->
+        <div class="video-container">
+            <video id="camera-feed" autoplay playsinline muted></video>
+            <canvas id="detection-canvas"></canvas> <!-- Ukryty do analizy -->
+            <canvas id="ui-canvas"></canvas> <!-- Widoczna tarcza i trafienia -->
+        </div>
+
+        <!-- Nakładka UI (HUD) -->
+        <div id="hud">
+            <div class="top-bar">
+                <div class="stat-box">
+                    <span class="label">PUNKTY</span>
+                    <span id="score-val" class="value">0</span>
+                </div>
+                <div class="stat-box">
+                    <span class="label">STRZAŁY</span>
+                    <span id="shots-val" class="value">0</span>
+                </div>
+            </div>
+
+            <div id="calibration-overlay" class="overlay active">
+                <div class="overlay-content">
+                    <h1>KALIBRACJA</h1>
+                    <p>Wskaż 4 rogi tarczy na ścianie (zaczynając od LG zgodnie z zegarem)</p>
+                    <div class="progress-dots">
+                        <span class="dot active"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button id="reset-btn" class="glass-btn">RESET</button>
+                <button id="calibrate-btn" class="glass-btn primary">KALIBRACJA</button>
+            </div>
+            
+            <div id="last-shot-box">
+                OSTATNI: <span id="last-val">0</span>
+            </div>
+        </div>
+
+        <!-- Audio -->
+        <audio id="shot-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-gunshot-731.mp3" preload="auto"></audio>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
