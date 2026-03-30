@@ -421,32 +421,58 @@ function drawHit(x, y) {
     uiCtx.fill();
 }
 
-// 4. Drag & Drop (Poprawione dla Motorola G85 - contain fit)
+// =======================================================
+// 4. Kalibracja + Drag & Drop
+// =======================================================
+
 function getMousePos(e) {
-    const rect = video.getBoundingClientRect();
-    if (!uiCanvas.width || !uiCanvas.height) return { x: 0, y: 0 };
+    if (!e) return { x: 0, y: 0 };
+    const clientX = e.clientX !== undefined ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+    const clientY = e.clientY !== undefined ? e.clientY : (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
     
-    // Proste mapowanie: poz. na ekranie → poz. w przestrzeni canvasu
-    // Działa poprawnie dla object-fit: cover (wideo wypełnia cały ekran)
+    const rect = video.getBoundingClientRect();
+    const w = rect.width  || window.innerWidth;
+    const h = rect.height || window.innerHeight;
+    const cw = uiCanvas.width  || window.innerWidth;
+    const ch = uiCanvas.height || window.innerHeight;
+    
     return {
-        x: (e.clientX - rect.left) / rect.width  * uiCanvas.width,
-        y: (e.clientY - rect.top)  / rect.height * uiCanvas.height
+        x: (clientX - rect.left) / w * cw,
+        y: (clientY - rect.top)  / h * ch
     };
 }
 
-function startDrag(e) {
-    if (state.isCalibrating) {
-        const pos = getMousePos(e);
-        state.corners.push(pos);
-        
-        const dots = document.querySelectorAll('.dot');
-        if (dots[state.corners.length - 1]) dots[state.corners.length - 1].classList.add('active');
-        
-        if (state.corners.length === 4) finishCalibration();
-        return;
+// Rejestruje punkt kalibracji (niezaleznie od sposobu dotknięcia)
+function registerCalibTap(clientX, clientY) {
+    if (!state.isCalibrating) return;
+    
+    const w  = video.getBoundingClientRect().width  || window.innerWidth;
+    const h  = video.getBoundingClientRect().height || window.innerHeight;
+    const cw = uiCanvas.width  || window.innerWidth;
+    const ch = uiCanvas.height || window.innerHeight;
+    const rx = video.getBoundingClientRect().left;
+    const ry = video.getBoundingClientRect().top;
+    
+    const pos = {
+        x: (clientX - rx) / w * cw,
+        y: (clientY - ry) / h * ch
+    };
+    
+    state.corners.push(pos);
+    const dots = document.querySelectorAll('.dot');
+    if (dots[state.corners.length - 1]) {
+        dots[state.corners.length - 1].classList.add('active');
     }
+    if (navigator.vibrate) navigator.vibrate(30);
+    if (state.corners.length >= 4) finishCalibration();
+}
 
-    if (!state.isEditing) return; // Zablokowane
+function startDrag(e) {
+    if (!e) return;
+    
+    // Kalibracja obsługiwana przez registerCalibTap – ignoruj tutaj
+    if (state.isCalibrating) return;
+    if (!state.isEditing) return;
     
     const pos = getMousePos(e);
     state.corners.forEach((p, i) => {
@@ -527,14 +553,41 @@ document.getElementById('full-reset-btn').onclick = () => {
     }
 };
 
-document.getElementById('calibrate-btn').onclick = () => {
-    startCalibration();
-};
+document.getElementById('calibrate-btn').onclick = () => startCalibration();
 
 document.getElementById('close-result').onclick = () => {
     resultModal.classList.remove('active');
-    if(navigator.vibrate) navigator.vibrate(20);
+    if (navigator.vibrate) navigator.vibrate(20);
 };
+
+// =================== Bezpośredni handler kalibracji ===================
+// WAŻNE: używane zamiast window events dla niezawodnego działania na Androidzie
+const calibOverlay = document.getElementById('calibration-overlay');
+
+calibOverlay.addEventListener('click', (e) => {
+    registerCalibTap(e.clientX, e.clientY);
+});
+
+calibOverlay.addEventListener('touchstart', (e) => {
+    e.preventDefault(); // Blokuj generowanie click po dotknięciu
+    const t = e.changedTouches[0] || e.touches[0];
+    if (t) registerCalibTap(t.clientX, t.clientY);
+}, { passive: false });
+
+// =================== Globalne eventy (drag kalibracji rogow) ===================
+window.addEventListener('mousedown', startDrag);
+window.addEventListener('touchstart', (e) => {
+    const t = e.changedTouches[0] || e.touches[0];
+    if (t) startDrag(t);
+});
+window.addEventListener('mousemove', doDrag);
+window.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    const t = e.changedTouches[0] || e.touches[0];
+    if (t) doDrag(t);
+}, { passive: false });
+window.addEventListener('mouseup', stopDrag);
+window.addEventListener('touchend', stopDrag);
 
 updatePlayerButtons();
 initCamera();
