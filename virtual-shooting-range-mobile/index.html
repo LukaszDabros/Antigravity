@@ -94,8 +94,9 @@
                 </div>
 
                 <div class="settings-group">
-                    <label>KALIBRACJA</label>
-                    <button id="calibrate-btn" class="action-btn primary" style="width:100%">🎯 URUCHOM KALIBRACJĘ</button>
+                    <label>KALIBRACJA TARCZY</label>
+                    <button id="auto-calib-btn" class="action-btn primary" style="width:100%;margin-bottom:8px">🤖 AUTO KALIBRACJA</button>
+                    <button id="calibrate-btn" class="action-btn" style="width:100%">✏️ RĘCZNA (4 rogi)</button>
                 </div>
 
                 <div class="settings-group">
@@ -127,6 +128,22 @@
                 <div class="progress-dots">
                     <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
                 </div>
+            </div>
+        </div>
+
+        <!-- Auto-Kalibracja overlay (podgląd z możliwością korekty) -->
+        <div id="auto-calib-overlay" class="overlay">
+            <!-- Uchwyty rógów (renderowane przez JS) -->
+            <div id="corner-handles"></div>
+
+            <!-- Panel statusu na dole -->
+            <div id="auto-calib-panel">
+                <p id="auto-calib-status">&#x1F50D; Szukam tarczy&#x2026;</p>
+                <div class="auto-calib-row">
+                    <button id="auto-calib-retry" class="action-btn">&#x1F504; PONOWNIE</button>
+                    <button id="auto-calib-confirm" class="action-btn primary">&#x2713; ZATWIERDŻ</button>
+                </div>
+                <button id="auto-calib-manual" class="action-btn" style="width:100%;margin-top:8px;font-size:0.8rem">&#x270F;&#xFE0F; Przełącz na ręczną</button>
             </div>
         </div>
 

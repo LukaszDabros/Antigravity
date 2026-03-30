@@ -560,6 +560,202 @@ document.getElementById('close-result').onclick = () => {
     if (navigator.vibrate) navigator.vibrate(20);
 };
 
+// =================== AUTO KALIBRACJA ===================
+
+const autoCalibOverlay = document.getElementById('auto-calib-overlay');
+const autoCalibStatus  = document.getElementById('auto-calib-status');
+const cornerHandlesEl  = document.getElementById('corner-handles');
+
+let autoCorners = []; // Tymczasowe rogi do korekty
+let dragCornerIdx = -1;
+let dragCornerStart = { x: 0, y: 0 };
+
+/**
+ * Analizuje klatkę wideo i szuka jasnego prostokąta (biały papier tarczy).
+ * Zwraca tablicę [TL, TR, BR, BL] lub null jeśli nie znaleziono.
+ */
+function detectTarget() {
+    const SCALE = 6; // Próbkujemy 6x mniej pikseli dla szybkości
+    const w = Math.floor((video.videoWidth  || window.innerWidth)  / SCALE);
+    const h = Math.floor((video.videoHeight || window.innerHeight) / SCALE);
+    if (w < 10 || h < 10) return null;
+
+    const tmp = document.createElement('canvas');
+    tmp.width  = w;
+    tmp.height = h;
+    const ctx = tmp.getContext('2d');
+    ctx.drawImage(video, 0, 0, w, h);
+    const data = ctx.getImageData(0, 0, w, h).data;
+
+    // Próg jasności — tarcza to biały/jasnoczerwony papier
+    const THRESH = 170;
+    let minX = w, maxX = 0, minY = h, maxY = 0, cnt = 0;
+    const MARGIN = 1; // Ignoruj skrajne piksele
+
+    for (let y = MARGIN; y < h - MARGIN; y++) {
+        for (let x = MARGIN; x < w - MARGIN; x++) {
+            const i = (y * w + x) * 4;
+            const bright = (data[i] + data[i+1] + data[i+2]) / 3;
+            if (bright > THRESH) {
+                if (x < minX) minX = x;
+                if (x > maxX) maxX = x;
+                if (y < minY) minY = y;
+                if (y > maxY) maxY = y;
+                cnt++;
+            }
+        }
+    }
+
+    const coverage = cnt / (w * h);
+    if (coverage < 0.015) return null; // Za mało jasnych pikseli
+    if ((maxX - minX) < w * 0.05 || (maxY - minY) < h * 0.05) return null;
+
+    // Przelicz na współrzędne canvasu
+    const cw = uiCanvas.width  || window.innerWidth;
+    const ch = uiCanvas.height || window.innerHeight;
+
+    return [
+        { x: minX * SCALE * (cw / video.videoWidth),  y: minY * SCALE * (ch / video.videoHeight) }, // TL
+        { x: maxX * SCALE * (cw / video.videoWidth),  y: minY * SCALE * (ch / video.videoHeight) }, // TR
+        { x: maxX * SCALE * (cw / video.videoWidth),  y: maxY * SCALE * (ch / video.videoHeight) }, // BR
+        { x: minX * SCALE * (cw / video.videoWidth),  y: maxY * SCALE * (ch / video.videoHeight) }  // BL
+    ];
+}
+
+/** Renderuje 4 uchwyty rogów w overlaycie auto-kalibracji */
+function renderCornerHandles() {
+    cornerHandlesEl.innerHTML = '';
+    const labels = ['LG','PG','PD','LD'];
+    const sw = window.innerWidth, sh = window.innerHeight;
+    const cw = uiCanvas.width  || sw;
+    const ch = uiCanvas.height || sh;
+
+    autoCorners.forEach((c, i) => {
+        const el = document.createElement('div');
+        el.className = 'corner-handle';
+        el.textContent = labels[i];
+        // Przelicz z canvas-space → screen-space
+        el.style.left = (c.x / cw * sw) + 'px';
+        el.style.top  = (c.y / ch * sh) + 'px';
+
+        // Obsługa ciągnięcia (touch)
+        el.addEventListener('touchstart', (e) => {
+            e.stopPropagation();
+            dragCornerIdx = i;
+            const t = e.changedTouches[0];
+            dragCornerStart = { x: t.clientX, y: t.clientY };
+        }, { passive: true });
+
+        // Obsługa ciągnięcia (mouse)
+        el.addEventListener('mousedown', (e) => {
+            e.stopPropagation();
+            dragCornerIdx = i;
+            dragCornerStart = { x: e.clientX, y: e.clientY };
+        });
+
+        cornerHandlesEl.appendChild(el);
+    });
+}
+
+// Move handles globally
+window.addEventListener('touchmove', (e) => {
+    if (dragCornerIdx < 0 || !autoCalibOverlay.classList.contains('active')) return;
+    const t = e.changedTouches[0];
+    moveCorner(t.clientX, t.clientY);
+}, { passive: true });
+
+window.addEventListener('mousemove', (e) => {
+    if (dragCornerIdx < 0 || !autoCalibOverlay.classList.contains('active')) return;
+    moveCorner(e.clientX, e.clientY);
+});
+
+window.addEventListener('touchend', () => { dragCornerIdx = -1; });
+window.addEventListener('mouseup',   () => { dragCornerIdx = -1; });
+
+function moveCorner(clientX, clientY) {
+    const sw = window.innerWidth, sh = window.innerHeight;
+    const cw = uiCanvas.width  || sw;
+    const ch = uiCanvas.height || sh;
+    autoCorners[dragCornerIdx] = {
+        x: Math.max(0, Math.min(cw, clientX / sw * cw)),
+        y: Math.max(0, Math.min(ch, clientY / sh * ch))
+    };
+    renderCornerHandles();
+    // Podgląd wyniku na canvasie (rysuj prostokąt)
+    uiCtx.clearRect(0, 0, uiCanvas.width, uiCanvas.height);
+    uiCtx.strokeStyle = 'rgba(0, 243, 255, 0.8)';
+    uiCtx.lineWidth = 3;
+    uiCtx.beginPath();
+    autoCorners.forEach((p, i) => i === 0 ? uiCtx.moveTo(p.x, p.y) : uiCtx.lineTo(p.x, p.y));
+    uiCtx.closePath();
+    uiCtx.stroke();
+}
+
+/** Uruchamia automatyczną kalibrację */
+function startAutoCalibration() {
+    settingsModal.classList.remove('active');
+    autoCorners = [];
+    cornerHandlesEl.innerHTML = '';
+    autoCalibStatus.textContent = '🔍 Szukam tarczy...';
+    autoCalibOverlay.classList.add('active');
+    uiCtx.clearRect(0, 0, uiCanvas.width, uiCanvas.height);
+
+    // Krótkie opóźnienie, żeby kamera zdążyła ustabilizować obraz
+    setTimeout(() => {
+        const result = detectTarget();
+        if (result) {
+            autoCorners = result;
+            autoCalibStatus.textContent = '✓ Tarcza wykryta! Przeciągnij rogi, aby skorygować.';
+            renderCornerHandles();
+            // Narysuj podgląd prostokąta
+            moveCorner(autoCorners[0].x, autoCorners[0].y); // Trigger redraw
+            dragCornerIdx = -1;
+        } else {
+            autoCalibStatus.textContent = '⚠ Nie mogę wykryć tarczy. Ustaw lepsze oświetlenie lub kalibruj ręcznie.';
+        }
+    }, 800);
+}
+
+document.getElementById('auto-calib-btn').onclick = startAutoCalibration;
+
+document.getElementById('auto-calib-retry').onclick = () => {
+    autoCorners = [];
+    cornerHandlesEl.innerHTML = '';
+    autoCalibStatus.textContent = '🔍 Szukam tarczy...';
+    uiCtx.clearRect(0, 0, uiCanvas.width, uiCanvas.height);
+    setTimeout(() => {
+        const result = detectTarget();
+        if (result) {
+            autoCorners = result;
+            autoCalibStatus.textContent = '✓ Tarcza wykryta! Przeciągnij rogi, aby skorygować.';
+            renderCornerHandles();
+            dragCornerIdx = -1;
+        } else {
+            autoCalibStatus.textContent = '⚠ Nie wykryto. Popraw oświetlenie lub użyj ręcznej kalibracji.';
+        }
+    }, 600);
+};
+
+document.getElementById('auto-calib-confirm').onclick = () => {
+    if (autoCorners.length < 4) {
+        autoCalibStatus.textContent = '⚠ Najpierw wykryj lub ustaw 4 rogi.';
+        return;
+    }
+    state.corners = [...autoCorners];
+    localStorage.setItem('laser_range_calib', JSON.stringify(state.corners));
+    autoCalibOverlay.classList.remove('active');
+    cornerHandlesEl.innerHTML = '';
+    uiCtx.clearRect(0, 0, uiCanvas.width, uiCanvas.height);
+    drawTarget();
+    if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
+};
+
+document.getElementById('auto-calib-manual').onclick = () => {
+    autoCalibOverlay.classList.remove('active');
+    cornerHandlesEl.innerHTML = '';
+    startCalibration(); // Przełącz na ręczną
+};
+
 // =================== Bezpośredni handler kalibracji ===================
 // WAŻNE: używane zamiast window events dla niezawodnego działania na Androidzie
 const calibOverlay = document.getElementById('calibration-overlay');
