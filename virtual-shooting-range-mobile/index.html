@@ -9,23 +9,35 @@
 </head>
 <body class="cyber-theme">
     <div id="app">
-        <!-- Warstwa tła (Kamera) -->
+        <!-- Podgląd wideo i celownik -->
         <div class="video-container">
             <video id="camera-feed" autoplay playsinline muted></video>
-            <canvas id="detection-canvas"></canvas> <!-- Ukryty do analizy -->
-            <canvas id="ui-canvas"></canvas> <!-- Widoczna tarcza i trafienia -->
+            <canvas id="detection-canvas"></canvas>
+            <canvas id="ui-canvas"></canvas>
         </div>
 
         <!-- Nakładka UI (HUD) -->
         <div id="hud" class="flex-column">
+            <!-- Pasek Graczy -->
+            <div id="players-bar" class="flex-row">
+                <button class="player-btn active" data-id="0">1. P</button>
+                <button class="player-btn" data-id="1">2. P</button>
+                <button class="player-btn" data-id="2">3. P</button>
+                <button class="player-btn" data-id="3">4. P</button>
+                <button class="player-btn" data-id="4">5. P</button>
+            </div>
+
             <div class="top-bar flex-row">
-                <div class="stat-box">
+                <div class="stat-box" id="mode-selector">
                     <span class="label">TRYB</span>
                     <span id="mode-val" class="value small">FREE</span>
                 </div>
                 <div class="stat-box">
                     <span class="label">PUNKTY</span>
-                    <span id="score-val" class="value">0</span>
+                    <div class="flex-row stat-row">
+                        <span id="score-val" class="value">0</span>
+                        <button id="reset-session-btn" title="Resetuj wyniki gracza">🗑️</button>
+                    </div>
                 </div>
                 <div class="stat-box">
                     <span class="label">ŚREDNIA</span>

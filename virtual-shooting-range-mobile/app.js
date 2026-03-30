@@ -25,14 +25,20 @@ let state = {
     isCalibrating: true,
     calibrationStep: 0,
     corners: [], // [tl, tr, br, bl]
-    score: 0,
-    shots: 0,
-    sessionShots: 0,
-    sessionScore: 0,
     isArmed: true, 
     threshold: 230,
     lastShotTime: 0,
     zoom: 1.0,
+    
+    // Gracze
+    players: [
+        { name: "Gracz 1", score: 0, shots: 0, hits: [] },
+        { name: "Gracz 2", score: 0, shots: 0, hits: [] },
+        { name: "Gracz 3", score: 0, shots: 0, hits: [] },
+        { name: "Gracz 4", score: 0, shots: 0, hits: [] },
+        { name: "Gracz 5", score: 0, shots: 0, hits: [] }
+    ],
+    activePlayer: 0,
     
     // Sesje
     mode: 'FREE', // FREE, PRECISION, SPEED
@@ -50,6 +56,8 @@ let state = {
 function loadSettings() {
     const saved = localStorage.getItem('laser_range_calib');
     const savedZoom = localStorage.getItem('laser_range_zoom');
+    const savedPlayers = localStorage.getItem('laser_range_players');
+    
     if (saved) {
         state.corners = JSON.parse(saved);
         state.isCalibrating = false;
@@ -60,6 +68,10 @@ function loadSettings() {
     if (savedZoom) {
         state.zoom = parseFloat(savedZoom);
         applyZoom();
+    }
+    if (savedPlayers) {
+        state.players = JSON.parse(savedPlayers);
+        updatePlayerButtons();
     }
 }
 
@@ -135,22 +147,59 @@ function calculateScore(x, y) {
     return 0;
 }
 
-// 3. Punktacja i Sesje
+// 3. Zarządzanie Graczami
+function updatePlayerButtons() {
+    const btns = document.querySelectorAll('.player-btn');
+    btns.forEach((btn, i) => {
+        const p = state.players[i];
+        // Inicjał z imienia (np. "Adam" -> "1. A")
+        const initial = p.name ? p.name.charAt(0).toUpperCase() : '?';
+        btn.innerText = `${i+1}. ${initial}`;
+        btn.classList.toggle('active', i === state.activePlayer);
+        
+        // Zdarzenia dla przycisków graczy
+        btn.onclick = () => switchPlayer(i);
+        
+        // Długie naciśnięcie dla edycji imienia
+        let timer;
+        btn.onmousedown = btn.ontouchstart = () => {
+            timer = setTimeout(() => editPlayerName(i), 800);
+        };
+        btn.onmouseup = btn.ontouchend = () => clearTimeout(timer);
+    });
+}
+
+function switchPlayer(index) {
+    if (state.sessionState === 'ACTIVE') return alert("Zakończ sesję przed zmianą gracza!");
+    state.activePlayer = index;
+    updatePlayerButtons();
+    updateUI();
+    drawTarget();
+    if(navigator.vibrate) navigator.vibrate(20);
+}
+
+function editPlayerName(index) {
+    const newName = prompt("Wpisz imię zawodnika:", state.players[index].name);
+    if (newName && newName.trim().length > 0) {
+        state.players[index].name = newName.trim();
+        localStorage.setItem('laser_range_players', JSON.stringify(state.players));
+        updatePlayerButtons();
+    }
+}
+
+// 4. Punktacja i Sesje
 function processShot(x, y) {
     if (Date.now() - state.lastShotTime < 400) return;
-    
-    // Jeśli sesja jest aktywna, sprawdzamy warunki
     if (state.sessionState !== 'ACTIVE' && state.mode !== 'FREE') return;
 
     const points = calculateScore(x, y);
     if (points === 0) return;
 
-    state.shots++;
-    state.score += points;
-    
-    // Statystyki sesji
-    state.sessionShots++;
-    state.sessionScore += points;
+    // Dodanie trefienia do aktywnego gracza
+    const p = state.players[state.activePlayer];
+    p.shots++;
+    p.score += points;
+    p.hits.push({ x, y, points, time: Date.now() });
 
     updateUI();
     shotSound.currentTime = 0;
@@ -158,25 +207,37 @@ function processShot(x, y) {
     drawHit(x, y);
     state.lastShotTime = Date.now();
 
-    // Koniec sesji "Precyzja"
-    if (state.mode === 'PRECISION' && state.sessionShots >= 10) {
+    if (state.mode === 'PRECISION' && p.shots >= 10) {
         endSession();
     }
 }
 
 function updateUI() {
-    scoreEl.innerText = state.score;
-    avgValEl.innerText = state.shots > 0 ? (state.score / state.shots).toFixed(1) : "0.0";
+    const p = state.players[state.activePlayer];
+    scoreEl.innerText = p.score;
+    avgValEl.innerText = p.shots > 0 ? (p.score / p.shots).toFixed(1) : "0.0";
     modeValEl.innerText = state.mode;
+    lastValEl.innerText = p.hits.length > 0 ? p.hits[p.hits.length - 1].points : "0";
 }
 
-// Tryby treningowe
-document.getElementById('mode-toggle').onclick = () => {
+document.getElementById('mode-selector').onclick = () => {
     const modes = ['FREE', 'PRECISION', 'SPEED'];
     let idx = modes.indexOf(state.mode);
     state.mode = modes[(idx + 1) % modes.length];
     updateUI();
-    if(navigator.vibrate) navigator.vibrate(20);
+    if(navigator.vibrate) navigator.vibrate(30);
+};
+
+document.getElementById('reset-session-btn').onclick = () => {
+    if (confirm("Wyczyścić tarcze i wyniki tylko dla tego gracza?")) {
+        const p = state.players[state.activePlayer];
+        p.score = 0;
+        p.shots = 0;
+        p.hits = [];
+        updateUI();
+        drawTarget();
+        if(navigator.vibrate) navigator.vibrate(50);
+    }
 };
 
 document.getElementById('start-session-btn').onclick = startSession;
@@ -185,8 +246,14 @@ function startSession() {
     if (state.isCalibrating) return alert("Najpierw skalibruj tarczę!");
     
     state.sessionState = 'COUNTDOWN';
-    state.sessionScore = 0;
-    state.sessionShots = 0;
+    // Czyścimy wyniki sesji dla aktywnego gracza jeśli tryb tego wymaga
+    const p = state.players[state.activePlayer];
+    if (state.mode !== 'FREE') {
+        p.score = 0;
+        p.shots = 0;
+        p.hits = [];
+    }
+    
     uiCtx.clearRect(0, 0, uiCanvas.width, uiCanvas.height); 
     drawTarget();
     
@@ -224,9 +291,10 @@ function startSpeedTimer() {
 
 function endSession() {
     state.sessionState = 'IDLE';
-    resScoreEl.innerText = state.sessionScore;
-    resShotsEl.innerText = state.sessionShots;
-    resAvgEl.innerText = state.sessionShots > 0 ? (state.sessionScore / state.sessionShots).toFixed(1) : "0.0";
+    const p = state.players[state.activePlayer];
+    resScoreEl.innerText = p.score;
+    resShotsEl.innerText = p.shots;
+    resAvgEl.innerText = p.shots > 0 ? (p.score / p.shots).toFixed(1) : "0.0";
     resultModal.classList.add('active');
 }
 
@@ -253,6 +321,10 @@ function drawTarget() {
         uiCtx.strokeStyle = (10-i) >= 7 ? 'rgba(0, 243, 255, 0.4)' : 'rgba(255, 255, 255, 0.1)';
         uiCtx.stroke();
     });
+
+    // Rysowanie trafień aktywnego gracza
+    const p = state.players[state.activePlayer];
+    p.hits.forEach(hit => drawHit(hit.x, hit.y));
 
     uiCtx.strokeStyle = 'cyan';
     uiCtx.lineWidth = 2;
@@ -402,4 +474,6 @@ window.addEventListener('touchmove', (e) => { e.preventDefault(); doDrag(e.touch
 window.addEventListener('mouseup', stopDrag);
 window.addEventListener('touchend', stopDrag);
 
+// Inicjalizacja przycisków na starcie
+updatePlayerButtons();
 initCamera();
