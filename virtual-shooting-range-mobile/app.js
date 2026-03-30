@@ -780,7 +780,7 @@ function startAutoCalibration() {
 document.getElementById('auto-calib-btn').onclick = startAutoCalibration;
 
 document.getElementById('auto-calib-retry').onclick = () => {
-    autoCalibStatus.textContent = '\uD83D\uDD0D Szukam tarczy\u2026';
+    autoCalibStatus.textContent = '🔍 Szukam tarczy...';
     autoCorners = defaultCorners();
     renderCornerHandles();
     drawPreviewRect();
@@ -788,9 +788,9 @@ document.getElementById('auto-calib-retry').onclick = () => {
         const result = detectTarget();
         if (result) {
             autoCorners = result;
-            autoCalibStatus.textContent = '\u2713 Tarcza wykryta! Przeci\u0105gnij r\u00F3g by poprawi\u0107.';
+            autoCalibStatus.textContent = '✓ Tarcza wykryta! Przeciągnij róg by poprawić.';
         } else {
-            autoCalibStatus.textContent = '\u26A0 Nie wykryto. Przeci\u0105gnij rogi r\u0119cznie.';
+            autoCalibStatus.textContent = '⚠ Nie wykryto. Przeciągnij rogi ręcznie.';
         }
         renderCornerHandles();
         drawPreviewRect();
