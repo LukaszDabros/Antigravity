@@ -1,0 +1,205 @@
+:root {
+    --bg-color: #0d0e15;
+    --card-bg: rgba(255, 255, 255, 0.03);
+    --card-border: rgba(255, 255, 255, 0.08);
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --accent: #6366f1;
+    --accent-glow: rgba(99, 102, 241, 0.4);
+    --tag-bg: rgba(255, 255, 255, 0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Outfit', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    line-height: 1.6;
+    overflow-x: hidden;
+    position: relative;
+    min-height: 100vh;
+}
+
+/* Tło z pięknym, nowoczesnym gradientem */
+.background-effect {
+    position: fixed;
+    top: -50%;
+    left: -20%;
+    width: 140vw;
+    height: 140vh;
+    background: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.15), rgba(13, 14, 21, 1) 60%);
+    z-index: -1;
+    pointer-events: none;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+/* Nagłówek */
+header {
+    text-align: center;
+    margin-bottom: 60px;
+    animation: fadeInDown 0.8s ease-out;
+}
+
+.badge {
+    display: inline-block;
+    padding: 6px 16px;
+    background: rgba(99, 102, 241, 0.2);
+    border: 1px solid var(--accent);
+    border-radius: 50px;
+    color: #a5b4fc;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 15px;
+    background: linear-gradient(to right, #fff, #a5b4fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 40px var(--accent-glow);
+}
+
+header p {
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* Oś czasu / Karty */
+.timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.event-card {
+    display: flex;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 25px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    animation: fadeInUp 0.6s ease-out backwards;
+}
+
+/* Opóźnienia dla płynnej animacji pojawiania się */
+.event-card:nth-child(1) { animation-delay: 0.1s; }
+.event-card:nth-child(2) { animation-delay: 0.2s; }
+.event-card:nth-child(3) { animation-delay: 0.3s; }
+.event-card:nth-child(4) { animation-delay: 0.4s; }
+.event-card:nth-child(5) { animation-delay: 0.5s; }
+
+.event-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3), 0 0 20px var(--accent-glow);
+    border-color: rgba(99, 102, 241, 0.5);
+}
+
+.time-block {
+    flex: 0 0 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    border-right: 2px dashed rgba(255, 255, 255, 0.1);
+    margin-right: 25px;
+    padding-right: 25px;
+}
+
+.time {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+}
+
+.duration {
+    font-size: 0.9rem;
+    color: var(--accent);
+    margin-top: 5px;
+    font-weight: 500;
+}
+
+.event-info {
+    flex: 1;
+}
+
+.event-info h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #e2e8f0;
+}
+
+.event-info p {
+    color: var(--text-muted);
+    font-size: 1rem;
+    margin-bottom: 15px;
+}
+
+.tag {
+    display: inline-block;
+    padding: 4px 12px;
+    background: var(--tag-bg);
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #cbd5e1;
+}
+
+/* Kolorki tagów */
+.tag-soccer { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+.tag-volleyball { background: rgba(234, 179, 8, 0.15); color: #facc15; }
+.tag-break { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+
+/* RWD - Dostosowanie do telefonów */
+@media (max-width: 600px) {
+    .event-card {
+        flex-direction: column;
+    }
+    
+    .time-block {
+        border-right: none;
+        border-bottom: 2px dashed rgba(255, 255, 255, 0.1);
+        margin-right: 0;
+        padding-right: 0;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        flex-direction: row;
+        align-items: center;
+        gap: 15px;
+        flex: auto;
+    }
+    
+    h1 {
+        font-size: 2.2rem;
+    }
+}
+
+/* Animacje */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
