@@ -142,7 +142,13 @@
                 <div class="settings-group">
                     <label>KALIBRACJA TARCZY</label>
                     <button id="auto-calib-btn" class="action-btn primary" style="width:100%;margin-bottom:8px">🤖 AUTO KALIBRACJA</button>
-                    <button id="calibrate-btn" class="action-btn" style="width:100%">✏️ RĘCZNA (4 rogi)</button>
+                    <button id="calibrate-btn" class="action-btn" style="width:100%;margin-bottom:12px">✏️ RĘCZNA (4 rogi)</button>
+                    
+                    <label>CZUŁOŚĆ LASERA (JASNOŚĆ)</label>
+                    <div style="display:flex; align-items:center; gap:10px; margin-top:5px;">
+                        <input type="range" id="sensitivity-slider" min="100" max="255" value="230" style="flex:1">
+                        <span id="sensitivity-val" style="width:40px; text-align:right; font-family:'JetBrains Mono',monospace;">230</span>
+                    </div>
                 </div>
 
                 <div class="settings-group">

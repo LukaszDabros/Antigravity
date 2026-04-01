@@ -122,6 +122,13 @@ function loadSettings() {
     const savedSpeed = localStorage.getItem('laser_range_speed_time');
     if (savedSpeed) document.getElementById('speed-time-input').value = savedSpeed;
 
+    const savedThreshold = localStorage.getItem('laser_range_threshold');
+    if (savedThreshold) {
+        state.threshold = parseInt(savedThreshold);
+        document.getElementById('sensitivity-slider').value = state.threshold;
+        document.getElementById('sensitivity-val').innerText = state.threshold;
+    }
+
     updatePlayerButtons();
     syncSettingsUI();
     setMode(state.mode);
@@ -399,6 +406,12 @@ document.getElementById('set-mode-speed').onclick = () => setMode('SPEED');
 
 document.getElementById('speed-time-input').onchange = (e) => {
     localStorage.setItem('laser_range_speed_time', e.target.value);
+};
+
+document.getElementById('sensitivity-slider').oninput = (e) => {
+    state.threshold = parseInt(e.target.value);
+    document.getElementById('sensitivity-val').innerText = state.threshold;
+    localStorage.setItem('laser_range_threshold', state.threshold);
 };
 
 document.getElementById('finish-series-btn').onclick = () => {
