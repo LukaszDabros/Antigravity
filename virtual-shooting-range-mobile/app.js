@@ -63,6 +63,8 @@ let state = {
     shotsInCurrentSeries: 0
 };
 
+let seriesTransitionTimeout = null;
+
 // Selektory postępu
 const seriesValEl = document.getElementById('series-val');
 const shotCountValEl = document.getElementById('shot-count-val');
@@ -286,7 +288,7 @@ document.getElementById('settings-close-btn').onclick = () => {
 // Edycja imion w menu
 namesInputs.forEach((input, i) => {
     input.oninput = () => {
-        state.players[i].name = input.value || `Gracz ${i+1}`;
+        state.players[i].name = input.value; // Pozwalamy na puste by dezaktywować graczy usunięciem tekstu
         localStorage.setItem('laser_range_players', JSON.stringify(state.players));
         updatePlayerButtons();
     };
@@ -336,8 +338,11 @@ function processShot(x, y) {
     state.lastShotTime = Date.now();
 
     // Automatyczny koniec serii po 10 strzałach
-    if (state.shotsInCurrentSeries >= 10) {
-        setTimeout(finishSeries, 800); // Małe opóźnienie by zobaczyć ostatni strzał
+    if (state.shotsInCurrentSeries >= 10 && !seriesTransitionTimeout) {
+        seriesTransitionTimeout = setTimeout(() => {
+            seriesTransitionTimeout = null;
+            finishSeries();
+        }, 800); // Małe opóźnienie by zobaczyć ostatni strzał
     }
 }
 
@@ -367,6 +372,10 @@ document.getElementById('mode-selector').onclick = () => {
 };
 
 document.getElementById('finish-series-btn').onclick = () => {
+    if (seriesTransitionTimeout) {
+        clearTimeout(seriesTransitionTimeout);
+        seriesTransitionTimeout = null;
+    }
     finishSeries();
 };
 
@@ -433,15 +442,39 @@ document.getElementById('start-session-btn').onclick = startSession;
 function startSession() {
     if (state.isCalibrating) return alert("Najpierw skalibruj tarczę!");
     
-    state.sessionState = 'COUNTDOWN';
-    // Czyścimy wyniki sesji dla aktywnego gracza jeśli tryb tego wymaga
-    const p = state.players[state.activePlayer];
-    if (state.mode !== 'FREE') {
-        p.score = 0;
-        p.shots = 0;
-        p.hits = [];
+    if (seriesTransitionTimeout) {
+        clearTimeout(seriesTransitionTimeout);
+        seriesTransitionTimeout = null;
     }
     
+    state.sessionState = 'COUNTDOWN';
+    state.currentSeries = 1;
+    state.shotsInCurrentSeries = 0;
+    
+    // Ustawiamy właściwego gracza startowego
+    let firstPlayer = 0;
+    if (state.isMultiplayer) {
+         for(let i=0; i<5; i++) {
+             if (isCustomPlayer(i)) { firstPlayer = i; break; }
+         }
+    }
+    state.activePlayer = firstPlayer;
+
+    // Czyścimy wyniki sesji dla aktywnego gracza jeśli tryb tego wymaga
+    if (state.mode !== 'FREE') {
+        state.players.forEach(p => {
+            p.score = 0;
+            p.shots = 0;
+            p.hits = [];
+            p.top10 = [];
+            p.completedSeries = 0;
+        });
+    } else {
+        state.players.forEach(p => { p.hits = []; });
+    }
+    
+    updatePlayerButtons();
+    updateUI();
     uiCtx.clearRect(0, 0, uiCanvas.width, uiCanvas.height); 
     drawTarget();
     
