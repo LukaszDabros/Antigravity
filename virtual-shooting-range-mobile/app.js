@@ -60,7 +60,8 @@ let state = {
     // Serie
     currentSeries: 1,
     targetSeries: 5,
-    shotsInCurrentSeries: 0
+    shotsInCurrentSeries: 0,
+    isNextPlayerPrompt: false
 };
 
 let seriesTransitionTimeout = null;
@@ -118,8 +119,12 @@ function loadSettings() {
         document.getElementById('target-series-input').value = state.targetSeries;
     }
 
+    const savedSpeed = localStorage.getItem('laser_range_speed_time');
+    if (savedSpeed) document.getElementById('speed-time-input').value = savedSpeed;
+
     updatePlayerButtons();
     syncSettingsUI();
+    setMode(state.mode);
 }
 
 function syncSettingsUI() {
@@ -286,13 +291,23 @@ document.getElementById('settings-close-btn').onclick = () => {
 };
 
 // Edycja imion w menu
-namesInputs.forEach((input, i) => {
-    input.oninput = () => {
-        state.players[i].name = input.value; // Pozwalamy na puste by dezaktywować graczy usunięciem tekstu
-        localStorage.setItem('laser_range_players', JSON.stringify(state.players));
-        updatePlayerButtons();
-    };
-});
+document.getElementById('apply-players-btn').onclick = () => {
+    namesInputs.forEach((input, i) => {
+        state.players[i].name = input.value;
+    });
+    localStorage.setItem('laser_range_players', JSON.stringify(state.players));
+    updatePlayerButtons();
+    
+    // Switch to first available player
+    let firstPlayer = 0;
+    if (state.isMultiplayer) {
+         for(let i=0; i<5; i++) {
+             if (isCustomPlayer(i)) { firstPlayer = i; break; }
+         }
+    }
+    switchPlayer(firstPlayer);
+    if (navigator.vibrate) navigator.vibrate(20);
+};
 
 // Solo vs Multi
 document.getElementById('solo-mode-btn').onclick = () => {
@@ -312,6 +327,7 @@ document.getElementById('multi-mode-btn').onclick = () => {
 function processShot(x, y) {
     if (Date.now() - state.lastShotTime < 450) return;
     if (state.sessionState !== 'ACTIVE' && state.mode !== 'FREE') return;
+    if (state.isNextPlayerPrompt) return;
 
     const points = calculateScore(x, y);
     if (points === 0) return;
@@ -363,12 +379,26 @@ function updateUI() {
     shotCountValEl.innerText = `${state.shotsInCurrentSeries} / 10`;
 }
 
-document.getElementById('mode-selector').onclick = () => {
-    const modes = ['FREE', 'PRECISION', 'SPEED'];
-    let idx = modes.indexOf(state.mode);
-    state.mode = modes[(idx + 1) % modes.length];
+function setMode(newMode) {
+    if (state.sessionState === 'ACTIVE' || state.sessionState === 'COUNTDOWN') {
+        alert("Nie można zmienić trybu w trakcie trwania sesji!");
+        return;
+    }
+    state.mode = newMode;
+    document.getElementById('set-mode-free').classList.toggle('active', newMode === 'FREE');
+    document.getElementById('set-mode-prec').classList.toggle('active', newMode === 'PRECISION');
+    document.getElementById('set-mode-speed').classList.toggle('active', newMode === 'SPEED');
+    document.getElementById('speed-settings').style.display = newMode === 'SPEED' ? 'flex' : 'none';
     updateUI();
     if(navigator.vibrate) navigator.vibrate(30);
+}
+
+document.getElementById('set-mode-free').onclick = () => setMode('FREE');
+document.getElementById('set-mode-prec').onclick = () => setMode('PRECISION');
+document.getElementById('set-mode-speed').onclick = () => setMode('SPEED');
+
+document.getElementById('speed-time-input').onchange = (e) => {
+    localStorage.setItem('laser_range_speed_time', e.target.value);
 };
 
 document.getElementById('finish-series-btn').onclick = () => {
@@ -411,10 +441,10 @@ function finishSeries() {
                 // Nie resetujemy serii automatycznie - użytkownik musi kliknąć Reset
             } else {
                 state.currentSeries++;
-                switchPlayer(next);
+                showNextPlayerModal(next);
             }
         } else {
-            switchPlayer(next);
+            showNextPlayerModal(next);
         }
     } else {
         // Solo mode
@@ -423,7 +453,32 @@ function finishSeries() {
         } else {
             state.currentSeries++;
             updateUI();
+            triggerSeriesHighlight();
         }
+    }
+}
+
+function showNextPlayerModal(nextIdx) {
+    state.isNextPlayerPrompt = true;
+    const p = state.players[nextIdx];
+    document.getElementById('next-player-title').innerText = `KOLEJ GRACZA: ${p.name || 'G' + (nextIdx+1)}`;
+    document.getElementById('next-player-desc').innerText = `Seria ${state.currentSeries}`;
+    document.getElementById('next-player-modal').classList.add('active');
+    
+    document.getElementById('start-next-player-btn').onclick = () => {
+        document.getElementById('next-player-modal').classList.remove('active');
+        state.isNextPlayerPrompt = false;
+        switchPlayer(nextIdx);
+        triggerSeriesHighlight();
+    };
+}
+
+function triggerSeriesHighlight() {
+    const sbox = document.getElementById('series-progress-box');
+    if (sbox) {
+        sbox.classList.remove('series-highlight');
+        void sbox.offsetWidth; // trigger reflow
+        sbox.classList.add('series-highlight');
     }
 }
 
@@ -499,21 +554,42 @@ function startSession() {
     if(navigator.vibrate) navigator.vibrate(50);
 }
 
+let sprintTimerInterval = null;
+const speedTimerDisplay = document.getElementById('speed-timer-display');
+
 function startSpeedTimer() {
-    state.timeLeft = 30;
-    const timer = setInterval(() => {
-        state.timeLeft--;
-        if (state.timeLeft <= 0 || state.sessionState !== 'ACTIVE') {
-            clearInterval(timer);
-            if (state.sessionState === 'ACTIVE') endSession();
+    let speedTime = parseInt(document.getElementById('speed-time-input').value) || 30;
+    state.timeLeft = speedTime * 10;
+    speedTimerDisplay.style.display = 'block';
+    speedTimerDisplay.innerText = (state.timeLeft / 10).toFixed(1);
+    
+    if (sprintTimerInterval) clearInterval(sprintTimerInterval);
+    
+    sprintTimerInterval = setInterval(() => {
+        if (state.sessionState !== 'ACTIVE' || state.isNextPlayerPrompt) {
+            if (state.sessionState !== 'ACTIVE') {
+                 clearInterval(sprintTimerInterval);
+                 speedTimerDisplay.style.display = 'none';
+            }
+            return;
         }
-    }, 1000);
+        
+        state.timeLeft--;
+        speedTimerDisplay.innerText = (state.timeLeft / 10).toFixed(1);
+        
+        if (state.timeLeft <= 0) {
+            clearInterval(sprintTimerInterval);
+            speedTimerDisplay.style.display = 'none';
+            finishSeries(); // Czas minął, zmuszamy koniec serii strzałów
+        }
+    }, 100);
 }
 
 function endSession() {
     state.sessionState = 'IDLE';
     updateUI();
     showRanking();
+    speedTimerDisplay.style.display = 'none';
 }
 
 /** Wylicza i wyświetla ranking zawodników */

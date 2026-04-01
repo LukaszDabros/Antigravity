@@ -39,7 +39,7 @@
 
             <!-- Statystyki -->
             <div id="stats-row">
-                <div class="stat-box" id="mode-selector">
+                <div class="stat-box" id="mode-display-box">
                     <span class="stat-label">TRYB</span>
                     <span id="mode-val" class="stat-value">FREE</span>
                 </div>
@@ -59,7 +59,7 @@
 
             <!-- Nowy rząd postępu session -->
             <div id="progress-row">
-                <div class="progress-item">
+                <div class="progress-item" id="series-progress-box">
                     <span class="stat-label">SERIA</span>
                     <span id="series-val" class="stat-value">1 / 5</span>
                 </div>
@@ -67,6 +67,11 @@
                     <span class="stat-label">STRZAŁ</span>
                     <span id="shot-count-val" class="stat-value">0 / 10</span>
                 </div>
+            </div>
+
+            <!-- Stoper na górze dla trybu Speed -->
+            <div id="speed-timer-display" style="display:none; text-align:center; width:100%; margin-top:15px; font-size:4rem; font-family:'JetBrains Mono', monospace; font-weight:900; color:var(--military-khaki); text-shadow:0 0 15px rgba(138,154,91,0.5); pointer-events:none;">
+                30.0
             </div>
 
         </div><!-- /#hud -->
@@ -102,10 +107,23 @@
                 </div>
 
                 <div class="settings-group">
-                    <label>TRYB GRY</label>
+                    <label>RODZAJ SESJI (SOLO/MULTI)</label>
                     <div class="mode-toggle-row">
                         <button id="solo-mode-btn" class="toggle-btn">SOLO</button>
                         <button id="multi-mode-btn" class="toggle-btn active">GRUPA</button>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <label>TRYB TRENINGU</label>
+                    <div class="mode-toggle-row" style="margin-bottom:8px">
+                        <button id="set-mode-free" class="toggle-btn active">FREE</button>
+                        <button id="set-mode-prec" class="toggle-btn">PRECISION</button>
+                        <button id="set-mode-speed" class="toggle-btn">SPEED</button>
+                    </div>
+                    <div id="speed-settings" style="display:none; align-items:center; gap:10px; margin-top:5px;">
+                        <span style="font-size:0.8rem;opacity:0.7">Czas (sekundy):</span>
+                        <input type="number" id="speed-time-input" value="30" min="5" max="300" style="width:70px; padding:8px; background:rgba(255,255,255,0.08); border:1px solid var(--military-sand); color:white; border-radius:5px; text-align:center; font-family:'JetBrains Mono',monospace;">
                     </div>
                 </div>
 
@@ -118,6 +136,7 @@
                         <input type="text" data-id="3" class="name-input" placeholder="Gracz 4">
                         <input type="text" data-id="4" class="name-input" placeholder="Gracz 5">
                     </div>
+                    <button id="apply-players-btn" class="action-btn primary" style="width:100%; margin-top:10px; padding:10px;">✓ ZATWIERDŹ GRACZY</button>
                 </div>
 
                 <div class="settings-group">
@@ -144,6 +163,16 @@
                 <h2>WYNIKI</h2>
                 <div class="result-stats" id="res-list"></div>
                 <button id="close-result" class="action-btn primary" style="width:100%;margin-top:15px">DALEJ →</button>
+            </div>
+        </div>
+
+        <!-- Zmiana gracza (kolejna seria) popup -->
+        <div id="next-player-modal" class="overlay">
+            <div class="overlay-content result-card" style="text-align:center">
+                <h2 id="next-player-title" style="color:var(--military-sand); font-size:1.6rem; margin-bottom: 5px;">KOLEJ GRACZA X</h2>
+                <p id="next-player-desc" style="font-size:1.1rem; opacity: 0.8; margin-bottom: 25px;">Seria Y</p>
+                <div style="font-size:3.5rem; margin-bottom:20px;">👉</div>
+                <button id="start-next-player-btn" class="action-btn primary" style="width:100%; font-size:1.1rem; padding: 14px">▶ ODKLIKNIJ ABY ZACZĄĆ</button>
             </div>
         </div>
 

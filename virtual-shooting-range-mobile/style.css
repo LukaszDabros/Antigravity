@@ -210,6 +210,17 @@ body, html {
     color: var(--military-sand);
 }
 
+@keyframes seriesHighlightPulse {
+    0% { background: rgba(0, 0, 0, 0); transform: scale(1); }
+    50% { background: rgba(226, 199, 146, 0.4); transform: scale(1.08); box-shadow: 0 0 15px var(--military-sand); }
+    100% { background: rgba(0, 0, 0, 0); transform: scale(1); }
+}
+
+.series-highlight {
+    animation: seriesHighlightPulse 0.5s ease-out 2;
+    color: white !important;
+}
+
 /* ===== BOK: PIONOWY ZOOM (fixed, prawa krawędź) ===== */
 #side-controls {
     position: fixed;
