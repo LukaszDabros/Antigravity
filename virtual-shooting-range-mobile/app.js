@@ -423,6 +423,12 @@ document.getElementById('finish-series-btn').onclick = () => {
 };
 
 function finishSeries() {
+    if (sprintTimerInterval) {
+        clearInterval(sprintTimerInterval);
+        sprintTimerInterval = null;
+        speedTimerDisplay.style.display = 'none';
+    }
+
     const p = state.players[state.activePlayer];
     
     if(navigator.vibrate) navigator.vibrate(50);
@@ -450,6 +456,7 @@ function finishSeries() {
         // Jeśli wróciliśmy do pierwszego lub mniejszego ID, sprawdzamy serię
         if (next <= state.activePlayer) {
             if (state.currentSeries >= state.targetSeries) {
+                state.sessionState = 'IDLE';
                 showRanking();
                 // Nie resetujemy serii automatycznie - użytkownik musi kliknąć Reset
             } else {
@@ -462,11 +469,13 @@ function finishSeries() {
     } else {
         // Solo mode
         if (state.currentSeries >= state.targetSeries) {
+            state.sessionState = 'IDLE';
             showRanking();
         } else {
             state.currentSeries++;
             updateUI();
             triggerSeriesHighlight();
+            if (state.mode === 'SPEED') startSpeedTimer();
         }
     }
 }
@@ -483,6 +492,9 @@ function showNextPlayerModal(nextIdx) {
         state.isNextPlayerPrompt = false;
         switchPlayer(nextIdx);
         triggerSeriesHighlight();
+        if (state.mode === 'SPEED' && state.sessionState === 'ACTIVE') {
+            startSpeedTimer();
+        }
     };
 }
 
@@ -833,7 +845,7 @@ function startCalibration() {
 
 function finishCalibration() {
     state.isCalibrating = false;
-    state.isEditing = true; // Włączamy edycję po kalibracji by móc korygować
+    state.isEditing = false; // Było true; blokujemy edycję by pojedyncze stuknięcia nie niszczyły celownika
     document.getElementById('calibration-overlay').classList.remove('active');
     // Zapisz kalibrację do localStorage!
     localStorage.setItem('laser_range_calib', JSON.stringify(state.corners));
@@ -1108,6 +1120,7 @@ document.getElementById('auto-calib-confirm').onclick = () => {
     state.corners = [...autoCorners];
     localStorage.setItem('laser_range_calib', JSON.stringify(state.corners));
     autoCalibOverlay.classList.remove('active');
+    state.isEditing = false; // Zablokuj edycję po zatwierdzeniu
     cornerHandlesEl.innerHTML = '';
     uiCtx.clearRect(0, 0, uiCanvas.width, uiCanvas.height);
     drawTarget();
