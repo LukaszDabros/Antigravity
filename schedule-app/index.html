@@ -159,8 +159,9 @@
 
         const BASE_DATE = new Date('2026-03-02T00:00:00');
         let currentDate = new Date();
-        let offset2 = parseInt(localStorage.getItem('schedule_offset2') || '0', 10);
-        let offset3 = parseInt(localStorage.getItem('schedule_offset3') || '0', 10);
+        let offset2 = 0;
+        let offset3 = 0;
+        let configSha = '';
         if (currentDate.getDay() === 0) {
             currentDate.setDate(currentDate.getDate() + 1);
         } else if (currentDate.getDay() === 6) {
@@ -426,9 +427,22 @@
             updateSettingsUI();
         };
 
-        document.getElementById('submitPasswordBtn').onclick = () => {
-            if (passInput.value === 'kantorek') openSettings();
-            else document.getElementById('passwordError').classList.remove('hidden');
+        document.getElementById('submitPasswordBtn').onclick = async () => {
+            const submitBtn = document.getElementById('submitPasswordBtn');
+            document.getElementById('passwordError').classList.add('hidden');
+            const prevText = submitBtn.textContent;
+            submitBtn.textContent = 'Weryfikacja...';
+            
+            try {
+                const token = await decryptToken(passInput.value);
+                if (token.startsWith('github_pat_')) {
+                    openSettings();
+                } else throw new Error();
+            } catch(e) {
+                document.getElementById('passwordError').classList.remove('hidden');
+            } finally {
+                submitBtn.textContent = prevText;
+            }
         };
 
         passInput.addEventListener('keypress', function (e) {
@@ -438,21 +452,104 @@
         document.querySelectorAll('.t2-btn').forEach(b => b.onclick = (e) => { tempW2 = parseInt(e.target.dataset.val); updateSettingsUI(); });
         document.querySelectorAll('.t3-btn').forEach(b => b.onclick = (e) => { tempW3 = parseInt(e.target.dataset.val); updateSettingsUI(); });
 
-        document.getElementById('saveSettingsBtn').onclick = () => {
+        document.getElementById('saveSettingsBtn').onclick = async () => {
+            const saveBtn = document.getElementById('saveSettingsBtn');
+            const prevText = saveBtn.textContent;
+            saveBtn.textContent = 'Synchronizacja...';
+            saveBtn.disabled = true;
+
             const diffTime = getMonday(currentDate) - getMonday(BASE_DATE);
             const diffWeeks = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7));
             
-            offset2 = (((tempW2 - diffWeeks) % 2) + 2) % 2;
-            offset3 = (((tempW3 - diffWeeks) % 3) + 3) % 3;
+            const newOffset2 = (((tempW2 - diffWeeks) % 2) + 2) % 2;
+            const newOffset3 = (((tempW3 - diffWeeks) % 3) + 3) % 3;
             
-            localStorage.setItem('schedule_offset2', offset2.toString());
-            localStorage.setItem('schedule_offset3', offset3.toString());
-            
-            updateState();
-            closeModals();
+            try {
+                const token = await decryptToken(passInput.value);
+                const newConfig = { offset2: newOffset2, offset3: newOffset3 };
+                const contentStr = JSON.stringify(newConfig, null, 2);
+                const encodedContent = btoa(unescape(encodeURIComponent(contentStr)));
+
+                const reqBody = {
+                    message: 'Aktualizacja rotacji przez ukryty Panel Kantorek',
+                    content: encodedContent,
+                    branch: 'main'
+                };
+                if (configSha) reqBody.sha = configSha;
+
+                const res = await fetch('https://api.github.com/repos/LukaszDabros/Antigravity/contents/schedule-app/config.json', {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': 'token ' + token,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(reqBody)
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    configSha = data.content.sha;
+                    offset2 = newOffset2;
+                    offset3 = newOffset3;
+                    updateState();
+                    closeModals();
+                } else {
+                    alert('Nie udało się zapisać ustawień na serwerze! Sprawdź połączenie.');
+                }
+            } catch(e) {
+                alert('Sesja wygasła lub wystąpił błąd autoryzacji.');
+            } finally {
+                saveBtn.textContent = prevText;
+                saveBtn.disabled = false;
+            }
         };
 
-        updateState();
+        async function decryptToken(password) {
+            const encryptedToken = '{"salt":"pr67W2hjwBP4UhuXtKPuaw==","iv":"YTVPvV87anPzmchA","data":"nMXFRtfjCnr3mjM0oNIoZYG9R+csqiUJY+4KkE+xmdBzzfFSJFPDeWC/g99zWsvQGPF9QHqWEFKQrvXCiWUOtjHL2yZAZlkW6IdH1VUr/GgkSjgUcEUt/XMcSnCM8r5A2xMDeiylRhn87EC2DQ=="}';
+            const obj = JSON.parse(encryptedToken);
+            const iv = Uint8Array.from(atob(obj.iv), c => c.charCodeAt(0));
+            const salt = Uint8Array.from(atob(obj.salt), c => c.charCodeAt(0));
+            const data = Uint8Array.from(atob(obj.data), c => c.charCodeAt(0));
+
+            const enc = new TextEncoder();
+            const keyMaterial = await crypto.subtle.importKey(
+                "raw",
+                enc.encode(password),
+                { name: "PBKDF2" },
+                false,
+                ["deriveBits", "deriveKey"]
+            );
+            const key = await crypto.subtle.deriveKey(
+                { name: "PBKDF2", salt: salt, iterations: 100000, hash: "SHA-256" },
+                keyMaterial,
+                { name: "AES-GCM", length: 256 },
+                true,
+                ["decrypt"]
+            );
+            const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv: iv }, key, data);
+            return new TextDecoder().decode(decrypted);
+        }
+
+        async function initApp() {
+            try {
+                const res = await fetch('https://api.github.com/repos/LukaszDabros/Antigravity/contents/schedule-app/config.json?v=' + Date.now(), { cache: 'no-store' });
+                if (res.ok) {
+                    const data = await res.json();
+                    configSha = data.sha;
+                    const contentStr = decodeURIComponent(escape(atob(data.content)));
+                    const configData = JSON.parse(contentStr);
+                    offset2 = configData.offset2 || 0;
+                    offset3 = configData.offset3 || 0;
+                }
+            } catch (err) {
+                console.warn('Uruchamianie lokalne: brak połączenia z bazą.');
+            }
+            updateState();
+        }
+
+        updateState(); // render immediately to avoid blank screen
+        initApp(); // fetch remote and re-render if needed
     </script>
 </body>
 
