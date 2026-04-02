@@ -56,8 +56,11 @@ def obsłuż_widok(numer_widoku=None):
     """Skanuje obecny widok i klika znalezione znajdki."""
     if numer_widoku:
         print(f"\n--- Widok [{numer_widoku}] ---")
-        pyautogui.press(str(numer_widoku))
-        time.sleep(0.3) # Szybkie ładowanie mapy wg sugestii
+        # Solidniejsze naciśnięcie klawisza (keyDown -> keyUp) dla gier WebGL
+        pyautogui.keyDown(str(numer_widoku))
+        time.sleep(0.1)
+        pyautogui.keyUp(str(numer_widoku))
+        time.sleep(0.5) # Wydłużone o 0.2s by mapa zdążyła się przesunąć
     
     # 1. Zrób zrzut
     screenshot = pyautogui.screenshot()
@@ -86,6 +89,12 @@ def uruchom_auto_cykl():
     
     print("\nUWAGA: Bot ruszy za 3 sekundy. Przejdź do okna gry!")
     time.sleep(3)
+    
+    # Krok 0. Fokusujemy okno klikając w bezpieczne miejsce (nieco niżej niż pasek adresu)
+    # To sprawia, że przeglądarka 'podchwyci' naciśnięcia klawiszy 1-9
+    screen_w, screen_h = pyautogui.size()
+    pyautogui.click(screen_w // 2, 200) # Klik w 200px od góry (bezpieczniej niż 50px)
+    time.sleep(0.5)
     
     licznik_petli = 0
     try:
