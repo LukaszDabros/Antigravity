@@ -15,7 +15,7 @@ bot = BotEngine(SCRIPT_DIR)
 TASK_MAP = {
     "prolonged_treasure": ["szukanie_skarbu.png", "przedluzone_poszukiwania.png", "wyslij_zielony.png"],
     "short_treasure": ["szukanie_skarbu.png", "krotkie_poszukiwania.png", "wyslij_zielony.png"],
-    "adventure": ["szukanie_skarbu.png", "szukanie_przygody.png", "wyslij_zielony.png"] 
+    "adventure": ["szukanie_przygody.png", "szukanie_przygody.png", "wyslij_zielony.png"] 
 }
 
 # EXPLORER CATEGORIES Mapping
@@ -74,7 +74,11 @@ def start_bot(selected_explorers):
                 "max_count": 999
             }
             
-            result = bot.run_bot(config, on_progress=lambda n: eel.update_status(f"Wysłano {n} ({exp['name']})"))
+            result = bot.run_bot(
+                config, 
+                on_progress=lambda n: eel.update_status(f"Wysłano {n} ({exp['name']})"),
+                on_status=eel.update_status
+            )
             if bot.stop_requested: break
             
         eel.on_bot_finished("Zakończono pracę.")
