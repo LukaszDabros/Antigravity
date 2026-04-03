@@ -1,0 +1,197 @@
+@import url('https://fonts.googleapis.com/css2?family=MedievalSharp&family=Gentium+Book+Plus&display=swap');
+
+:root {
+    --parchment: #f5e1b8;
+    --parchment-dark: #ccb98e;
+    --wood: #3e3224;
+    --gold: #ffd700;
+    --bronze: #b89c6d;
+    --text: #261b0c;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background: #111;
+    font-family: 'Gentium Book Plus', serif;
+    color: var(--text);
+    overflow: hidden;
+}
+
+.main-window {
+    position: relative;
+    width: 650px;
+    height: 850px;
+    margin: 0 auto;
+    padding: 10px;
+}
+
+/* TSO-STYLE FRAME */
+.frame-top, .frame-bottom {
+    position: absolute;
+    left: 0; right: 0;
+    height: 10px;
+    background: var(--wood);
+    border-bottom: 2px solid var(--gold);
+    z-index: 10;
+}
+.frame-top { top: 0; }
+.frame-bottom { bottom: 0; }
+
+.frame-left, .frame-right {
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 10px;
+    background: var(--wood);
+    border-right: 2px solid var(--gold);
+    z-index: 10;
+}
+.frame-left { left: 0; }
+.frame-right { right: 0; }
+
+/* PARCHMENT BACKGROUND */
+.parchment {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--parchment), var(--parchment-dark));
+    box-shadow: inset 0 0 50px rgba(0,0,0,0.3);
+    border: 2px solid var(--wood);
+    padding: 15px 25px;
+    box-sizing: border-box;
+}
+
+header h1 {
+    font-family: 'MedievalSharp', cursive;
+    text-align: center;
+    border-bottom: 2px solid var(--wood);
+    font-size: 1.4em;
+    padding-bottom: 5px;
+    margin: 0;
+}
+
+.status-bar {
+    text-align: center;
+    font-style: italic;
+    font-size: 0.8em;
+    color: #444;
+}
+
+/* BULK ACTIONS */
+.bulk-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+/* EXPLORER GRID */
+.explorer-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+    height: 520px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+/* CUSTOM SCROLLBAR (Wooden feel) */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: var(--wood); }
+::-webkit-scrollbar-thumb { background: var(--bronze); border: 2px solid var(--wood); }
+
+.explorer-card {
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid var(--wood);
+    padding: 4px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.1s;
+    border-radius: 3px;
+    position: relative;
+}
+
+.explorer-card .chk {
+    position: absolute;
+    top: 2px; right: 5px;
+    color: var(--wood);
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.explorer-card:hover { border-color: var(--gold); background: rgba(255, 255, 255, 0.6); }
+.explorer-card.active { border: 2px solid var(--gold); background: rgba(255, 215, 0, 0.2); }
+
+.explorer-card h3 { font-size: 0.9em; margin: 2px 0; }
+.explorer-card p { font-size: 0.8em; margin: 2px 0; color: #555; }
+
+/* BUTTONS */
+.btn-royal {
+    padding: 6px 12px;
+    font-family: 'MedievalSharp', cursive;
+    font-size: 0.9em;
+    background: linear-gradient(180deg, #decb97, var(--bronze));
+    border: 2px solid var(--wood);
+    color: var(--text);
+    cursor: pointer;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+    transition: 0.1s;
+    margin: 2px;
+}
+
+.btn-royal:hover { transform: scale(1.05); border-color: var(--gold); }
+.btn-royal:active { transform: scale(0.95); }
+.btn-royal:disabled { filter: grayscale(1); opacity: 0.5; pointer-events: none; }
+
+.green { background: linear-gradient(180deg, #99cc00, #669900); color: white; border-color: #336600; }
+.red { background: linear-gradient(180deg, #cc3300, #990000); color: white; border-color: #660000; }
+
+.controls-panel {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 15px;
+    border-top: 2px solid var(--wood);
+    padding-top: 15px;
+}
+
+/* MODAL */
+.modal {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85); z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+}
+
+.modal-parchment {
+    width: 350px; padding: 25px;
+    background: linear-gradient(135deg, var(--parchment), var(--parchment-dark));
+    border: 4px solid var(--wood);
+    box-shadow: 0 0 30px rgba(0,0,0,0.7), inset 0 0 20px rgba(0,0,0,0.2);
+    text-align: center;
+    position: relative;
+}
+
+.modal-parchment h2 {
+    font-family: 'MedievalSharp', cursive;
+    margin-top: 0;
+    font-size: 1.3em;
+    border-bottom: 2px solid var(--wood);
+    padding-bottom: 10px;
+}
+
+.modal-parchment p { font-size: 0.9em; margin: 15px 0; }
+
+select#taskSelect {
+    width: 100%;
+    padding: 8px;
+    background: var(--parchment-dark);
+    border: 2px solid var(--wood);
+    font-family: 'Gentium Book Plus', serif;
+    font-size: 1em;
+    color: var(--text);
+    margin-bottom: 20px;
+    cursor: pointer;
+}
+
+select#taskSelect:hover { border-color: var(--gold); }

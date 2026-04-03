@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSO Royal Auto-Explorer</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script type="text/javascript" src="/eel.js"></script>
+</head>
+<body>
+    <div class="main-window">
+        <!-- FRAME -->
+        <div class="frame-top"></div>
+        <div class="frame-bottom"></div>
+        <div class="frame-left"></div>
+        <div class="frame-right"></div>
+        
+        <!-- CONTENT -->
+        <div class="parchment">
+            <header>
+                <h1>Królewski Zarządca Odkrywców</h1>
+                <div class="status-bar" id="statusLine">Gotowy do pracy</div>
+            </header>
+
+            <div class="bulk-actions">
+                <button id="btnSelectAll" class="btn-royal small">ZAZNACZ WSZYSTKICH</button>
+                <button id="btnSetAllTasks" class="btn-royal small">USTAW ZADANIE DLA ZAZNACZONYCH</button>
+            </div>
+
+            <main>
+                <div class="explorer-grid" id="explorerGrid">
+                    <!-- Cards will be injected by JS -->
+                </div>
+
+                <div class="controls-panel">
+                    <button id="btnStart" class="btn-royal green">START & MINIMIZE</button>
+                    <button id="btnStop" class="btn-royal red" disabled>STOP</button>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- SETTINGS MODAL -->
+    <div id="settingsModal" class="modal" style="display:none;">
+        <div class="modal-parchment">
+             <h2>Ustawienia Misji</h2>
+             <p>Wybierz co ma robić ten odkrywca:</p>
+             <select id="taskSelect">
+                 <option value="prolonged_treasure">Przedłużony Skarb</option>
+                 <option value="short_treasure">Krótki Skarb</option>
+                 <option value="adventure">Przygoda</option>
+             </select>
+             <button id="saveTask" class="btn-royal">ZAPISZ</button>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

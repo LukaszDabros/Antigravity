@@ -35,7 +35,7 @@ KATEGORIE_ODKRYWCOW = {
     "1": {"nazwa": "Zwykli / Tawerniani", "pliki": ["zwykly_odkrywca.png"]},
     "2": {"nazwa": "Szczęśliwi", "pliki": ["szczesliwy_odkrywca.png"]},
     "3": {"nazwa": "Nieustraszeni", "pliki": ["nieustraszony_odkrywca.png"]},
-    "4": {"nazwa": "Puszystki / Śnieżni", "pliki": ["sniezny_odkrywca.png"]},
+    "4": {"nazwa": "Puszystki / Śnieżni", "pliki": ["sniezny_odkrywca.png", "puszysty_odkrywca.png"]},
     "5": {"nazwa": "Zakochani", "pliki": ["zakochany_odkrywca.png"]},
     "6": {"nazwa": "Śmiali", "pliki": ["smialy_odkrywca.png"]},
     "7": {"nazwa": "Odważni", "pliki": ["odwazny_odkrywca.png"]},
@@ -45,6 +45,13 @@ KATEGORIE_ODKRYWCOW = {
     "11": {"nazwa": "Przestraszeni", "pliki": ["przestraszony_odkrywca.png"]},
     "12": {"nazwa": "Pokorni", "pliki": ["pokorny_odkrywca.png"]},
     "13": {"nazwa": "Romantyczni", "pliki": ["romantyczny_odkrywca.png"]},
+    "14": {"nazwa": "Królewski", "pliki": ["krolewski_odkrywca.png"]},
+    "15": {"nazwa": "Zoe", "pliki": ["zoe_odkrywca.png"]},
+    "16": {"nazwa": "Rina", "pliki": ["rina_odkrywca.png"]},
+    "17": {"nazwa": "Żądna", "pliki": ["zadna_odkrywca.png"]},
+    "18": {"nazwa": "Dobrotliwa", "pliki": ["dobrotliwa_odkrywca.png"]},
+    "19": {"nazwa": "Dzielna", "pliki": ["dzielna_odkrywca.png"]},
+    "20": {"nazwa": "Zauroczona", "pliki": ["zauroczona_odkrywca.png"]},
     # "Wszyscy" iteruje przez całą tę listę w poszukiwaniu jakiegokolwiek zdjęcia, które wyciąłeś
 }
 

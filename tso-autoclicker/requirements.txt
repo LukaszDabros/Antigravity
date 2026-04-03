@@ -1,3 +1,5 @@
 pyautogui==0.9.54
 opencv-python==4.8.1.78
 pillow==10.0.1
+eel==0.16.0
+pywin32==306

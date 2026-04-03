@@ -5,10 +5,13 @@ files_to_create = [
     # Interfejs
     "gwiazda.png",
     "szukanie_skarbu.png",
+    "krotkie_poszukiwania.png",
     "przedluzone_poszukiwania.png",
+    "szukanie_przygody.png",
     "wyslij_zielony.png",
     "ikona_x_zamknij.png",
     "pinezka.png",
+    "ekipa.png",
     
     # Odkrywcy
     "zwykly_odkrywca.png",
@@ -21,7 +24,15 @@ files_to_create = [
     "zuchwaly_odkrywca.png",
     "uroczy_odkrywca.png",
     "bystry_odkrywca.png",
-    "przestraszony_odkrywca.png"
+    "puszysty_odkrywca.png",
+    "przestraszony_odkrywca.png",
+    "krolewski_odkrywca.png",
+    "zoe_odkrywca.png",
+    "rina_odkrywca.png",
+    "zadna_odkrywca.png",
+    "dobrotliwa_odkrywca.png",
+    "dzielna_odkrywca.png",
+    "zauroczona_odkrywca.png"
 ]
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
