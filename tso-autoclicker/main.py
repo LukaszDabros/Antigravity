@@ -3,6 +3,8 @@ import os
 import threading
 import win32gui
 import win32con
+import time
+import pyautogui
 from logic.bot_engine import BotEngine
 
 # CONFIGURATION
@@ -31,7 +33,14 @@ EXPLORERS_LIST = [
     {"name": "Żądna", "files": ["zadna_odkrywca.png"]},
     {"name": "Dobrotliwa", "files": ["dobrotliwa_odkrywca.png"]},
     {"name": "Dzielna", "files": ["dzielna_odkrywca.png"]},
-    {"name": "Zauroczona", "files": ["zauroczona_odkrywca.png"]}
+    {"name": "Zauroczona", "files": ["zauroczona_odkrywca.png"]},
+    {"name": "Romantyczny", "files": ["romantyczny_odkrywca.png"]},
+    {"name": "Pokorny", "files": ["pokorny_odkrywca.png"]},
+    {"name": "Śmiały", "files": ["smialy_odkrywca.png"]},
+    {"name": "Uroczy", "files": ["uroczy_odkrywca.png"]},
+    {"name": "Zuchwały", "files": ["zuchwaly_odkrywca.png"]},
+    {"name": "Przestraszony", "files": ["przestraszony_odkrywca.png"]},
+    {"name": "Zapalony", "files": ["zapalony_odkrywca.png"]}
 ]
 
 @eel.expose
@@ -55,33 +64,49 @@ def minimize_window():
 @eel.expose
 def start_bot(selected_explorers):
     def run():
+        bot.stop_requested = False # Global reset
         eel.update_status("Uruchamianie bota... Minimalizacja.")
         minimize_window()
         
-        # We iterate over selected explorers and run them sequentially or grouped
-        # For simplicity in 1.0, we just run the first selected group config
-        # Full task mapping per explorer can be added below
-        
-        for exp in selected_explorers:
-            task_key = exp.get("task", "prolonged_treasure")
-            steps = TASK_MAP.get(task_key, TASK_MAP["prolonged_treasure"])
+        final_msg = "Praca zakończona."
+        try:
+            for exp in selected_explorers:
+                if bot.stop_requested: break
+                task_key = exp.get("task", "prolonged_treasure")
+                steps = TASK_MAP.get(task_key, TASK_MAP["prolonged_treasure"])
+                
+                eel.update_status(f"Praca: {exp['name']} -> {task_key}")
+                
+                config = {
+                    "explorers": exp["files"],
+                    "task_steps": steps,
+                    "max_count": 999
+                }
+                
+                result = bot.run_bot(
+                    config, 
+                    on_progress=lambda n: eel.update_status(f"Wysłano {n} ({exp['name']})"),
+                    on_status=eel.update_status
+                )
+                
+                if isinstance(result, str):
+                    eel.update_status(f"Przerwano: {result}")
+                
+                if bot.stop_requested: break
+                
+                # Lag buffer for server stability (Increased to 2.5s per user request)
+                time.sleep(2.5)
+                
+            if not bot.stop_requested:
+                final_msg = "Wysyłanie zakończone sukcesem!"
+            else:
+                final_msg = "Praca zatrzymana."
+        except pyautogui.FailSafeException:
+            final_msg = "Błąd: Myszka w rogu (FailSafe)!"
+        except Exception as e:
+            final_msg = f"Błąd krytyczny: {str(e)}"
             
-            eel.update_status(f"Szukam: {exp['name']} -> {task_key}")
-            
-            config = {
-                "explorers": exp["files"],
-                "task_steps": steps,
-                "max_count": 999
-            }
-            
-            result = bot.run_bot(
-                config, 
-                on_progress=lambda n: eel.update_status(f"Wysłano {n} ({exp['name']})"),
-                on_status=eel.update_status
-            )
-            if bot.stop_requested: break
-            
-        eel.on_bot_finished("Zakończono pracę.")
+        eel.on_bot_finished(final_msg)
 
     threading.Thread(target=run).start()
 
