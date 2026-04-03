@@ -40,12 +40,25 @@ EXPLORERS_LIST = [
     {"name": "Uroczy", "files": ["uroczy_odkrywca.png"]},
     {"name": "Zuchwały", "files": ["zuchwaly_odkrywca.png"]},
     {"name": "Przestraszony", "files": ["przestraszony_odkrywca.png"]},
-    {"name": "Zapalony", "files": ["zapalony_odkrywca.png"]}
+    {"name": "Zapalony", "files": ["zapalony_odkrywca.png"]},
+    {"name": "Doświadczony", "files": ["doswiadczony_odkrywca.png"]}
 ]
 
 @eel.expose
 def get_explorers():
     return EXPLORERS_LIST
+
+@eel.expose
+def update_calibration(offset_x, offset_y):
+    """Updates offsets in the bot engine from UI sliders."""
+    bot.set_offsets(offset_x, offset_y)
+    print(f" [Calib] Offset X: {offset_x}, Y: {offset_y}")
+
+@eel.expose
+def update_ignore_left(val):
+    """Updates the dead zone for notifications."""
+    bot.set_ignore_left(val)
+    print(f" [Calib] Ignore Left Zone: {val}px")
 
 def minimize_window():
     """Minimizes ONLY the Eel window by searching for its title."""
@@ -64,41 +77,50 @@ def minimize_window():
 @eel.expose
 def start_bot(selected_explorers):
     def run():
-        bot.stop_requested = False # Global reset
+        bot.stop_requested = False 
         eel.update_status("Uruchamianie bota... Minimalizacja.")
         minimize_window()
         
+        # 1. Group explorers by task to minimize scrolling
+        tasks_to_run = {}
+        for exp in selected_explorers:
+            tk = exp.get("task", "prolonged_treasure")
+            if tk not in tasks_to_run:
+                tasks_to_run[tk] = {"files": [], "names": []}
+            tasks_to_run[tk]["files"].extend(exp["files"])
+            tasks_to_run[tk]["names"].append(exp["name"])
+
         final_msg = "Praca zakończona."
         try:
-            for exp in selected_explorers:
+            for task_key, data in tasks_to_run.items():
                 if bot.stop_requested: break
-                task_key = exp.get("task", "prolonged_treasure")
-                steps = TASK_MAP.get(task_key, TASK_MAP["prolonged_treasure"])
                 
-                eel.update_status(f"Praca: {exp['name']} -> {task_key}")
+                steps = TASK_MAP.get(task_key, TASK_MAP["prolonged_treasure"])
+                names_str = ", ".join(data["names"][:3]) + ("..." if len(data["names"]) > 3 else "")
+                
+                eel.update_status(f"Zadanie: {task_key} ({names_str})")
                 
                 config = {
-                    "explorers": exp["files"],
+                    "explorers": data["files"],
                     "task_steps": steps,
                     "max_count": 999
                 }
                 
                 result = bot.run_bot(
                     config, 
-                    on_progress=lambda n: eel.update_status(f"Wysłano {n} ({exp['name']})"),
+                    on_progress=lambda n: eel.update_status(f"Wysłano {n} ({task_key})"),
                     on_status=eel.update_status
                 )
                 
-                if isinstance(result, str):
+                if isinstance(result, str) and "Zatrzymano" in result:
                     eel.update_status(f"Przerwano: {result}")
+                    break
                 
                 if bot.stop_requested: break
-                
-                # Lag buffer for server stability (Increased to 2.5s per user request)
-                time.sleep(2.5)
+                time.sleep(1.5)
                 
             if not bot.stop_requested:
-                final_msg = "Wysyłanie zakończone sukcesem!"
+                final_msg = "Wszystkie grupy wysłane!"
             else:
                 final_msg = "Praca zatrzymana."
         except pyautogui.FailSafeException:

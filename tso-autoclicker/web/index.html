@@ -37,6 +37,23 @@
                     <button id="btnStop" class="btn-royal red" disabled>STOP</button>
                     <div class="shortcut-hint">Awaryjne zatrzymanie: ESC</div>
                 </div>
+
+                <div class="calibration-panel">
+                    <h3>👑 Kalibracja Myszki</h3>
+                    <div class="slider-row">
+                        <span>Oś X: <strong id="valX">0</strong>px</span>
+                        <input type="range" id="offsetX" min="-50" max="50" value="0">
+                    </div>
+                    <div class="slider-row">
+                        <span>Oś Y: <strong id="valY">0</strong>px</span>
+                        <input type="range" id="offsetY" min="-50" max="50" value="0">
+                    </div>
+                    <div class="slider-row">
+                        <span>Martwa Strefa: <strong id="valIgnore">260</strong>px</span>
+                        <input type="range" id="ignoreLeft" min="0" max="800" value="260">
+                    </div>
+                    <p class="small-hint">Ignoruj powiadomienia w lewym rogu.</p>
+                </div>
             </main>
         </div>
     </div>

@@ -11,6 +11,11 @@ class BotEngine:
         self.action_delay = 0.4
         self.stop_requested = False
         
+        # Calibration Offsets (Global)
+        self.offset_x = 0
+        self.offset_y = 0
+        self.ignore_left = 260 # Ignore anything in the left 260px (TSO Notifications)
+        
         # UI Elements
         self.UI_STAR = "gwiazda.png"
         self.UI_X = "ikona_x_zamknij.png"
@@ -20,7 +25,23 @@ class BotEngine:
 
         # TSO-style "FailSafe": corner of the screen
         pyautogui.FAILSAFE = True
-        pyautogui.PAUSE = 0.01 # Ultra-responsive
+        pyautogui.PAUSE = 0.01 
+        
+        # DPI Awareness for Windows (helps with coordinate calculation)
+        try:
+            import ctypes
+            ctypes.windll.shcore.SetProcessDpiAwareness(1)
+        except Exception:
+            pass
+
+    def set_offsets(self, x, y):
+        """Updates global calibration offsets from UI."""
+        self.offset_x = int(x)
+        self.offset_y = int(y)
+
+    def set_ignore_left(self, val):
+        """Updates the left-side dead zone (to avoid notifications)."""
+        self.ignore_left = int(val)
 
     def check_failsafe(self):
         """Checks if STOP was requested via UI or ESC key."""
@@ -63,6 +84,26 @@ class BotEngine:
         except:
             return None, 0.0
 
+    def stable_click(self, x, y, drag_protection=0.15, on_status=None):
+        """Moves to (x,y), waits for UI stability, then clicks without drift."""
+        # Ensure coordinates are integers
+        x, y = int(x), int(y)
+        
+        # 1. Move to target
+        pyautogui.moveTo(x, y, duration=0.1)
+        
+        # 2. Wait for UI/Hover effect to stabilize
+        self.sleep_with_failsafe(drag_protection)
+        
+        # 3. Click with specific coordinate lock
+        pyautogui.mouseDown(x=x, y=y)
+        self.sleep_with_failsafe(0.2) # Key: wait while button is Down
+        pyautogui.mouseUp(x=x, y=y)
+        
+        # 4. Small relief move to avoid tooltip blocking
+        pyautogui.moveRel(30, 30, duration=0.1)
+        self.sleep_with_failsafe(0.1)
+
     def find_and_click(self, image_name, timeout=5, offset_x=0, offset_y=0, on_status=None):
         """Ultra-fast search & click with 50px Edge Quarantine and persistent ESC."""
         if on_status: on_status(f"Szukam: {image_name}...")
@@ -81,18 +122,23 @@ class BotEngine:
             # Capture as RGB, convert to Gray for OpenCV
             haystack_img = cv2.cvtColor(np.array(pyautogui.screenshot()), cv2.COLOR_RGB2GRAY)
             
-            for conf in [0.75, 0.65, 0.55]: # Extra tier
+            # Confidence levels - STOP at 0.70 to avoid false matches on dummy squares
+            for conf in [0.82, 0.75, 0.70]: 
                 pos, score = self._opencv_locate(full_path, haystack_img, confidence=conf)
                 if pos:
+                    # Filter out matches in the "Dead Zone" (Left 260px)
+                    if pos.x < self.ignore_left:
+                        if on_status: on_status(f"Pominięto (Strefa Powiadomień): {image_name}")
+                        continue
+                        
                     screen_w, screen_h = pyautogui.size()
                     if 50 <= pos.x < screen_w - 50 and 50 <= pos.y < screen_h - 50:
-                        if on_status: on_status(f"Klikam: {image_name} na ({pos.x}, {pos.y})")
-                        pyautogui.moveTo(pos.x + offset_x, pos.y + offset_y, duration=0.1)
-                        pyautogui.mouseDown()
-                        self.sleep_with_failsafe(0.18) 
-                        pyautogui.mouseUp()
-                        pyautogui.moveRel(40, 40, duration=0.1)
-                        self.sleep_with_failsafe(0.3)
+                        final_x = pos.x + offset_x + self.offset_x
+                        final_y = pos.y + offset_y + self.offset_y
+                        
+                        if on_status: on_status(f"Klikam: {image_name} na ({final_x}, {final_y})")
+                        
+                        self.stable_click(final_x, final_y, on_status=on_status)
                         return pos
                     else:
                         if on_status: on_status(f"Marsz: ({pos.x}, {pos.y}) - POMINIĘTO")
@@ -127,15 +173,15 @@ class BotEngine:
         self.sleep_with_failsafe(0.5)
 
     def scan_for_explorer(self, explorer_files, on_status=None):
-        """MULTI-TIER SCAN with ultra-low confidence option for diagnostics."""
-        if on_status: on_status("Liberalny skan listy...")
+        """POOL SCAN: Searches for ANY of the provided files in one pass."""
+        if on_status: on_status("Skanowanie listy...")
         
         import numpy as np
         import cv2
         haystack_img = cv2.cvtColor(np.array(pyautogui.screenshot()), cv2.COLOR_RGB2GRAY)
         
         best_match = {"score": 0.0, "file": ""}
-        conf_levels = [0.75, 0.60, 0.50] # Triple-Tier Scan
+        conf_levels = [0.80, 0.72] # Slightly lowered to be more liberal but still safe
         
         for conf in conf_levels:
             for plik in explorer_files:
@@ -145,21 +191,27 @@ class BotEngine:
                 
                 pos, score = self._opencv_locate(full_path, haystack_img, confidence=conf)
                 if pos:
+                    # Filter out matches in the "Dead Zone" (Left 260px)
+                    if pos.x < self.ignore_left:
+                        continue
+                        
                     screen_w, screen_h = pyautogui.size()
                     if 50 <= pos.x < screen_w - 50 and 50 <= pos.y < screen_h - 50:
-                        pyautogui.moveTo(pos.x, pos.y, duration=0.1)
-                        pyautogui.click()
+                        final_x = pos.x + self.offset_x
+                        final_y = pos.y + self.offset_y
+                        
+                        if on_status: on_status(f"Wybieram: {plik}")
+                        self.stable_click(final_x, final_y, on_status=on_status)
+                        
                         self.last_explorer_pos = pos
-                        self.sleep_with_failsafe(1.1)
+                        self.sleep_with_failsafe(1.2) # Wait for menu recovery
                         return plik, pos
-                    else:
-                        if on_status: on_status(f"Słabe trafienie: {plik} ({int(score*100)}%)")
                 
                 if score > best_match["score"]:
                     best_match = {"score": score, "file": plik}
         
-        if on_status and best_match["score"] > 0.3:
-            on_status(f"Najlepszy: {best_match['file']} ({int(best_match['score']*100)}%)")
+        if on_status and best_match["score"] > 0.4:
+            on_status(f"Najbliższy: {best_match['file']} ({int(best_match['score']*100)}%)")
             
         return None
 
