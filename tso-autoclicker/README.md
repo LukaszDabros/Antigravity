@@ -1,35 +1,44 @@
-# TSO Auto-Clicker (Sikuli-Style Python Bot)
+# TSO Royal Auto-Explorer 👑
 
-Prosty i niezawodny bot (autoclicker) do zautomatyzowanego zarządzania okienkami i wysyłania badaczy na poszukiwania. Gra "The Settlers Online" jest aplikacją opartą w całości o rzeźbione obiekty WebGL (Canvas), przez co tradycyjne DOM-boty nie działają. Z tego powodu **bocik bazuje całkowicie na analizie pikseli obrazu i fizycznych ruchach kursora myszy.**
+Profesjonalny i niezawodny bot (autoclicker) do zautomatyzowanego zarządzania okienkami i wysyłania odkrywców w grze "The Settlers Online". Projekt przeszedł ewolucję z prostego skryptu PyAutoGUI do zaawansowanego silnika **OpenCV**, przystosowanego do pracy w warunkach ekstremalnych lagów serwera.
 
-Oryginalnie napisany w PyAutoGUI ze wsparciem OpenCV do optymalnego szukania ścieżek obrazu. Posiada auto-scrollowanie długiego menu Gwiazdy, dzielenie na kategorie a także sprzętowy killswitch (zawór bezpieczeństwa).
+## ✨ Kluczowe Funkcje (Wersja Royal)
 
-## Wymagania
+- **🚀 OpenCV Fast-Scan**: Silnik bota wykonuje jeden zrzut ekranu na cykl i przeszukuje go błyskawicznie w pamięci RAM. Eliminuje to "mrożenie" myszki i zapewnia natychmiastową reakcję na polecenia.
+- **🛡️ Kwarantanna Brzegowa (50px)**: Bot całkowicie ignoruje obszary znajdujące się bliżej niż 50 pikseli od każdej krawędzi ekranu. Zapobiega to przypadkowym kliknięciom w pasek zadań, obramowania przeglądarki czy "uciekaniu" myszki w róg ekranu (0,0).
+- **🛑 Panic Button (ESC)**: Reakcja na klawisz ESC jest sprawdzana co 50ms. Uderzenie w ESC natychmiast przerywa pracę bota na każdym etapie.
+- **🔍 Triple-Tier Confidence**: Bot szuka ikon na trzech poziomach pewności (75%, 60%, 50%). Pozwala to na skuteczne wykrywanie odkrywców (np. Zapalonego) nawet przy rozmytych animacjach lub zmiennym tle Menu Gwiazdy.
+- **⏳ Lag Buffer 2.5s**: Wbudowane opóźnienie między cyklami wysyłki, które chroni bota przed błędami wynikającymi z wolnego odświeżania się interfejsu gry TSO.
+- **📊 FailSafe UI**: Bot komunikuje się z użytkownikiem poprzez interfejs Eel, wyświetlając jasne komunikaty o stanie pracy, procentach dopasowania ikon oraz ewentualnym zadziałaniu zabezpieczeń (np. FailSafe przy ruchu w róg ekranu).
 
-Należy posiadać zainstalowanego [Pythona 3.8+](https://www.python.org/downloads/). Wymagania bibliotek dla bota znajdziesz w pliku bazowym:
+## 🛠️ Wymagania
 
+- [Python 3.8+](https://www.python.org/downloads/)
+- Biblioteki wymienione w `requirements.txt` (OpenCV, PyAutoGUI, Eel, PyWin32, Cryptography).
+
+Instalacja:
 ```bash
 pip install -r requirements.txt
 ```
 
-## Jak Używać (Instrukcja Zrób-to-Sam)
+## 📖 Instrukcja Obsługi
 
-Uruchom grę na cały ekran, pobierz tzw. „Półfabrykaty" – czyli precyzyjne małe wyrywki ze zrzutów ekranu ze swojego panelu gry (najlepiej kwadraty, jak najciaśniej przylegające do ikon), a następnie skopiuj je tu we własnym folderze `tso-autoclicker`.
+1.  **Przygotowanie**: Upewnij się, że gra działa w przeglądarce i Menu Gwiazdy jest widoczne.
+2.  **Uruchomienie**: Odpal plik `main.py`. Otworzy się panel sterowania "Royal Explorer".
+3.  **Wybór**: Zaznacz odkrywców, których chcesz wysłać, i wybierz rodzaj zadania.
+4.  **Start**: Kliknij START. Okno bota zminimalizuje się automatycznie, a proces wysyłki ruszy.
 
-### Wymagane „Wycinki" Graficzne
-Zawsze upewnij się, że rozszerzenie małych plików to `.png`:
-* `gwiazda.png` - Główny panel gwiazdy na dolnym pasku
-* `szukanie_skarbu.png` - Ikona dla konkretnego poszukiwania (lub przygody)
-* `krotkie_poszukiwania.png` - Konkretny fragment w liście poszukiwań
-* `wyslij_zielony.png` - Duży haczyk oznaczający „zatwierdź/wyślij"
-* `ikona_x_zamknij.png` - Ikona zamykania podglądu okna/gwiazdy (by skrypt resetował usterki/lag)
+### 🚨 Bezpieczeństwo (Killswitch)
+Jeśli bot zacznie zachowywać się nieprzewidywalnie:
+1.  **Naciśnij ESC** na klawiaturze.
+2.  LUB **Gwałtownie przesuń myszkę w dowolny RÓG monitora** (zadziała systemowy FailSafe).
 
-### Odkrywcy (Klucze)
-Zależnie od tego, jakim rodzajem zwiadowców dysponujesz, potrzebujesz wyciąć plik dla każdego typu awatara. Te podstawowe wczytane są domyślnie, w razie czego możesz modyfikować słownik `KATEGORIE_ODKRYWCOW` w pliku `.py`:
-* `zwykly_odkrywca.png`
-* `szczesliwy_odkrywca.png`
-* `nieustraszony_odkrywca.png`
-* `sniezny_odkrywca.png`
+## 📁 Struktura i Grafiki
+Bot bazuje na plikach `.png` w folderze głównym. Kluczowe elementy interfejsu to:
+- `gwiazda.png` - Menu Gwiazdy
+- `ekipa.png` - Zakładka specjalistów
+- `pinezka.png` - Ikona blokady okna
+- `zapalony_odkrywca.png`, `uroczy_odkrywca.png` itp. - Ikony konkretnych specjalistów.
 
-## Środki Ostrożności (Failsafe) 🚨
-Skrypt ten przejmuje twardą kontrolę nad Twoją systemową gałką myszki (w przeciwieństwie do wirtualnego okna). Jeżeli bot nie trafi na wybrany cel i zacznie szaleć z poruszaniem wirtualnym ekranem na komputerze, w każdym momencie wystarczy, że mocno **uderzysz myszką fizycznie w jakikolwiek RÓG Twojego monitora!** Zastopuje to proces natychmiastowo zrzucając tak zwany alarm ratunkowy w konsoli kodowania (FailSafeException).
+---
+*Projekt zoptymalizowany pod kątem wydajności i bezpieczeństwa użytkownika.*

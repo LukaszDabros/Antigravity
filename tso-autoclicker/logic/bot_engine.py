@@ -44,9 +44,11 @@ class BotEngine:
         try:
             import cv2
             import numpy as np
+            # Standard load as grayscale
             needle = cv2.imread(needle_path, cv2.IMREAD_GRAYSCALE)
             if needle is None: return None, 0.0
             
+            # Haystack is RGB from pyautogui, convert correctly
             res = cv2.matchTemplate(haystack_img, needle, cv2.TM_CCOEFF_NORMED)
             _, max_val, _, max_loc = cv2.minMaxLoc(res)
             
@@ -76,24 +78,24 @@ class BotEngine:
             
             import cv2
             import numpy as np
+            # Capture as RGB, convert to Gray for OpenCV
             haystack_img = cv2.cvtColor(np.array(pyautogui.screenshot()), cv2.COLOR_RGB2GRAY)
             
-            for conf in [0.75, 0.65]:
+            for conf in [0.75, 0.65, 0.55]: # Extra tier
                 pos, score = self._opencv_locate(full_path, haystack_img, confidence=conf)
                 if pos:
                     screen_w, screen_h = pyautogui.size()
-                    # 50px EDGE QUARANTINE
                     if 50 <= pos.x < screen_w - 50 and 50 <= pos.y < screen_h - 50:
                         if on_status: on_status(f"Klikam: {image_name} na ({pos.x}, {pos.y})")
                         pyautogui.moveTo(pos.x + offset_x, pos.y + offset_y, duration=0.1)
                         pyautogui.mouseDown()
                         self.sleep_with_failsafe(0.18) 
                         pyautogui.mouseUp()
-                        pyautogui.moveRel(40, 40, duration=0.1) # Clear hover
+                        pyautogui.moveRel(40, 40, duration=0.1)
                         self.sleep_with_failsafe(0.3)
                         return pos
                     else:
-                        if on_status: on_status(f"Zignorowano trafienie na marginesie: ({pos.x}, {pos.y})")
+                        if on_status: on_status(f"Marsz: ({pos.x}, {pos.y}) - POMINIĘTO")
             
             if on_status:
                 _, best_score = self._opencv_locate(full_path, haystack_img, confidence=0.0)
@@ -104,7 +106,6 @@ class BotEngine:
         return False
 
     def scroll_menu(self, star_pos):
-        """Scrolls the star menu down."""
         target_y = max(50, star_pos.y - 150)
         pyautogui.moveTo(star_pos.x, target_y, duration=0.2)
         for _ in range(4):
@@ -114,7 +115,6 @@ class BotEngine:
         self.sleep_with_failsafe(0.5)
 
     def scroll_top(self, star_pos):
-        """Scrolls UP with coordinate safety check."""
         if not star_pos: return
         target_y = max(100, star_pos.y - 150)
         if star_pos.x == 0 and star_pos.y == 0: return
@@ -127,15 +127,15 @@ class BotEngine:
         self.sleep_with_failsafe(0.5)
 
     def scan_for_explorer(self, explorer_files, on_status=None):
-        """Looks for any of the given explorer icons using FAST OpenCV Scan."""
-        if on_status: on_status("Szybki skan listy...")
+        """MULTI-TIER SCAN with ultra-low confidence option for diagnostics."""
+        if on_status: on_status("Liberalny skan listy...")
         
         import numpy as np
         import cv2
         haystack_img = cv2.cvtColor(np.array(pyautogui.screenshot()), cv2.COLOR_RGB2GRAY)
         
         best_match = {"score": 0.0, "file": ""}
-        conf_levels = [0.75, 0.60]
+        conf_levels = [0.75, 0.60, 0.50] # Triple-Tier Scan
         
         for conf in conf_levels:
             for plik in explorer_files:
@@ -153,18 +153,17 @@ class BotEngine:
                         self.sleep_with_failsafe(1.1)
                         return plik, pos
                     else:
-                        if on_status: on_status(f"Zignorowano {plik} na marginesie ({pos.x}, {pos.y})")
+                        if on_status: on_status(f"Słabe trafienie: {plik} ({int(score*100)}%)")
                 
                 if score > best_match["score"]:
                     best_match = {"score": score, "file": plik}
         
-        if on_status and best_match["score"] > 0.4:
+        if on_status and best_match["score"] > 0.3:
             on_status(f"Najlepszy: {best_match['file']} ({int(best_match['score']*100)}%)")
             
         return None
 
     def execute_task_cycle(self, explorer_files, task_steps, star_pos, on_status=None, retried_top=False):
-        """One cycle with Intelligent Internal Scroll + ESC + Retry Top."""
         max_scrolls = 15
         found = None
         self.last_explorer_pos = None
@@ -173,12 +172,11 @@ class BotEngine:
             if self.check_failsafe(): break
             found = self.scan_for_explorer(explorer_files, on_status)
             if found: break
-            if on_status: on_status(f"Przewijam menu ({i+1}/{max_scrolls})...")
+            if on_status: on_status(f"Przewijam ({i+1}/{max_scrolls})...")
             self.scroll_menu(star_pos)
 
-        # If not found after scrolling all the way down, try from TOP once
         if not found and not retried_top and not self.check_failsafe():
-            if on_status: on_status("Nic nie widzę. Wracam na górę listy...")
+            if on_status: on_status("Brak wyników. Wracam na górę...")
             self.scroll_top(star_pos)
             return self.execute_task_cycle(explorer_files, task_steps, star_pos, on_status, retried_top=True)
 
