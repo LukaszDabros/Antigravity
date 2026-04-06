@@ -13,12 +13,6 @@ const settingsModal = document.getElementById('settingsModal');
 const taskSelect = document.getElementById('taskSelect');
 const btnSave = document.getElementById('saveTask');
 
-const offsetX = document.getElementById('offsetX');
-const offsetY = document.getElementById('offsetY');
-const valX = document.getElementById('valX');
-const valY = document.getElementById('valY');
-const ignoreLeft = document.getElementById('ignoreLeft');
-const valIgnore = document.getElementById('valIgnore');
 const lagBuffer = document.getElementById('lagBuffer');
 const valLag = document.getElementById('valLag');
 const toggleCalib = document.getElementById('toggleCalib');
@@ -149,21 +143,7 @@ function on_bot_finished(msg) {
     btnStop.disabled = true;
 }
 
-// CALIBRATION HANDLERS
-function updateCalib() {
-    valX.innerText = offsetX.value;
-    valY.innerText = offsetY.value;
-    eel.update_calibration(parseInt(offsetX.value), parseInt(offsetY.value));
-}
-
-offsetX.oninput = updateCalib;
-offsetY.oninput = updateCalib;
-
-ignoreLeft.oninput = () => {
-    valIgnore.innerText = ignoreLeft.value;
-    eel.update_ignore_left(parseInt(ignoreLeft.value));
-};
-
+// CALIBRATION HANDLERS (Simplified: Lag only)
 lagBuffer.oninput = () => {
     valLag.innerText = lagBuffer.value;
     eel.update_lag_buffer(parseFloat(lagBuffer.value));
