@@ -90,10 +90,11 @@ header h1 {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;
-    margin-top: 10px;
-    height: 520px;
+    margin-top: 5px;
+    max-height: 420px;
     overflow-y: auto;
     padding-right: 5px;
+    transition: 0.3s;
 }
 
 /* CUSTOM SCROLLBAR (Wooden feel) */
@@ -110,21 +111,38 @@ header h1 {
     transition: 0.1s;
     border-radius: 3px;
     position: relative;
+    margin-bottom: 5px;
 }
 
 .explorer-card .chk {
     position: absolute;
-    top: 2px; right: 5px;
+    top: 2px; right: 8px;
     color: var(--wood);
     font-weight: bold;
     font-size: 1.2em;
+    pointer-events: none;
+}
+
+.btn-card-settings {
+    position: absolute;
+    top: 2px; left: 5px;
+    font-size: 1.1em;
+    cursor: pointer;
+    z-index: 5;
+    opacity: 0.6;
+    transition: 0.2s;
+}
+
+.btn-card-settings:hover {
+    opacity: 1;
+    transform: rotate(45deg) scale(1.2);
 }
 
 .explorer-card:hover { border-color: var(--gold); background: rgba(255, 255, 255, 0.6); }
 .explorer-card.active { border: 2px solid var(--gold); background: rgba(255, 215, 0, 0.2); }
 
 .explorer-card h3 { font-size: 0.9em; margin: 2px 0; }
-.explorer-card p { font-size: 0.8em; margin: 2px 0; color: #555; }
+.explorer-card p.task-label { font-size: 0.75em; margin: 2px 0; color: #555; }
 
 /* BUTTONS */
 .btn-royal {
@@ -144,17 +162,17 @@ header h1 {
 .btn-royal:active { transform: scale(0.95); }
 .btn-royal:disabled { filter: grayscale(1); opacity: 0.5; pointer-events: none; }
 
-.green { background: linear-gradient(180deg, #99cc00, #669900); color: white; border-color: #336600; }
-.red { background: linear-gradient(180deg, #cc3300, #990000); color: white; border-color: #660000; }
+.green { background: linear-gradient(180deg, #99cc00, #669900) !important; color: white !important; border-color: #336600 !important; }
+.red { background: linear-gradient(180deg, #cc3300, #990000) !important; color: white !important; border-color: #660000 !important; }
 
 .controls-panel {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 10px;
-    margin-top: 15px;
-    border-top: 2px solid var(--wood);
-    padding-top: 15px;
+    margin-top: 10px;
+    border-top: 1px solid var(--wood);
+    padding-top: 10px;
 }
 
 .shortcut-hint {
@@ -164,6 +182,106 @@ header h1 {
     font-family: 'MedievalSharp', cursive;
     margin-top: 5px;
     text-shadow: 1px 1px 0px rgba(255,255,255,0.2);
+}
+
+/* CALIBRATION SECTION */
+.calibration-section {
+    margin-top: 10px;
+    border-top: 2px solid var(--wood);
+    padding-top: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.gold-trimmed {
+    background: linear-gradient(180deg, #ffd700, #b8860b) !important;
+    color: #261b0c !important;
+    border: 2px solid var(--wood) !important;
+    width: 90%;
+    font-weight: bold;
+    font-size: 0.85em !important;
+}
+
+.calibration-panel {
+    width: 100%;
+    max-height: 500px;
+    overflow: hidden;
+    transition: max-height 0.4s ease-out, opacity 0.3s;
+    opacity: 1;
+    background: rgba(0,0,0,0.05);
+    border-radius: 5px;
+    margin-top: 5px;
+    padding: 10px 0;
+}
+
+.calibration-panel.collapsed {
+    max-height: 0;
+    opacity: 0;
+    padding: 0;
+    pointer-events: none;
+}
+
+.slider-group {
+    border-bottom: 1px dashed var(--wood);
+    margin-bottom: 8px;
+    padding-bottom: 5px;
+}
+.slider-group h4 {
+    margin: 5px 0;
+    font-size: 0.85em;
+    color: var(--wood);
+    font-family: 'MedievalSharp', cursive;
+}
+
+.slider-row {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 8px;
+}
+
+.slider-row span {
+    font-size: 0.85em;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* CUSTOM RANGE SLIDER */
+input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 10px;
+    background: var(--wood);
+    border-radius: 5px;
+    outline: none;
+    margin: 8px 0;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: radial-gradient(circle, #fff700, #b8860b);
+    border: 2px solid var(--wood);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    transition: transform 0.1s;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+    border-color: #ffd700;
+}
+
+.hint {
+    font-size: 0.7em;
+    color: #666;
+    font-style: italic;
+    margin: -5px 0 5px 0;
 }
 
 /* MODAL */

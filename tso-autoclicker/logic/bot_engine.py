@@ -15,6 +15,7 @@ class BotEngine:
         self.offset_x = 0
         self.offset_y = 0
         self.ignore_left = 260 # Ignore anything in the left 260px (TSO Notifications)
+        self.lag_buffer = 4.0   # Configurable lag buffer (s)
         
         # UI Elements
         self.UI_STAR = "gwiazda.png"
@@ -42,6 +43,10 @@ class BotEngine:
     def set_ignore_left(self, val):
         """Updates the left-side dead zone (to avoid notifications)."""
         self.ignore_left = int(val)
+
+    def set_lag_buffer(self, val):
+        """Updates the server lag buffer from UI."""
+        self.lag_buffer = float(val)
 
     def check_failsafe(self):
         """Checks if STOP was requested via UI or ESC key."""
@@ -181,7 +186,7 @@ class BotEngine:
         haystack_img = cv2.cvtColor(np.array(pyautogui.screenshot()), cv2.COLOR_RGB2GRAY)
         
         best_match = {"score": 0.0, "file": ""}
-        conf_levels = [0.80, 0.72] # Slightly lowered to be more liberal but still safe
+        conf_levels = [0.88, 0.82] # Adjusted for Widmowy/Przestraszony stability
         
         for conf in conf_levels:
             for plik in explorer_files:
@@ -204,14 +209,14 @@ class BotEngine:
                         self.stable_click(final_x, final_y, on_status=on_status)
                         
                         self.last_explorer_pos = pos
-                        self.sleep_with_failsafe(1.2) # Wait for menu recovery
+                        self.sleep_with_failsafe(1.5) # Increased wait for menu stabilization
                         return plik, pos
                 
                 if score > best_match["score"]:
                     best_match = {"score": score, "file": plik}
         
         if on_status and best_match["score"] > 0.4:
-            on_status(f"Najbliższy: {best_match['file']} ({int(best_match['score']*100)}%)")
+            on_status(f"Najbliższy: {best_match['file']} ({int(best_match['score']*100)}%) - [Cel: >82%]")
             
         return None
 
@@ -239,23 +244,12 @@ class BotEngine:
 
         for step in task_steps:
             if self.check_failsafe(): break
-            if not self.find_and_click(step, timeout=3, on_status=on_status):
-                if on_status: on_status(f"Przewijam listę zadań...")
-                
-                if self.last_explorer_pos:
-                    pyautogui.moveTo(self.last_explorer_pos.x, self.last_explorer_pos.y, duration=0.2)
-                else:
-                    screen_w, screen_h = pyautogui.size()
-                    pyautogui.moveTo(screen_w // 2, screen_h // 2, duration=0.2)
-                
-                for _ in range(3):
-                    if self.check_failsafe(): break
-                    pyautogui.scroll(-500)
-                    self.sleep_with_failsafe(0.1)
-                
-                if not self.find_and_click(step, timeout=5, on_status=on_status):
-                    if on_status: on_status(f"Błąd kroku: {step}.")
-                    return True 
+            if not self.find_and_click(step, timeout=6, on_status=on_status):
+                if on_status: on_status(f"Błąd: Nie otwarto menu {step}. Szukam innych na tej stronie...")
+                # Zamiast od razu przewijać (co omija sąsiadów), robimy mały ruch myszką i próbujemy znów
+                pyautogui.moveRel(0, 50, duration=0.2)
+                # Zwracamy True, żeby run_bot mogło kontynuować, ale bez doliczania 'count' (obsłużone w run_bot)
+                return "RETRY_SAME_PAGE"
         
         return True
 
@@ -279,13 +273,20 @@ class BotEngine:
         count = 0
         while count < config.get("max_count", 999):
             if self.stop_requested: break
-            success = self.execute_task_cycle(config["explorers"], config["task_steps"], star_pos, on_status=on_status)
-            if not success:
+            result = self.execute_task_cycle(config["explorers"], config["task_steps"], star_pos, on_status=on_status)
+            
+            if result == "RETRY_SAME_PAGE":
+                # Don't increment count, don't sleep 4s, just loop immediately
+                self.sleep_with_failsafe(0.5)
+                continue
+                
+            if not result:
                 break
+                
             count += 1
             if on_progress:
                 on_progress(count)
-            self.sleep_with_failsafe(2.5) # Server lag buffer
+            self.sleep_with_failsafe(self.lag_buffer)
             
         return f"Wysłano {count} odkrywców."
 

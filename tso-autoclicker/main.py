@@ -17,6 +17,10 @@ bot = BotEngine(SCRIPT_DIR)
 TASK_MAP = {
     "prolonged_treasure": ["szukanie_skarbu.png", "przedluzone_poszukiwania.png", "wyslij_zielony.png"],
     "short_treasure": ["szukanie_skarbu.png", "krotkie_poszukiwania.png", "wyslij_zielony.png"],
+    "medium_treasure": ["szukanie_skarbu.png", "srednie_poszukiwania.png", "wyslij_zielony.png"],
+    "long_treasure": ["szukanie_skarbu.png", "dlugie_poszukiwania.png", "wyslij_zielony.png"],
+    "very_long_treasure": ["szukanie_skarbu.png", "bdlugie_poszukiwania.png", "wyslij_zielony.png"],
+    "artifact_treasure": ["szukanie_skarbu.png", "artefaktu_poszukiwania.png", "wyslij_zielony.png"],
     "adventure": ["szukanie_przygody.png", "szukanie_przygody.png", "wyslij_zielony.png"] 
 }
 
@@ -41,7 +45,11 @@ EXPLORERS_LIST = [
     {"name": "Zuchwały", "files": ["zuchwaly_odkrywca.png"]},
     {"name": "Przestraszony", "files": ["przestraszony_odkrywca.png"]},
     {"name": "Zapalony", "files": ["zapalony_odkrywca.png"]},
-    {"name": "Doświadczony", "files": ["doswiadczony_odkrywca.png"]}
+    {"name": "Doświadczony", "files": ["doswiadczony_odkrywca.png"]},
+    {"name": "Czarnodrzewu", "files": ["czarnodrzewu_odkrywca.png"]},
+    {"name": "Pirat", "files": ["pirat_odkrywca.png"]},
+    {"name": "Staranny", "files": ["staranny_odkrywca.png"]},
+    {"name": "Widmowy", "files": ["widmowy_odkrywca.png"]}
 ]
 
 @eel.expose
@@ -59,6 +67,12 @@ def update_ignore_left(val):
     """Updates the dead zone for notifications."""
     bot.set_ignore_left(val)
     print(f" [Calib] Ignore Left Zone: {val}px")
+
+@eel.expose
+def update_lag_buffer(val):
+    """Updates the post-send delay from UI."""
+    bot.set_lag_buffer(val)
+    print(f" [Calib] Lag Buffer: {val}s")
 
 def minimize_window():
     """Minimizes ONLY the Eel window by searching for its title."""

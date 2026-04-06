@@ -1,6 +1,6 @@
 // CONFIGURATION
 let explorers = [];
-let selectedExplorer = null;
+let targetExplorer = null; // null means bulk mode
 
 // UI ELEMENTS
 const explorerGrid = document.getElementById('explorerGrid');
@@ -19,6 +19,10 @@ const valX = document.getElementById('valX');
 const valY = document.getElementById('valY');
 const ignoreLeft = document.getElementById('ignoreLeft');
 const valIgnore = document.getElementById('valIgnore');
+const lagBuffer = document.getElementById('lagBuffer');
+const valLag = document.getElementById('valLag');
+const toggleCalib = document.getElementById('toggleCalib');
+const calibContent = document.getElementById('calibContent');
 
 let isAllSelected = false;
 
@@ -39,12 +43,30 @@ function renderExplorers() {
     explorers.forEach((exp, index) => {
         const card = document.createElement('div');
         card.className = `explorer-card ${exp.active ? 'active' : ''}`;
-        card.innerHTML = `
+        
+        // Settings Button (⚙️)
+        const btnSettings = document.createElement('div');
+        btnSettings.className = 'btn-card-settings';
+        btnSettings.innerHTML = '⚙️';
+        btnSettings.title = 'Ustawienia indywidualne';
+        btnSettings.onclick = (e) => {
+            e.stopPropagation(); // Don't toggle selection when clicking gear
+            targetExplorer = exp;
+            taskSelect.value = exp.task;
+            settingsModal.style.display = 'flex';
+        };
+
+        const content = document.createElement('div');
+        content.innerHTML = `
             <div class="chk">${exp.active ? '✓' : ''}</div>
             <h3>${exp.name}</h3>
-            <p>${exp.task_label}</p>
+            <p class="task-label">${exp.task_label}</p>
         `;
-        // Click to toggle individual selection (deselection supported)
+        
+        card.appendChild(btnSettings);
+        card.appendChild(content);
+
+        // Click on the rest of the card toggles selection
         card.onclick = () => {
             exp.active = !exp.active;
             renderExplorers();
@@ -66,6 +88,7 @@ btnSetAllTasks.onclick = () => {
         alert("Najpierw zaznacz odkrywców!");
         return;
     }
+    targetExplorer = null; // Bulk mode
     settingsModal.style.display = 'flex';
 };
 
@@ -73,13 +96,20 @@ btnSave.onclick = () => {
     const taskVal = taskSelect.value;
     const taskLabel = taskSelect.options[taskSelect.selectedIndex].text;
     
-    // Apply to ALL active explorers
-    explorers.forEach(exp => {
-        if (exp.active) {
-            exp.task = taskVal;
-            exp.task_label = taskLabel;
-        }
-    });
+    if (targetExplorer) {
+        // Individual mode
+        targetExplorer.task = taskVal;
+        targetExplorer.task_label = taskLabel;
+        targetExplorer.active = true; // Auto-select if setting task
+    } else {
+        // Bulk mode
+        explorers.forEach(exp => {
+            if (exp.active) {
+                exp.task = taskVal;
+                exp.task_label = taskLabel;
+            }
+        });
+    }
     
     settingsModal.style.display = 'none';
     renderExplorers();
@@ -134,4 +164,24 @@ ignoreLeft.oninput = () => {
     eel.update_ignore_left(parseInt(ignoreLeft.value));
 };
 
+lagBuffer.oninput = () => {
+    valLag.innerText = lagBuffer.value;
+    eel.update_lag_buffer(parseFloat(lagBuffer.value));
+};
+
+// TOGGLE CALIBRATION
+toggleCalib.onclick = () => {
+    const isCollapsed = calibContent.classList.toggle('collapsed');
+    localStorage.setItem('calibCollapsed', isCollapsed);
+};
+
+// LOAD PREFERENCES
+function loadPrefs() {
+    const isCollapsed = localStorage.getItem('calibCollapsed') === 'true';
+    if (!isCollapsed) {
+        calibContent.classList.remove('collapsed');
+    }
+}
+
+loadPrefs();
 init();

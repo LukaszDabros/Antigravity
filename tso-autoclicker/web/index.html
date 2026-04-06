@@ -38,21 +38,38 @@
                     <div class="shortcut-hint">Awaryjne zatrzymanie: ESC</div>
                 </div>
 
-                <div class="calibration-panel">
-                    <h3>👑 Kalibracja Myszki</h3>
-                    <div class="slider-row">
-                        <span>Oś X: <strong id="valX">0</strong>px</span>
-                        <input type="range" id="offsetX" min="-50" max="50" value="0">
+                <div class="calibration-section">
+                    <button id="toggleCalib" class="btn-royal gold-trimmed">
+                        👑 Ustawienia Zaawansowane (Kalibracja)
+                    </button>
+                    
+                    <div id="calibContent" class="calibration-panel collapsed">
+                        <div class="slider-group">
+                            <h4>📍 Pozycja Kliknięcia (Oś X / Y)</h4>
+                            <div class="slider-row">
+                                <span>Poziom (X): <strong id="valX">0</strong>px</span>
+                                <input type="range" id="offsetX" min="-50" max="50" value="0">
+                            </div>
+                            <div class="slider-row">
+                                <span>Pion (Y): <strong id="valY">0</strong>px</span>
+                                <input type="range" id="offsetY" min="-50" max="50" value="0">
+                            </div>
+                        </div>
+
+                        <div class="slider-group">
+                            <h4>⚙️ Parametry Robocze</h4>
+                            <div class="slider-row">
+                                <span>Opóźnienie Serwera: <strong id="valLag">4.0</strong>s</span>
+                                <input type="range" id="lagBuffer" min="1.0" max="10.0" step="0.5" value="4.0">
+                                <p class="hint">Czas na odświeżenie gry po wysłaniu.</p>
+                            </div>
+                            <div class="slider-row">
+                                <span>Martwa Strefa: <strong id="valIgnore">260</strong>px</span>
+                                <input type="range" id="ignoreLeft" min="0" max="800" value="260">
+                                <p class="hint">Ignoruj powiadomienia z lewej strony ekranu.</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="slider-row">
-                        <span>Oś Y: <strong id="valY">0</strong>px</span>
-                        <input type="range" id="offsetY" min="-50" max="50" value="0">
-                    </div>
-                    <div class="slider-row">
-                        <span>Martwa Strefa: <strong id="valIgnore">260</strong>px</span>
-                        <input type="range" id="ignoreLeft" min="0" max="800" value="260">
-                    </div>
-                    <p class="small-hint">Ignoruj powiadomienia w lewym rogu.</p>
                 </div>
             </main>
         </div>
@@ -64,8 +81,12 @@
              <h2>Ustawienia Misji</h2>
              <p>Wybierz co ma robić ten odkrywca:</p>
              <select id="taskSelect">
-                 <option value="prolonged_treasure">Przedłużony Skarb</option>
                  <option value="short_treasure">Krótki Skarb</option>
+                 <option value="medium_treasure">Średni Skarb</option>
+                 <option value="long_treasure">Długi Skarb</option>
+                 <option value="very_long_treasure">B. Długi Skarb</option>
+                 <option value="prolonged_treasure">Przedłużony Skarb</option>
+                 <option value="artifact_treasure">Artefakty</option>
                  <option value="adventure">Przygoda</option>
              </select>
              <button id="saveTask" class="btn-royal">ZAPISZ</button>

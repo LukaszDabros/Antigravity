@@ -11,7 +11,7 @@ import urllib.error
 START_DELAY = 5        # Zwiększono do 5 sekund byś miał spokojnie czas przełączyć okno na pełen ekran
 ACTION_DELAY = 0.4     # Po kliknięciach (Skarb/Wariant/Wyślij) czekamy tylko 0.4s by przyspieszyć
 # Scroll amount używane teraz jako pojedyncze mocne kliknięcie (ale zapętlone)
-CONFIDENCE = 0.85      # Przywrócono do 0.85, żeby BOT nie pomylił i nie kliknął wyszarzonego (wysłanego) zwiadowcy!
+CONFIDENCE = 0.90      # Zwiększono do 0.90, aby nie klikać wyszarzonych (zajętych) odkrywców
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Adres repozytorium/gita z którego skrypt ma automatycznie pobierać brakujące grafiki (Wersja 1)
@@ -22,7 +22,12 @@ ASSETS_BASE_URL = "https://raw.githubusercontent.com/TWOJ_GITHB/tso-bot-assets/m
 UI_ELEMENTY = [
     "gwiazda.png",
     "szukanie_skarbu.png",
+    "krotkie_poszukiwania.png",
+    "srednie_poszukiwania.png",
+    "dlugie_poszukiwania.png",
+    "bdlugie_poszukiwania.png",
     "przedluzone_poszukiwania.png",
+    "artefaktu_poszukiwania.png",
     "wyslij_zielony.png",
     "ikona_x_zamknij.png",
     "pinezka.png",
@@ -52,6 +57,10 @@ KATEGORIE_ODKRYWCOW = {
     "18": {"nazwa": "Dobrotliwa", "pliki": ["dobrotliwa_odkrywca.png"]},
     "19": {"nazwa": "Dzielna", "pliki": ["dzielna_odkrywca.png"]},
     "20": {"nazwa": "Zauroczona", "pliki": ["zauroczona_odkrywca.png"]},
+    "21": {"nazwa": "Czarnodrzewu", "pliki": ["czarnodrzewu_odkrywca.png"]},
+    "22": {"nazwa": "Pirat", "pliki": ["pirat_odkrywca.png"]},
+    "23": {"nazwa": "Staranny", "pliki": ["staranny_odkrywca.png"]},
+    "24": {"nazwa": "Widmowy", "pliki": ["widmowy_odkrywca.png"]},
     # "Wszyscy" iteruje przez całą tę listę w poszukiwaniu jakiegokolwiek zdjęcia, które wyciąłeś
 }
 
@@ -122,7 +131,7 @@ def scan_for_any_of_explorers(lista_plikow):
             
     return False
 
-def wyslij_odkrywce(kategoria_obrazki, numer, menu_pos):
+def wyslij_odkrywce(kategoria_obrazki, numer, menu_pos, plik_zadania):
     """Proces wysyłania pojedynczego znalezionego odkrywcy"""
     print(f"\n--- Próba: {numer} ---")
     
@@ -155,27 +164,32 @@ def wyslij_odkrywce(kategoria_obrazki, numer, menu_pos):
     # ------------- WYBÓR ZADAŃ (Przykład Poszukiwania) -------------
     # UWAGA: Te nazwy plików muszą być fizycznie w folderze skryptu!
     
-    if not find_and_click('szukanie_skarbu.png', timeout=4):
-        print("X Błąd: Nie odnaleziono przycisku wyboru np. Skarbu lub Przygody.")
-        # Jeśli nie znalazł to odkrywca pewnie się zacina / coś zasłania.
-        # Odkliknij zamykając podstronę X aby zresetować menu
+    if not find_and_click('szukanie_skarbu.png', timeout=6):
+        print("X Błąd: Nie odnaleziono przycisku wyboru np. Skarbu lub Przygody. Przewijam dalej.")
+        # Jeśli nie znalazł to odkrywca pewnie jest zajęty lub zlagowany.
+        # Przewijamy w dół by nie próbować go kliknąć zaraz w następnej pętli
+        center_mouse_on_star_menu(menu_pos)
+        for _ in range(2):
+            pyautogui.scroll(-500)
+            time.sleep(0.02)
         find_and_click('ikona_x_zamknij.png', timeout=1)
         return True # Próbuje przejść do kolejnego
 
-    if not find_and_click('przedluzone_poszukiwania.png', timeout=4):
-        print("X Błąd: Nie odnaleziono przycisku 'Przedłużonych poszukiwań'.")
+    if not find_and_click(plik_zadania, timeout=6):
+        print(f"X Błąd: Nie odnaleziono przycisku wybranego zadania: {plik_zadania}")
         find_and_click('ikona_x_zamknij.png', timeout=1)
         return True
 
-    if not find_and_click('wyslij_zielony.png', timeout=4):
+    if not find_and_click('wyslij_zielony.png', timeout=6):
         print("X Błąd: Nie odnaleziono ZIELONEGO ZATWIERDZENIA.")
         find_and_click('ikona_x_zamknij.png', timeout=1)
         return True
        
     print(f"==> Wysłano Odkrywcę Pomyślnie! <==")
     
-    # Bardzo ważny serwerowy LAG. Gra ma opóźnienie, w którym chłopek zmienia się na szaro. DAJEMY grze równe 2.0 sekundy!
-    time.sleep(2.0)
+    # Bardzo ważny serwerowy LAG. Gra ma opóźnienie, w którym chłopek zmienia się na szaro. 
+    # Użytkownik potwierdził lagi do 4s, więc czekamy 4.5s
+    time.sleep(4.5)
     return True
 
 def sprawdz_i_pobierz_grafiki():
@@ -245,6 +259,20 @@ def uruchom_robocza_petle():
     else:
         print("Zły wybór, startuję opcję domyślną [0] Wszyscy.")
         obrazki_do_szukania = pobierz_liste_wszystkich_zdjec()
+    
+    print("\nJakie zadanie mam wybrać?")
+    print(" [1] Krótkie / [2] Średnie / [3] Długie / [4] B. Długie / [5] Przedłużone / [6] Artefakty")
+    wybor_zadania = input("> Wybór: ")
+    mapa_zadan = {
+        "1": "krotkie_poszukiwania.png",
+        "2": "srednie_poszukiwania.png",
+        "3": "dlugie_poszukiwania.png",
+        "4": "bdlugie_poszukiwania.png",
+        "5": "przedluzone_poszukiwania.png",
+        "6": "artefaktu_poszukiwania.png"
+    }
+    plik_zadania = mapa_zadan.get(wybor_zadania, "przedluzone_poszukiwania.png")
+    print(f"Wybrane zadanie: {plik_zadania}")
 
     ile_powtorzen_input = input("\nMaksymalna ilość odkrywców na ekranie do wydelegowania?\n (Wpisz cyfrę N, albo '0' aby wysyłać bez limitu poki gra na to pozwala) > ") or "0"
     if ile_powtorzen_input == "0" or not ile_powtorzen_input.isdigit():
@@ -298,7 +326,7 @@ def uruchom_robocza_petle():
         
     for i in range(1, ile_powtorzen + 1):
         # Przeprowadź proces wysyłki na pojedynczym Odkrywcy dla obecnej Iteracji.
-        sukces = wyslij_odkrywce(obrazki_do_szukania, i, pos)
+        sukces = wyslij_odkrywce(obrazki_do_szukania, i, pos, plik_zadania)
         if not sukces:
             # False oznacza brak w ogóle odkrywców na liście do scrola
             break
