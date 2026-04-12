@@ -16,7 +16,7 @@ PODSUMOWANIE PROJEKTU I PLAN ROZWOJU - WIRTUALNA STRZELNICA V1.0
 
 3. Dokumentacja (README.md)
    - Udokumentowany wybór kamer na szybkich przetwornikach (np. PS3 Eye).
-   - Wybrany system Plug & Play - zastosowanie wibracyjnych wektorów laserowych mocowanych do luf na replikach, co eliminuje konieczność lutowania elektroniki.
+   - Autorska instrukcja lutowania modułu DIY z trybem kalibracji (soldering_instructions.md).
 
 ===================================================================
 [2] PLAN DZIAŁANIA NA DALSZE ETAPY (ETAPY 2 - 4)
