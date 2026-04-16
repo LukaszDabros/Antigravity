@@ -154,15 +154,15 @@ const scheduleData = {
         {
           "teacher": "M. Księżna - Michalska",
           "groups": [
-            "5/6a ch. basen",
-            "5/6a ch. siłownia"
+            "5/6a ch. siłownia",
+            "5/6a ch. basen"
           ]
         },
         {
           "teacher": "A.Krynicka-Ślusarek",
           "groups": [
-            "5/6a dz. siłownia",
-            "5/6a dz. basen"
+            "5/6a dz. basen",
+            "5/6a dz. siłownia"
           ]
         }
       ]
@@ -179,15 +179,15 @@ const scheduleData = {
         {
           "teacher": "M. Księżna - Michalska",
           "groups": [
-            "5/6a ch. basen",
-            "5/6a ch. siłownia"
+            "5/6a ch. siłownia",
+            "5/6a ch. basen"
           ]
         },
         {
           "teacher": "A.Krynicka-Ślusarek",
           "groups": [
-            "5/6a dz. siłownia",
-            "5/6a dz. basen"
+            "5/6a dz. basen",
+            "5/6a dz. siłownia"
           ]
         }
       ]
