@@ -473,6 +473,38 @@
             passInput.focus();
         });
 
+        const openSettings = () => {
+            passwordModal.classList.add('hidden');
+            offsetModal.classList.remove('hidden');
+            setTimeout(() => {
+                offsetModal.classList.remove('scale-95');
+                offsetModal.classList.add('scale-100');
+            }, 10);
+            
+            const diffTime = getMonday(currentDate) - getMonday(BASE_DATE);
+            const diffWeeks = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7));
+            tempW2 = (((diffWeeks + offset2) % 2) + 2) % 2;
+            tempW3 = (((diffWeeks + offset3) % 3) + 3) % 3;
+            updateSettingsUI();
+        };
+
+        const updateSettingsUI = () => {
+            document.querySelectorAll('.t2-btn').forEach(btn => {
+               if (parseInt(btn.dataset.val) === tempW2) {
+                   btn.className = 't2-btn py-2 rounded-xl border bg-cyan-600 text-white border-cyan-500 font-bold transition-colors shadow-lg';
+               } else {
+                   btn.className = 't2-btn py-2 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 transition-colors';
+               }
+            });
+            document.querySelectorAll('.t3-btn').forEach(btn => {
+               if (parseInt(btn.dataset.val) === tempW3) {
+                   btn.className = 't3-btn py-2 rounded-xl border bg-cyan-600 text-white border-cyan-500 font-bold transition-colors shadow-lg';
+               } else {
+                   btn.className = 't3-btn py-2 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 transition-colors';
+               }
+            });
+        };
+
         const initListeners = () => {
             const safeAttach = (id, fn) => {
                 const el = document.getElementById(id);
@@ -771,6 +803,59 @@
             } catch(e) {
                 console.error("Save error details:", e);
                 alert('BŁĄD: ' + (e.name === 'AbortError' ? 'Przekroczono czas (Timeout)' : e.message));
+            } finally {
+                saveBtn.textContent = prevText;
+                saveBtn.disabled = false;
+            }
+        };
+
+        document.getElementById('saveSettingsBtn').onclick = async () => {
+            const saveBtn = document.getElementById('saveSettingsBtn');
+            const prevText = saveBtn.textContent;
+            saveBtn.textContent = 'Synchronizacja...';
+            saveBtn.disabled = true;
+
+            const diffTime = getMonday(currentDate) - getMonday(BASE_DATE);
+            const diffWeeks = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7));
+            
+            const newOffset2 = (((tempW2 - diffWeeks) % 2) + 2) % 2;
+            const newOffset3 = (((tempW3 - diffWeeks) % 3) + 3) % 3;
+            
+            try {
+                const token = await decryptToken(passInput.value);
+                const newConfig = { offset2: newOffset2, offset3: newOffset3 };
+                const contentStr = JSON.stringify(newConfig, null, 2);
+                const encodedContent = btoa(unescape(encodeURIComponent(contentStr)));
+
+                const reqBody = {
+                    message: 'Aktualizacja rotacji przez ukryty Panel Kantorek',
+                    content: encodedContent,
+                    branch: 'main'
+                };
+                if (configSha) reqBody.sha = configSha;
+
+                const res = await fetch('https://api.github.com/repos/LukaszDabros/Antigravity/contents/schedule-app/config.json', {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(reqBody)
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    configSha = data.content.sha;
+                    offset2 = newOffset2;
+                    offset3 = newOffset3;
+                    updateState();
+                    closeModals();
+                } else {
+                    alert('Nie udało się zapisać ustawień na serwerze! Sprawdź połączenie.');
+                }
+            } catch(e) {
+                alert('Sesja wygasła lub wystąpił błąd autoryzacji.');
             } finally {
                 saveBtn.textContent = prevText;
                 saveBtn.disabled = false;
