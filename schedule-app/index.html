@@ -776,7 +776,7 @@
         };
 
         async function decryptToken(password) {
-            const encryptedToken = '{"salt":"pr67W2hjwBP4UhuXtKPuaw==","iv":"YTVPvV87anPzmchA","data":"nMXFRtfjCnr3mjM0oNIoZYG9R+csqiUJY+4KkE+xmdBzzfFSJFPDeWC/g99zWsvQGPF9QHqWEFKQrvXCiWUOtjHL2yZAZlkW6IdH1VUr/GgkSjgUcEUt/XMcSnCM8r5A2xMDeiylRhn87EC2DQ=="}';
+            const encryptedToken = '{"salt":"LMlxTK2srmkx1hFzkbKjjg==","iv":"HyLYS63JZQBtrG6m","data":"xKd2n6CzzGBD0doJNozVsGWlzVrWnIIi+os55u/Kw1u0uzlXCLeHwnv/jSz0qLFIonGF9JGjNFtB3aJFO85kOgouC2YMk21eqM9E5X8QZ28nQTaZMzjnsIhxXS1L15eRv5eIq70Y3IZ0Qk1+Kw=="}';
             const obj = JSON.parse(encryptedToken);
             const iv = Uint8Array.from(atob(obj.iv), c => c.charCodeAt(0));
             const salt = Uint8Array.from(atob(obj.salt), c => c.charCodeAt(0));
@@ -791,7 +791,7 @@
                 ["deriveBits", "deriveKey"]
             );
             const key = await crypto.subtle.deriveKey(
-                { name: "PBKDF2", salt: salt, iterations: 20000, hash: "SHA-256" },
+                { name: "PBKDF2", salt: salt, iterations: 100000, hash: "SHA-256" },
                 keyMaterial,
                 { name: "AES-GCM", length: 256 },
                 true,
