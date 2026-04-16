@@ -763,7 +763,7 @@
                 });
 
                 const pInput = document.getElementById('passwordInput');
-                if (!pInput) throw new Error("Błąd: Nie znaleziono pola hasła.");
+                if (!pInput || !pInput.value) throw new Error("Błąd: Hasło jest puste.");
 
                 const token = await decryptToken(pInput.value);
                 
@@ -863,7 +863,7 @@
         };
 
         async function decryptToken(password) {
-            const encryptedToken = '{"salt":"3HJyGc5jU2MZL8lDHHJ8dA==","iv":"sEe2gh3c9rHa3trS","data":"OerBGiKjiVpwsAsLFFyfD/+mMaqvfvzh+4sdxUN3wo9ZVybqaj5E2dL5hdA="}';
+            const encryptedToken = '{"salt":"SKXbm71peec7jalIcnkY3A==","iv":"c7VefVfqawMSNjp7","data":"j4Jw2tlDXJ7i7Gfm7HCdQmMosM9/gASFq/MlD9wMA5Z3xvjBcqqIH8fl9aOFOvNcW/dOTo+Qcmg="}';
             const obj = JSON.parse(encryptedToken);
             const iv = Uint8Array.from(atob(obj.iv), c => c.charCodeAt(0));
             const salt = Uint8Array.from(atob(obj.salt), c => c.charCodeAt(0));
