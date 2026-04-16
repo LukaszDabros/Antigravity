@@ -182,17 +182,22 @@
         const scheduleContainer = document.getElementById('scheduleContainer');
 
         function getMonday(d) {
-            d = new Date(d);
-            var day = d.getDay(), diff = d.getDate() - day + (day == 0 ? -6 : 1);
-            return new Date(d.setDate(diff));
+            const date = new Date(d);
+            const day = date.getDay();
+            const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+            date.setDate(diff);
+            date.setHours(12, 0, 0, 0); // Noon is safest for DST math
+            return date;
+        }
+
+        function getDiffWeeks(d1, d2) {
+            const m1 = getMonday(d1);
+            const m2 = getMonday(d2);
+            return Math.round((m1 - m2) / (7 * 24 * 60 * 60 * 1000));
         }
 
         function updateState() {
-            const currentMonday = getMonday(currentDate);
-            const baseMonday = getMonday(BASE_DATE);
-            const diffTime = currentMonday - baseMonday;
-            let diffWeeks = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7));
-
+            const diffWeeks = getDiffWeeks(currentDate, BASE_DATE);
             let weekIndex2 = (((diffWeeks + offset2) % 2) + 2) % 2;
             let weekIndex3 = (((diffWeeks + offset3) % 3) + 3) % 3;
 
@@ -201,8 +206,7 @@
             if (seedRaw) {
                 try {
                     const seed = JSON.parse(seedRaw);
-                    const localDiffTime = currentMonday - new Date(seed.baseDate);
-                    const localDiffWeeks = Math.floor(localDiffTime / (1000 * 60 * 60 * 24 * 7));
+                    const localDiffWeeks = getDiffWeeks(currentDate, new Date(seed.baseDate));
                     const seedIdx = ((localDiffWeeks % seed.baseOrder.length) + seed.baseOrder.length) % seed.baseOrder.length;
                     
                     weekIndex2 = seedIdx % 2;
@@ -481,8 +485,7 @@
                 offsetModal.classList.add('scale-100');
             }, 10);
             
-            const diffTime = getMonday(currentDate) - getMonday(BASE_DATE);
-            const diffWeeks = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7));
+            const diffWeeks = getDiffWeeks(currentDate, BASE_DATE);
             tempW2 = (((diffWeeks + offset2) % 2) + 2) % 2;
             tempW3 = (((diffWeeks + offset3) % 3) + 3) % 3;
             updateSettingsUI();
@@ -815,8 +818,7 @@
             saveBtn.textContent = 'Synchronizacja...';
             saveBtn.disabled = true;
 
-            const diffTime = getMonday(currentDate) - getMonday(BASE_DATE);
-            const diffWeeks = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7));
+            const diffWeeks = getDiffWeeks(currentDate, BASE_DATE);
             
             const newOffset2 = (((tempW2 - diffWeeks) % 2) + 2) % 2;
             const newOffset3 = (((tempW3 - diffWeeks) % 3) + 3) % 3;
