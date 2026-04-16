@@ -651,7 +651,7 @@
             div.className = 'bg-slate-900/60 p-2 rounded-xl border border-slate-700/50 teacher-slot relative group shadow-sm';
             
             // Teacher Select - Contrast improved
-            let tHtml = `<select class="w-full bg-slate-950 text-slate-300 text-[11px] font-black uppercase p-1.5 rounded-lg border border-slate-800 mb-2 teacher-select shadow-inner cursor-pointer">`;
+            let tHtml = `<select class="w-full bg-slate-950 text-[#b98ab1] text-[11px] font-black uppercase p-1.5 rounded-lg border border-slate-800 mb-2 teacher-select shadow-inner cursor-pointer">`;
             TEACHERS.forEach(name => {
                 tHtml += `<option value="${name}" class="bg-slate-900 text-white" ${name === tData.teacher ? 'selected' : ''}>${name}</option>`;
             });
