@@ -513,10 +513,12 @@
                     submitBtn.textContent = 'Weryfikacja...';
                     try {
                         const token = await decryptToken(passInput.value);
-                        if (token && (token.startsWith('ghp_') || token.startsWith('github_pat_'))) {
+                        // AES-GCM natively throws if the password is wrong.
+                        // If we get here, the password was correct.
+                        if (token && token.length > 5) {
                             openSettings();
                         } else {
-                            throw new Error("Invalid token format");
+                            throw new Error("Invalid token length");
                         }
                     } catch(e) {
                         console.error("Auth error:", e);
