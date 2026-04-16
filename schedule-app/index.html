@@ -768,7 +768,7 @@
                 const token = await decryptToken(pInput.value);
                 
                 const getRes = await fetchWithTimeout('https://api.github.com/repos/LukaszDabros/Antigravity/contents/schedule-app/schedule_data.js', {
-                    headers: { 'Authorization': 'Bearer ' + token, 'Cache-Control': 'no-store' }
+                    headers: { 'Authorization': 'Bearer ' + token }
                 });
                 if (getRes.ok) {
                     const getData = await getRes.json();
