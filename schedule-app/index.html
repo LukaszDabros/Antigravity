@@ -513,10 +513,23 @@
                     submitBtn.textContent = 'Weryfikacja...';
                     try {
                         const token = await decryptToken(passInput.value);
-                        if (token.startsWith('github_pat_')) openSettings(); else throw new Error();
+                        if (token && (token.startsWith('ghp_') || token.startsWith('github_pat_'))) {
+                            openSettings();
+                        } else {
+                            throw new Error("Invalid token format");
+                        }
                     } catch(e) {
+                        console.error("Auth error:", e);
                         document.getElementById('passwordError').classList.remove('hidden');
-                    } finally { submitBtn.textContent = prevText; }
+                    } finally {
+                        submitBtn.textContent = prevText;
+                    }
+                };
+            }
+
+            if (passInput) {
+                passInput.onkeypress = (e) => {
+                    if (e.key === 'Enter') submitBtn.click();
                 };
             }
         };
@@ -721,7 +734,7 @@
                 const token = await decryptToken(pInput.value);
                 
                 const getRes = await fetchWithTimeout('https://api.github.com/repos/LukaszDabros/Antigravity/contents/schedule-app/schedule_data.js', {
-                    headers: { 'Authorization': 'token ' + token, 'Cache-Control': 'no-store' }
+                    headers: { 'Authorization': 'Bearer ' + token, 'Cache-Control': 'no-store' }
                 });
                 if (getRes.ok) {
                     const getData = await getRes.json();
@@ -733,7 +746,7 @@
 
                 const res = await fetchWithTimeout('https://api.github.com/repos/LukaszDabros/Antigravity/contents/schedule-app/schedule_data.js', {
                     method: 'PUT',
-                    headers: { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' },
+                    headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         message: 'Aktualizacja grafiku',
                         content: encodedContent,
@@ -754,6 +767,7 @@
                     alert('BŁĄD GITHUB: ' + (error.message || 'Brak uprawnień'));
                 }
             } catch(e) {
+                console.error("Save error details:", e);
                 alert('BŁĄD: ' + (e.name === 'AbortError' ? 'Przekroczono czas (Timeout)' : e.message));
             } finally {
                 saveBtn.textContent = prevText;
@@ -778,144 +792,6 @@
             );
             const key = await crypto.subtle.deriveKey(
                 { name: "PBKDF2", salt: salt, iterations: 20000, hash: "SHA-256" },
-                keyMaterial,
-                { name: "AES-GCM", length: 256 },
-                true,
-                ["decrypt"]
-            );
-            const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv: iv }, key, data);
-            return new TextDecoder().decode(decrypted);
-        }
-
-        const populateRotationInputs = () => {
-            const container = document.getElementById('rotationInputsContainer');
-            container.innerHTML = '';
-            
-            let order = [];
-            const seedRaw = localStorage.getItem('rotation_seed');
-            if (seedRaw) {
-                try { order = JSON.parse(seedRaw).baseOrder; } catch(e) { order = []; }
-            }
-            
-            if (order.length === 0) {
-                const currentLabels = Array.from(document.querySelectorAll('.text-base.font-semibold'))
-                                           .map(el => el.textContent.trim())
-                                           .filter((v, i, a) => a.indexOf(v) === i);
-                order = currentLabels.length > 0 ? currentLabels : ["Osoba 1", "Osoba 2"];
-            }
-            
-            order.forEach((name, idx) => {
-                const input = document.createElement('input');
-                input.type = 'text';
-                input.className = 'w-full bg-slate-800/50 border border-slate-700/50 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500 transition-colors rotation-input';
-                input.value = name;
-                container.appendChild(input);
-            });
-        };
-
-        const openSettings = () => {
-            passwordModal.classList.add('hidden');
-            offsetModal.classList.remove('hidden');
-            setTimeout(() => {
-                offsetModal.classList.remove('scale-95');
-                offsetModal.classList.add('scale-100');
-            }, 10);
-            
-            const diffTime = getMonday(currentDate) - getMonday(BASE_DATE);
-            const diffWeeks = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7));
-            tempW2 = (((diffWeeks + offset2) % 2) + 2) % 2;
-            tempW3 = (((diffWeeks + offset3) % 3) + 3) % 3;
-            updateSettingsUI();
-            populateRotationInputs();
-        };
-
-        const updateSettingsUI = () => {
-            document.querySelectorAll('.t2-btn').forEach(btn => {
-               if (parseInt(btn.dataset.val) === tempW2) {
-                   btn.className = 't2-btn py-2 rounded-xl border bg-cyan-600 text-white border-cyan-500 font-bold transition-colors shadow-lg';
-               } else {
-                   btn.className = 't2-btn py-2 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 transition-colors';
-               }
-            });
-            document.querySelectorAll('.t3-btn').forEach(btn => {
-               if (parseInt(btn.dataset.val) === tempW3) {
-                   btn.className = 't3-btn py-2 rounded-xl border bg-cyan-600 text-white border-cyan-500 font-bold transition-colors shadow-lg';
-               } else {
-                   btn.className = 't3-btn py-2 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 transition-colors';
-               }
-            });
-        };
-
-        document.getElementById('saveSettingsBtn').onclick = async () => {
-            const saveBtn = document.getElementById('saveSettingsBtn');
-            const prevText = saveBtn.textContent;
-            saveBtn.textContent = 'Synchronizacja...';
-            saveBtn.disabled = true;
-
-            const diffTime = getMonday(currentDate) - getMonday(BASE_DATE);
-            const diffWeeks = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7));
-            
-            const newOffset2 = (((tempW2 - diffWeeks) % 2) + 2) % 2;
-            const newOffset3 = (((tempW3 - diffWeeks) % 3) + 3) % 3;
-            
-            try {
-                const token = await decryptToken(passInput.value);
-                const newConfig = { offset2: newOffset2, offset3: newOffset3 };
-                const contentStr = JSON.stringify(newConfig, null, 2);
-                const encodedContent = btoa(unescape(encodeURIComponent(contentStr)));
-
-                const reqBody = {
-                    message: 'Aktualizacja rotacji przez ukryty Panel Kantorek',
-                    content: encodedContent,
-                    branch: 'main'
-                };
-                if (configSha) reqBody.sha = configSha;
-
-                const res = await fetch('https://api.github.com/repos/LukaszDabros/Antigravity/contents/schedule-app/config.json', {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': 'token ' + token,
-                        'Accept': 'application/vnd.github.v3+json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(reqBody)
-                });
-
-                if (res.ok) {
-                    const data = await res.json();
-                    configSha = data.content.sha;
-                    offset2 = newOffset2;
-                    offset3 = newOffset3;
-                    updateState();
-                    closeModals();
-                } else {
-                    alert('Nie udało się zapisać ustawień na serwerze! Sprawdź połączenie.');
-                }
-            } catch(e) {
-                alert('Sesja wygasła lub wystąpił błąd autoryzacji.');
-            } finally {
-                saveBtn.textContent = prevText;
-                saveBtn.disabled = false;
-            }
-        };
-
-        async function decryptToken(password) {
-            const encryptedToken = '{"salt":"pr67W2hjwBP4UhuXtKPuaw==","iv":"YTVPvV87anPzmchA","data":"nMXFRtfjCnr3mjM0oNIoZYG9R+csqiUJY+4KkE+xmdBzzfFSJFPDeWC/g99zWsvQGPF9QHqWEFKQrvXCiWUOtjHL2yZAZlkW6IdH1VUr/GgkSjgUcEUt/XMcSnCM8r5A2xMDeiylRhn87EC2DQ=="}';
-            const obj = JSON.parse(encryptedToken);
-            const iv = Uint8Array.from(atob(obj.iv), c => c.charCodeAt(0));
-            const salt = Uint8Array.from(atob(obj.salt), c => c.charCodeAt(0));
-            const data = Uint8Array.from(atob(obj.data), c => c.charCodeAt(0));
-
-            const enc = new TextEncoder();
-            const keyMaterial = await crypto.subtle.importKey(
-                "raw",
-                enc.encode(password),
-                { name: "PBKDF2" },
-                false,
-                ["deriveBits", "deriveKey"]
-            );
-            const key = await crypto.subtle.deriveKey(
-                { name: "PBKDF2", salt: salt, iterations: 100000, hash: "SHA-256" },
                 keyMaterial,
                 { name: "AES-GCM", length: 256 },
                 true,
@@ -954,17 +830,23 @@
                     }
                 }
             } catch (err) {
-                console.warn('Sync issue, try local.');
+                console.warn('Sync issue:', err);
             }
             // Local Fallback
             if (!scheduleData || Object.keys(scheduleData).length === 0) {
                 try {
                     const localRes = await fetch('schedule_data.js');
-                    const txt = await localRes.text();
-                    const sI = txt.indexOf('{');
-                    const eI = txt.lastIndexOf('}');
-                    if (sI !== -1 && eI !== -1) { scheduleData = normalizeScheduleData(JSON.parse(txt.substring(sI, eI + 1))); }
-                } catch(e) {}
+                    if (localRes.ok) {
+                        const txt = await localRes.text();
+                        const sI = txt.indexOf('{');
+                        const eI = txt.lastIndexOf('}');
+                        if (sI !== -1 && eI !== -1) { 
+                            scheduleData = normalizeScheduleData(JSON.parse(txt.substring(sI, eI + 1))); 
+                        }
+                    }
+                } catch(e) {
+                   console.error("Local load failed:", e);
+                }
             }
             updateState();
         }
@@ -989,7 +871,6 @@
                         normalized[day].push({ ...entry, lesson: lessonName.startsWith('l.') ? lessonName : `l.${lessonName}` });
                     }
                 });
-                // Sort by lesson number
                 normalized[day].sort((a, b) => {
                     const nA = parseInt(a.lesson.replace('l.', ''));
                     const nB = parseInt(b.lesson.replace('l.', ''));
@@ -999,8 +880,8 @@
             return normalized;
         }
 
-        updateState(); // render immediately to avoid blank screen
-        initApp(); // fetch remote and re-render if needed
+        updateState();
+        initApp();
     </script>
 </body>
 
