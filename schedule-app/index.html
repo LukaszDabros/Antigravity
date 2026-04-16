@@ -763,7 +763,7 @@
                 });
 
                 const pInput = document.getElementById('passwordInput');
-                if (!pInput || !pInput.value) throw new Error("Błąd: Hasło jest puste.");
+                if (!pInput) throw new Error("Błąd: Nie znaleziono pola hasła.");
 
                 const token = await decryptToken(pInput.value);
                 
