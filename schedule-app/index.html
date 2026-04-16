@@ -157,6 +157,8 @@
     <script>
         let scheduleData = {};
         let scheduleSha = '';
+        let historySha = '';
+        let historyData = { master: null, backups: [] };
         // EMERGENCY RESET: Wklej w konsolę (F12), jeśli zapomnisz hasła:
         // localStorage.removeItem('rotation_seed'); location.reload();
 
@@ -427,6 +429,18 @@
                         <button id="saveSettingsBtn" class="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-400 font-bold border border-sky-500/20 transition-colors text-xs">SYNCHRONIZUJ CYKL</button>
                     </div>
                 </div>
+
+                <div class="mt-8 pt-6 border-t border-slate-700/50">
+                    <label class="block text-xs font-bold text-sky-400 uppercase tracking-widest mb-4">Historia i Przywracanie</label>
+                    <div class="flex gap-2 mb-4">
+                        <button id="backupNowBtn" class="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-bold border border-slate-700 transition-all uppercase">Zapisz kopię</button>
+                        <button id="setMasterBtn" class="flex-1 py-2 rounded-xl bg-indigo-900/40 hover:bg-indigo-800/60 text-indigo-300 text-[10px] font-bold border border-indigo-500/30 transition-all uppercase">Ustaw wzorcowy</button>
+                    </div>
+                    <div id="historyList" class="space-y-2 max-h-40 overflow-y-auto pr-1">
+                        <!-- Populated by JS -->
+                        <div class="text-center py-4 text-slate-600 text-xs italic">Ładowanie historii...</div>
+                    </div>
+                </div>
             </div>
 
             <!-- Full Week Editor Overlay -->
@@ -493,6 +507,7 @@
             tempW2 = (((diffWeeks + offset2) % 2) + 2) % 2;
             tempW3 = (((diffWeeks + offset3) % 3) + 3) % 3;
             updateSettingsUI();
+            fetchHistory(); // Load history when opening settings
         };
 
         const updateSettingsUI = () => {
@@ -573,6 +588,13 @@
                     if (e.key === 'Enter') submitBtn.click();
                 };
             }
+
+            safeAttach('backupNowBtn', () => saveToHistory(false));
+            safeAttach('setMasterBtn', async () => {
+                if (confirm('Czy na pewno chcesz nadpisać wersję WZORCOWĄ? Operacja wymaga hasła.')) {
+                    saveToHistory(true);
+                }
+            });
         };
 
         const TEACHERS = ['G.Grabowska', 'M. Księżna - Michalska', 'A.Krynicka-Ślusarek', 'Ł. Dąbroś', 'B.Leśniak', 'M.Lesiuk'];
@@ -975,7 +997,128 @@
 
         updateState();
         initApp();
+        initListeners();
+        const fetchHistory = async () => {
+            const listEl = document.getElementById('historyList');
+            const pInput = document.getElementById('passwordInput');
+            if (!pInput || !pInput.value) return;
+
+            try {
+                const token = await decryptToken(pInput.value);
+                const res = await fetch('https://api.github.com/repos/LukaszDabros/Antigravity/contents/schedule-app/history_data.json', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                if (res.ok) {
+                    const json = await res.json();
+                    historySha = json.sha;
+                    historyData = JSON.parse(decodeURIComponent(escape(atob(json.content))));
+                } else {
+                    historyData = { master: null, backups: [] };
+                }
+                renderHistory();
+            } catch (e) {
+                console.warn('History load error:', e);
+                listEl.innerHTML = '<div class="text-center py-2 text-red-400 text-[10px]">Błąd ładowania historii</div>';
+            }
+        };
+
+        const renderHistory = () => {
+            const listEl = document.getElementById('historyList');
+            listEl.innerHTML = '';
+
+            const createItem = (v, label, isMaster) => {
+                const item = document.createElement('div');
+                item.className = `p-2 rounded-lg border ${isMaster ? 'border-indigo-500/30 bg-indigo-900/10' : 'border-slate-700 bg-slate-800/50'} flex justify-between items-center transition-all hover:border-sky-500/50`;
+                
+                const timeStr = new Date(v.timestamp).toLocaleString('pl-PL', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+                
+                item.innerHTML = `
+                    <div class="flex flex-col">
+                        <span class="text-[9px] font-black uppercase ${isMaster ? 'text-indigo-400' : 'text-slate-500'} tracking-tighter">${label}</span>
+                        <span class="text-xs text-slate-300 font-bold">${timeStr}</span>
+                    </div>
+                    <button class="px-2 py-1 rounded bg-slate-700 hover:bg-sky-600 text-[10px] text-white font-bold transition-colors">PRZYWRÓĆ</button>
+                `;
+                item.querySelector('button').onclick = () => restoreFromHistory(v);
+                return item;
+            };
+
+            if (historyData.master) {
+                listEl.appendChild(createItem(historyData.master, 'Wzorcowy (MASTER)', true));
+            }
+
+            historyData.backups.forEach((b, idx) => {
+                listEl.appendChild(createItem(b, `Kopia zapasowa #${historyData.backups.length - idx}`, false));
+            });
+
+            if (!historyData.master && historyData.backups.length === 0) {
+                listEl.innerHTML = '<div class="text-center py-4 text-slate-600 text-[10px] italic">Brak zapisanych wersji</div>';
+            }
+        };
+
+        const saveToHistory = async (isMaster) => {
+            const pInput = document.getElementById('passwordInput');
+            if (!pInput || !pInput.value) return;
+
+            try {
+                const token = await decryptToken(pInput.value);
+                const currentData = {
+                    timestamp: new Date().toISOString(),
+                    data: scheduleData,
+                    offsets: { w2: tempW2, w3: tempW3 }
+                };
+
+                if (isMaster) {
+                    historyData.master = currentData;
+                } else {
+                    historyData.backups.unshift(currentData);
+                    if (historyData.backups.length > 10) historyData.backups.pop();
+                }
+
+                const contentStr = JSON.stringify(historyData, null, 2);
+                const encodedContent = btoa(unescape(encodeURIComponent(contentStr)));
+
+                const reqBody = {
+                    message: isMaster ? 'Nowy punkt wzorcowy' : 'Nowa kopia zapasowa grafiku',
+                    content: encodedContent,
+                };
+                if (historySha) reqBody.sha = historySha;
+
+                const res = await fetch('https://api.github.com/repos/LukaszDabros/Antigravity/contents/schedule-app/history_data.json', {
+                    method: 'PUT',
+                    headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(reqBody)
+                });
+
+                if (res.ok) {
+                    const json = await res.json();
+                    historySha = json.content.sha;
+                    alert('SUKCES: Kopia została zapisana!');
+                    renderHistory();
+                } else {
+                    throw new Error("Błąd zapisu na GitHub");
+                }
+            } catch (e) {
+                alert('BŁĄD ZAPISU KOPII: ' + e.message);
+            }
+        };
+
+        const restoreFromHistory = (version) => {
+            if (!confirm('Czy na pewno chcesz załadować tę wersję do edytora? Aktualny (niezapisany) widok zostanie zastąpiony.')) return;
+            
+            // 1. Inject historical data
+            scheduleData = normalizeScheduleData(version.data);
+            tempW2 = version.offsets.w2;
+            tempW3 = version.offsets.w3;
+
+            // 2. Open Editor (this will populate grid from scheduleData)
+            offsetModal.classList.add('hidden');
+            openEditor();
+            
+            // 3. Update preview info
+            updateSettingsUI();
+            alert('Wersja załadowana do edytora. Sprawdź ją i kliknij "ZAPISZ I SYNCHRONIZUJ", aby zatwierdzić na serwerze.');
+        };
     </script>
 </body>
-
 </html>
