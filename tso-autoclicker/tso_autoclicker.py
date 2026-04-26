@@ -9,7 +9,7 @@ import urllib.error
 # KONFIGURACJA BOTA
 # ===============================================================
 START_DELAY = 5        # Zwiększono do 5 sekund byś miał spokojnie czas przełączyć okno na pełen ekran
-ACTION_DELAY = 0.4     # Po kliknięciach (Skarb/Wariant/Wyślij) czekamy tylko 0.4s by przyspieszyć
+ACTION_DELAY = 0.1     # Po kliknięciach (Skarb/Wariant/Wyślij) czekamy tylko 0.1s by przyspieszyć
 # Scroll amount używane teraz jako pojedyncze mocne kliknięcie (ale zapętlone)
 CONFIDENCE = 0.90      # Zwiększono do 0.90, aby nie klikać wyszarzonych (zajętych) odkrywców
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -61,6 +61,8 @@ KATEGORIE_ODKRYWCOW = {
     "22": {"nazwa": "Pirat", "pliki": ["pirat_odkrywca.png"]},
     "23": {"nazwa": "Staranny", "pliki": ["staranny_odkrywca.png"]},
     "24": {"nazwa": "Widmowy", "pliki": ["widmowy_odkrywca.png"]},
+    "25": {"nazwa": "Przyjacielski", "pliki": ["przyjacielski_odkrywca.png"]},
+    "26": {"nazwa": "Stanowczy", "pliki": ["stanowczy_odkrywca.png"]},
     # "Wszyscy" iteruje przez całą tę listę w poszukiwaniu jakiegokolwiek zdjęcia, które wyciąłeś
 }
 
@@ -92,7 +94,7 @@ def find_and_click(image_name, offset_x=0, offset_y=0, timeout=5, clicks=1):
             pos = pyautogui.locateCenterOnScreen(full_path, confidence=CONFIDENCE, grayscale=False)
             if pos is not None:
                 print(f" [+] Znalazłem '{image_name}' na kordach: {pos.x}, {pos.y}")
-                pyautogui.moveTo(pos.x + offset_x, pos.y + offset_y, duration=0.2, tween=pyautogui.easeInOutQuad)
+                pyautogui.moveTo(pos.x + offset_x, pos.y + offset_y, duration=0.05, tween=pyautogui.easeInOutQuad)
                 time.sleep(0.1)
                 pyautogui.click(clicks=clicks)
                 time.sleep(ACTION_DELAY)
@@ -121,10 +123,10 @@ def scan_for_any_of_explorers(lista_plikow):
             pos = pyautogui.locateCenterOnScreen(full_path, confidence=CONFIDENCE, grayscale=False)
             if pos is not None:
                 print(f" [+] Skan Szybki znalazł: '{plik}'")
-                pyautogui.moveTo(pos.x, pos.y, duration=0.1, tween=pyautogui.easeInOutQuad)
-                time.sleep(0.2) # Dajmy mu ułamek sekundy na reakcję UI po najechaniu
+                pyautogui.moveTo(pos.x, pos.y, duration=0.05, tween=pyautogui.easeInOutQuad)
+                time.sleep(0.1) # Dajmy mu ułamek sekundy na reakcję UI po najechaniu
                 pyautogui.click()
-                time.sleep(ACTION_DELAY + 0.5) # Poszukiwacz często otwiera menu ciut wolniej, z dużym lagiem od serwera
+                time.sleep(0.5) # Poszukiwacz często otwiera menu ciut wolniej, z dużym lagiem od serwera
                 return (plik, pos)
         except pyautogui.ImageNotFoundException:
             pass
@@ -154,7 +156,7 @@ def wyslij_odkrywce(kategoria_obrazki, numer, menu_pos, plik_zadania):
             for _ in range(4):
                 pyautogui.scroll(-500)
                 time.sleep(0.02)
-            time.sleep(0.3) # BARDZO krótkie oczekiwanie po scrollnięciu (przyspieszone)
+            time.sleep(0.1) # BARDZO krótkie oczekiwanie po scrollnięciu (przyspieszone)
             proby_przewijania += 1
 
     if not znaleziony_odkrywca:
@@ -291,7 +293,7 @@ def uruchom_robocza_petle():
         print("KRYTYCZNE: Nie znalazłem elementu Menu Gwiazdy na ekranie! Kończę pracę.")
         return
         
-    time.sleep(1.5) # sekunda na uniesienie panelu
+    time.sleep(0.5) # sekunda na uniesienie panelu
     
     # Krok 1 (Opcjonalny). Przypięcie okna za pomocą Pinezki
     print("\nSprawdzam status Pinezki okna...")

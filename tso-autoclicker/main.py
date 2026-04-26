@@ -49,6 +49,9 @@ EXPLORERS_LIST = [
     {"name": "Czarnodrzewu", "files": ["czarnodrzewu_odkrywca.png"]},
     {"name": "Pirat", "files": ["pirat_odkrywca.png"]},
     {"name": "Staranny", "files": ["staranny_odkrywca.png"]},
+    {"name": "Bystry", "files": ["bystry_odkrywca.png"]},
+    {"name": "Przyjacielski", "files": ["przyjacielski_odkrywca.png"]},
+    {"name": "Stanowczy", "files": ["stanowczy_odkrywca.png"]},
     {"name": "Widmowy", "files": ["widmowy_odkrywca.png"]}
 ]
 

@@ -95,19 +95,19 @@ class BotEngine:
         x, y = int(x), int(y)
         
         # 1. Move to target
-        pyautogui.moveTo(x, y, duration=0.1)
+        pyautogui.moveTo(x, y, duration=0.05)
         
         # 2. Wait for UI/Hover effect to stabilize
         self.sleep_with_failsafe(drag_protection)
         
         # 3. Click with specific coordinate lock
         pyautogui.mouseDown(x=x, y=y)
-        self.sleep_with_failsafe(0.2) # Key: wait while button is Down
+        self.sleep_with_failsafe(0.1) # Key: wait while button is Down
         pyautogui.mouseUp(x=x, y=y)
         
         # 4. Small relief move to avoid tooltip blocking
-        pyautogui.moveRel(30, 30, duration=0.1)
-        self.sleep_with_failsafe(0.1)
+        pyautogui.moveRel(30, 30, duration=0.05)
+        self.sleep_with_failsafe(0.05)
 
     def find_and_click(self, image_name, timeout=5, offset_x=0, offset_y=0, on_status=None):
         """Ultra-fast search & click with 50px Edge Quarantine and persistent ESC."""
@@ -152,7 +152,7 @@ class BotEngine:
                 _, best_score = self._opencv_locate(full_path, haystack_img, confidence=0.0)
                 on_status(f"Szukam: {image_name} ({int(best_score*100)}%)")
             
-            self.sleep_with_failsafe(0.5)
+            self.sleep_with_failsafe(0.1)
             
         return False
 
@@ -163,7 +163,7 @@ class BotEngine:
             if self.check_failsafe(): break
             pyautogui.scroll(-500)
             self.sleep_with_failsafe(0.05)
-        self.sleep_with_failsafe(0.5)
+        self.sleep_with_failsafe(0.1)
 
     def scroll_top(self, star_pos):
         if not star_pos: return
@@ -175,7 +175,7 @@ class BotEngine:
             if self.check_failsafe(): break
             pyautogui.scroll(600)
             self.sleep_with_failsafe(0.02)
-        self.sleep_with_failsafe(0.5)
+        self.sleep_with_failsafe(0.1)
 
     def scan_for_explorer(self, explorer_files, on_status=None):
         """POOL SCAN: Searches for ANY of the provided files in one pass."""
@@ -209,7 +209,7 @@ class BotEngine:
                         self.stable_click(final_x, final_y, on_status=on_status)
                         
                         self.last_explorer_pos = pos
-                        self.sleep_with_failsafe(1.5) # Increased wait for menu stabilization
+                        self.sleep_with_failsafe(0.5) # Wait for sub-menu popup
                         return plik, pos
                 
                 if score > best_match["score"]:
@@ -240,7 +240,7 @@ class BotEngine:
         if not found or self.check_failsafe():
             return False
 
-        self.sleep_with_failsafe(0.5)
+        self.sleep_with_failsafe(0.1)
 
         for step in task_steps:
             if self.check_failsafe(): break
@@ -267,7 +267,7 @@ class BotEngine:
         if not self.find_and_click(self.UI_EKIPA, timeout=2, on_status=on_status):
             return "Nie znaleziono zakładki Ekipa. Czy Menu Gwiazdy jest otwarte?"
             
-        self.sleep_with_failsafe(0.5)
+        self.sleep_with_failsafe(0.1)
         self.scroll_top(star_pos)
 
         count = 0
@@ -277,7 +277,7 @@ class BotEngine:
             
             if result == "RETRY_SAME_PAGE":
                 # Don't increment count, don't sleep 4s, just loop immediately
-                self.sleep_with_failsafe(0.5)
+                self.sleep_with_failsafe(0.1)
                 continue
                 
             if not result:
