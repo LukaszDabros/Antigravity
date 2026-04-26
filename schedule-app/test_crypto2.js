@@ -1,0 +1,29 @@
+const crypto = require('crypto');
+async function test() {
+    const encryptedToken = '{"salt":"pr67W2hjwBP4UhuXtKPuaw==","iv":"YTVPvV87anPzmchA","data":"nMXFRtfjCnr3mjM0oNIoZYG9R+csqiUJY+4KkE+xmdBzzfFSJFPDeWC/g99zWsvQGPF9QHqWEFKQrvXCiWUOtjHL2yZAZlkW6IdH1VUr/GgkSjgUcEUt/XMcSnCM8r5A2xMDeiylRhn87EC2DQ=="}';
+    const obj = JSON.parse(encryptedToken);
+    const iv = Buffer.from(obj.iv, 'base64');
+    const salt = Buffer.from(obj.salt, 'base64');
+    const data = Buffer.from(obj.data, 'base64');
+
+    const passwordsToTest = ['admin', 'prezentki', '1234', 'haslo', 'LukaszDabros'];
+
+    for (let p of passwordsToTest) {
+        for(let it of [20000, 100000]) {
+            try {
+                const key = crypto.pbkdf2Sync(p, salt, it, 32, 'sha256');
+                const decipher = crypto.createDecipheriv('aes-256-gcm', iv, key);
+                const authTag = data.subarray(data.length - 16);
+                const ciphertext = data.subarray(0, data.length - 16);
+                decipher.setAuthTag(authTag);
+                let decrypted = decipher.update(ciphertext, undefined, 'utf8');
+                decrypted += decipher.final('utf8');
+                console.log('Success with password:', p, ' and iterations:', it);
+                console.log('Decrypted token:', decrypted);
+            } catch(e) {
+                // Failed
+            }
+        }
+    }
+}
+test();
