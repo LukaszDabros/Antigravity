@@ -538,17 +538,6 @@ const scheduleData = {
   ],
   "friday": [
     {
-      "lesson": "l.1",
-      "teachers": [
-        {
-          "teacher": "M. Księżna - Michalska",
-          "groups": [
-            "4A dz. sala"
-          ]
-        }
-      ]
-    },
-    {
       "lesson": "l.2",
       "teachers": [
         {
@@ -623,25 +612,6 @@ const scheduleData = {
           "teacher": "G.Grabowska",
           "groups": [
             "4a sala"
-          ]
-        }
-      ]
-    },
-    {
-      "lesson": "l.7",
-      "teachers": [
-        {
-          "teacher": "A.Krynicka-Ślusarek",
-          "groups": [
-            "4B dz. siłownia",
-            "4B dz. sala"
-          ]
-        },
-        {
-          "teacher": "Ł. Dąbroś",
-          "groups": [
-            "4A/B ch. sala",
-            "4A/B ch. siłownia"
           ]
         }
       ]
