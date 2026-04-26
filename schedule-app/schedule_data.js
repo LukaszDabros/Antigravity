@@ -8,12 +8,6 @@ const scheduleData = {
           "groups": [
             "2/3a sala"
           ]
-        },
-        {
-          "teacher": "M. Księżna - Michalska",
-          "groups": [
-            "4A dz. siłownia"
-          ]
         }
       ]
     },
@@ -24,12 +18,6 @@ const scheduleData = {
           "teacher": "G.Grabowska",
           "groups": [
             "1a sala"
-          ]
-        },
-        {
-          "teacher": "M. Księżna - Michalska",
-          "groups": [
-            "4A dz. siłownia"
           ]
         }
       ]
@@ -87,44 +75,6 @@ const scheduleData = {
           "groups": [
             "1A ch. siłownia",
             "1A ch. sala"
-          ]
-        }
-      ]
-    },
-    {
-      "lesson": "l.6",
-      "teachers": [
-        {
-          "teacher": "M. Księżna - Michalska",
-          "groups": [
-            "4C dz. siłownia",
-            "4C dz. sala"
-          ]
-        },
-        {
-          "teacher": "A.Krynicka-Ślusarek",
-          "groups": [
-            "4C ch. sala",
-            "4C ch. siłownia"
-          ]
-        }
-      ]
-    },
-    {
-      "lesson": "l.7",
-      "teachers": [
-        {
-          "teacher": "M. Księżna - Michalska",
-          "groups": [
-            "4C dz. siłownia",
-            "4C dz. sala"
-          ]
-        },
-        {
-          "teacher": "A.Krynicka-Ślusarek",
-          "groups": [
-            "4C ch. sala",
-            "4C ch. siłownia"
           ]
         }
       ]
@@ -567,25 +517,6 @@ const scheduleData = {
       ]
     },
     {
-      "lesson": "l.5",
-      "teachers": [
-        {
-          "teacher": "M. Księżna - Michalska",
-          "groups": [
-            "4C dz. sala",
-            "4C dz. siłownia"
-          ]
-        },
-        {
-          "teacher": "A.Krynicka-Ślusarek",
-          "groups": [
-            "4C ch. siłownia",
-            "4C ch. sala"
-          ]
-        }
-      ]
-    },
-    {
       "lesson": "l.6",
       "teachers": [
         {
@@ -600,44 +531,6 @@ const scheduleData = {
           "groups": [
             "1B ch. sala",
             "1B ch. siłownia"
-          ]
-        }
-      ]
-    },
-    {
-      "lesson": "l.7",
-      "teachers": [
-        {
-          "teacher": "A.Krynicka-Ślusarek",
-          "groups": [
-            "4B dz. sala",
-            "4B dz. siłownia"
-          ]
-        },
-        {
-          "teacher": "Ł. Dąbroś",
-          "groups": [
-            "4A/B ch. siłownia",
-            "4A/B ch. sala"
-          ]
-        }
-      ]
-    },
-    {
-      "lesson": "l.8",
-      "teachers": [
-        {
-          "teacher": "A.Krynicka-Ślusarek",
-          "groups": [
-            "4B dz. sala",
-            "4B dz. siłownia"
-          ]
-        },
-        {
-          "teacher": "Ł. Dąbroś",
-          "groups": [
-            "4A/B ch. siłownia",
-            "4A/B ch. sala"
           ]
         }
       ]
