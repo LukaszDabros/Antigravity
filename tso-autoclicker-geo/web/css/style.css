@@ -20,7 +20,7 @@ body {
 
 .main-window {
     position: relative;
-    width: 650px;
+    width: 750px;
     height: 850px;
     margin: 0 auto;
     padding: 10px;
@@ -91,7 +91,7 @@ header h1 {
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;
     margin-top: 5px;
-    max-height: 420px;
+    max-height: 520px;
     overflow-y: auto;
     padding-right: 5px;
     transition: 0.3s;
@@ -141,8 +141,42 @@ header h1 {
 .explorer-card:hover { border-color: var(--gold); background: rgba(255, 255, 255, 0.6); }
 .explorer-card.active { border: 2px solid var(--gold); background: rgba(255, 215, 0, 0.2); }
 
-.explorer-card h3 { font-size: 0.9em; margin: 2px 0; }
-.explorer-card p.task-label { font-size: 0.75em; margin: 2px 0; color: #555; }
+.card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 2px;
+}
+
+.explorer-thumb {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    border: 1px solid var(--bronze);
+    border-radius: 4px;
+    background: rgba(255,255,255,0.2);
+}
+
+.explorer-card h3 { 
+    font-size: 0.9em; 
+    margin: 0;
+    color: var(--wood);
+}
+
+.explorer-card p.task-label { 
+    font-size: 0.75em; 
+    margin: 2px 0; 
+    color: #444;
+    font-weight: bold;
+}
 
 /* BUTTONS */
 .btn-royal {

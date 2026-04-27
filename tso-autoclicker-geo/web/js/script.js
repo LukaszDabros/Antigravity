@@ -53,9 +53,13 @@ function renderExplorers() {
         };
 
         const content = document.createElement('div');
+        content.className = 'card-content';
         content.innerHTML = `
             <div class="chk">${exp.active ? '✓' : ''}</div>
-            <h3>${exp.name}</h3>
+            <div class="card-header">
+                <img src="${exp.icon}" class="explorer-thumb" alt="">
+                <h3>${exp.name}</h3>
+            </div>
             <p class="task-label">${exp.task_label}</p>
         `;
         

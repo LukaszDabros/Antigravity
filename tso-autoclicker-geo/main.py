@@ -26,22 +26,22 @@ TASK_MAP = {
 
 # GEOLOGIST CATEGORIES
 GEOLOGISTS_LIST = [
-    {"name": "Zwykły", "files": ["zwykly_geolog.png"]},
-    {"name": "Wesoły", "files": ["wesoly_geolog.png"]},
-    {"name": "Sumienny", "files": ["sumienny_geolog.png"]},
-    {"name": "Pracowita", "files": ["pracowita_geolog.png"]},
-    {"name": "Archeologiczny", "files": ["archeologiczny_geolog.png"]},
-    {"name": "Biegły", "files": ["biegly_geolog.png"]},
-    {"name": "Dokładny", "files": ["dokladny_geolog.png"]},
-    {"name": "Mumia", "files": ["mumia_geolog.png"]},
-    {"name": "Niezłomny", "files": ["niezlomny_geolog.png"]},
-    {"name": "Osmalony", "files": ["osmalony_geolog.png"]},
-    {"name": "Piernik", "files": ["piernik_geolog.png"]},
-    {"name": "Przyjacielski", "files": ["przyjacielski_geolog.png"]},
-    {"name": "Wyrafinowany", "files": ["wyrafinowany_geolog.png"]},
-    {"name": "Zimny", "files": ["zimny_geolog.png"]},
-    {"name": "Złota", "files": ["zlota_geolog.png"]},
-    {"name": "Zrównoważony", "files": ["zrownowazony_geolog.png"]}
+    {"name": "Zwykły", "files": ["zwykly_geolog.png"], "icon": "assets/zwykly_geolog.png"},
+    {"name": "Wesoły", "files": ["wesoly_geolog.png"], "icon": "assets/wesoly_geolog.png"},
+    {"name": "Sumienny", "files": ["sumienny_geolog.png"], "icon": "assets/sumienny_geolog.png"},
+    {"name": "Pracowita", "files": ["pracowita_geolog.png"], "icon": "assets/pracowita_geolog.png"},
+    {"name": "Archeologiczny", "files": ["archeologiczny_geolog.png"], "icon": "assets/archeologiczny_geolog.png"},
+    {"name": "Biegły", "files": ["biegly_geolog.png"], "icon": "assets/biegly_geolog.png"},
+    {"name": "Dokładny", "files": ["dokladny_geolog.png"], "icon": "assets/dokladny_geolog.png"},
+    {"name": "Mumia", "files": ["mumia_geolog.png"], "icon": "assets/mumia_geolog.png"},
+    {"name": "Niezłomny", "files": ["niezlomny_geolog.png"], "icon": "assets/niezlomny_geolog.png"},
+    {"name": "Osmalony", "files": ["osmalony_geolog.png"], "icon": "assets/osmalony_geolog.png"},
+    {"name": "Piernik", "files": ["piernik_geolog.png"], "icon": "assets/piernik_geolog.png"},
+    {"name": "Przyjacielski", "files": ["przyjacielski_geolog.png"], "icon": "assets/przyjacielski_geolog.png"},
+    {"name": "Wyrafinowany", "files": ["wyrafinowany_geolog.png"], "icon": "assets/wyrafinowany_geolog.png"},
+    {"name": "Zimny", "files": ["zimny_geolog.png"], "icon": "assets/zimny_geolog.png"},
+    {"name": "Złota", "files": ["zlota_geolog.png"], "icon": "assets/zlota_geolog.png"},
+    {"name": "Zrównoważony", "files": ["zrownowazony_geolog.png"], "icon": "assets/zrownowazony_geolog.png"}
 ]
 
 @eel.expose
@@ -74,9 +74,6 @@ def run_bot(config):
             # 2. Build global task steps
             task_steps = TASK_MAP.get(config["globalTask"], [])
             
-            # 3. Handle individual task overrides (not fully used in simple run but ready)
-            # For now we use global task
-            
             final_msg = bot.run_bot({
                 "explorers": explorer_files,
                 "task_steps": task_steps,
@@ -101,7 +98,7 @@ def stop_bot():
 if __name__ == "__main__":
     print("Royal Geologist is ready. Opening UI...")
     try:
-        # Adjusted window height for less tasks
-        eel.start('index.html', size=(650, 720))
+        # Increased window size to 750x850 for better visibility
+        eel.start('index.html', size=(750, 850))
     except (SystemExit, KeyboardInterrupt):
         print("Closing...")
