@@ -279,7 +279,7 @@ class BotEngine:
             
         return None
 
-    def execute_task_cycle(self, explorer_files, task_steps, star_pos, on_status=None, retried_top=False):
+    def execute_task_cycle(self, explorer_files, explorer_tasks, star_pos, on_status=None, retried_top=False):
         max_scrolls = 15
         found = None
         self.last_explorer_pos = None
@@ -294,20 +294,21 @@ class BotEngine:
         if not found and not retried_top and not self.check_failsafe():
             if on_status: on_status("Brak wyników. Wracam na górę...")
             self.scroll_top(star_pos)
-            return self.execute_task_cycle(explorer_files, task_steps, star_pos, on_status, retried_top=True)
+            return self.execute_task_cycle(explorer_files, explorer_tasks, star_pos, on_status, retried_top=True)
 
         if not found or self.check_failsafe():
             return False
 
+        plik_found, pos = found
+        task_steps = explorer_tasks.get(plik_found, [])
+        
         self.sleep_with_failsafe(0.1)
 
         for step in task_steps:
             if self.check_failsafe(): break
             if not self.find_and_click(step, timeout=6, on_status=on_status):
                 if on_status: on_status(f"Błąd: Nie otwarto menu {step}. Szukam innych na tej stronie...")
-                # Zamiast od razu przewijać (co omija sąsiadów), robimy mały ruch myszką i próbujemy znów
                 pyautogui.moveRel(0, 50, duration=0.2)
-                # Zwracamy True, żeby run_bot mogło kontynuować, ale bez doliczania 'count' (obsłużone w run_bot)
                 return "RETRY_SAME_PAGE"
         
         return True
@@ -330,12 +331,18 @@ class BotEngine:
         self.scroll_top(star_pos)
 
         count = 0
+        explorer_files = config.get("explorers", [])
+        explorer_tasks = config.get("explorer_tasks", {}) # New: filename -> steps
+        
+        # Backward compatibility if someone sends task_steps directly
+        if not explorer_tasks and "task_steps" in config:
+            explorer_tasks = {f: config["task_steps"] for f in explorer_files}
+
         while count < config.get("max_count", 999):
             if self.stop_requested: break
-            result = self.execute_task_cycle(config["explorers"], config["task_steps"], star_pos, on_status=on_status)
+            result = self.execute_task_cycle(explorer_files, explorer_tasks, star_pos, on_status=on_status)
             
             if result == "RETRY_SAME_PAGE":
-                # Don't increment count, don't sleep 4s, just loop immediately
                 self.sleep_with_failsafe(0.1)
                 continue
                 
@@ -347,12 +354,11 @@ class BotEngine:
                 on_progress(count)
             
             if self.turbo_mode:
-                # In Turbo Mode, we only do a tiny pause to let the UI settle
                 self.sleep_with_failsafe(0.2)
             else:
                 self.sleep_with_failsafe(self.lag_buffer)
             
-        return f"Wysłano {count} odkrywców."
+        return f"Wysłano {count} geologów."
 
     def stop(self):
         self.stop_requested = True

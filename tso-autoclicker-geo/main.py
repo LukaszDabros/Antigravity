@@ -64,19 +64,29 @@ def set_turbo_mode(enabled):
 def run_bot(config):
     def run():
         try:
-            # 1. Convert simple explorer names to filenames
+            # 1. Build a mapping: filename -> task_steps
+            explorer_tasks = {}
             explorer_files = []
-            for name in config["selectedExplorers"]:
-                for entry in GEOLOGISTS_LIST:
-                    if entry["name"] == name:
-                        explorer_files.extend(entry["files"])
             
-            # 2. Build global task steps
-            task_steps = TASK_MAP.get(config["globalTask"], [])
+            # Map name to its files first
+            name_to_files = {e["name"]: e["files"] for e in GEOLOGISTS_LIST}
+            
+            # Use individual assignments if they exist
+            # individualTasks is a list of {name: "...", task: "..."}
+            assignments = {a["name"]: a["task"] for a in config.get("individualTasks", [])}
+            
+            for name in config["selectedExplorers"]:
+                files = name_to_files.get(name, [])
+                task_key = assignments.get(name, config["globalTask"])
+                steps = TASK_MAP.get(task_key, [])
+                
+                for f in files:
+                    explorer_files.append(f)
+                    explorer_tasks[f] = steps
             
             final_msg = bot.run_bot({
                 "explorers": explorer_files,
-                "task_steps": task_steps,
+                "explorer_tasks": explorer_tasks,
                 "max_count": 999
             }, 
             on_progress=eel.on_bot_progress,
