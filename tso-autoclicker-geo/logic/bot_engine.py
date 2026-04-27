@@ -211,34 +211,29 @@ class BotEngine:
 
     def scroll_top(self, star_pos):
         if not star_pos: return
-        target_y = max(100, star_pos.y - 150)
-        if star_pos.x == 0 and star_pos.y == 0: return
-        
+        target_y = max(100, star_pos.y - 250)
         pyautogui.moveTo(star_pos.x, target_y, duration=0.2)
-        # Use 'home' key for top
-        if self.check_failsafe(): return
-        pyautogui.press('home')
-        self.sleep_with_failsafe(0.3)
-
+        pyautogui.click()
+        self.sleep_with_failsafe(0.1)
+        
+        for _ in range(12): 
+            if self.check_failsafe(): break
+            pyautogui.scroll(1000)
+            self.sleep_with_failsafe(0.02)
+        self.sleep_with_failsafe(0.1)
+        
     def scroll_bottom(self, star_pos):
         if not star_pos: return
-        # Click more centrally in the Star Menu to ensure focus on the list
-        # Star icon is usually at bottom center. Star Menu is above it.
         target_y = max(100, star_pos.y - 250) 
         pyautogui.moveTo(star_pos.x, target_y, duration=0.3)
         pyautogui.click()
         self.sleep_with_failsafe(0.2)
         
-        # Try 'end' key first
-        if self.check_failsafe(): return
-        pyautogui.press('end')
-        self.sleep_with_failsafe(0.3)
-
-        # Fallback: heavy scroll down
-        for _ in range(5):
+        # Pure intensive scroll - without 'end' key which closes menu for user
+        for _ in range(15):
             if self.check_failsafe(): break
-            pyautogui.scroll(-2000)
-            self.sleep_with_failsafe(0.05)
+            pyautogui.scroll(-1200)
+            self.sleep_with_failsafe(0.02)
         
         self.sleep_with_failsafe(0.2)
 
