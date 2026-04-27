@@ -333,6 +333,9 @@ class BotEngine:
         return True
 
     def run_bot(self, config, on_progress=None, on_status=None):
+        self.stop_requested = False
+        self.click_history = []
+        
         if on_status: on_status("Bot startuje...")
         if self.check_failsafe(): return "Zatrzymano (ESC)"
         
