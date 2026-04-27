@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TSO Royal Auto-Explorer</title>
+    <title>TSO Royal Dispatcher Unified</title>
     <link rel="stylesheet" href="css/style.css">
     <script type="text/javascript" src="/eel.js"></script>
 </head>
@@ -18,17 +18,29 @@
         <!-- CONTENT -->
         <div class="parchment">
             <header>
-                <h1>Królewski Zarządca Odkrywców</h1>
-                <div class="status-bar" id="statusLine">Gotowy do pracy</div>
+                <h1>🏰 Królewski Zarządca v3.0</h1>
+                <div class="status-bar" id="statusLine">Przygotuj Menu Gwiazdy (Ekipa)</div>
             </header>
 
+            <nav class="tab-nav">
+                <button id="tabExplorer" class="tab-btn active">🧭 ODKRYWCY</button>
+                <button id="tabGeologist" class="tab-btn">💎 GEOLODZY</button>
+            </nav>
+
             <div class="bulk-actions">
+                <select id="bulkTaskSelect" class="btn-royal">
+                    <!-- Options injected by JS based on tab -->
+                </select>
+                <button id="btnSetAllTasks" class="btn-royal small">USTAW WSZYSTKIM</button>
                 <button id="btnSelectAll" class="btn-royal small">ZAZNACZ WSZYSTKICH</button>
-                <button id="btnSetAllTasks" class="btn-royal small">USTAW ZADANIE DLA ZAZNACZONYCH</button>
+                <label class="turbo-toggle btn-royal small">
+                    <input type="checkbox" id="chkTurbo">
+                    <span>TURBO ⚡</span>
+                </label>
             </div>
 
             <main>
-                <div class="explorer-grid" id="explorerGrid">
+                <div class="explorer-grid" id="unitGrid">
                     <!-- Cards will be injected by JS -->
                 </div>
 
@@ -46,16 +58,9 @@
                     <div id="calibContent" class="calibration-panel collapsed">
                         <div class="slider-group">
                             <div class="slider-row">
-                                <span>Czas oczekiwania: <strong id="valLag">4.0</strong>s</span>
+                                <span>Czas oczekiwania (lag): <strong id="valLag">4.0</strong>s</span>
                                 <input type="range" id="lagBuffer" min="1.0" max="10.0" step="0.5" value="4.0">
-                                <p class="hint">Czas przerwy przed wysłaniem kolejnego odkrywcy (lag serwera).</p>
-                            </div>
-                            <div class="slider-row turbo-row">
-                                <label class="turbo-label">
-                                    <input type="checkbox" id="chkTurbo">
-                                    <span>Tryb Turbo ⚡ (Błyskawiczne wysyłanie)</span>
-                                </label>
-                                <p class="hint">Bot klika kolejnych odkrywców bez czekania na lag.</p>
+                                <p class="hint">Czas przerwy przed kolejnym wysłaniem (bufor na lag serwera).</p>
                             </div>
                         </div>
                     </div>
@@ -67,16 +72,10 @@
     <!-- SETTINGS MODAL -->
     <div id="settingsModal" class="modal" style="display:none;">
         <div class="modal-parchment">
-             <h2>Ustawienia Misji</h2>
-             <p>Wybierz co ma robić ten odkrywca:</p>
+             <h2 id="modalTitle">⚙️ Ustawienia Misji</h2>
+             <p>Wybierz co ma robić ten specjalista:</p>
              <select id="taskSelect">
-                 <option value="short_treasure">Krótki Skarb</option>
-                 <option value="medium_treasure">Średni Skarb</option>
-                 <option value="long_treasure">Długi Skarb</option>
-                 <option value="very_long_treasure">B. Długi Skarb</option>
-                 <option value="prolonged_treasure">Przedłużony Skarb</option>
-                 <option value="artifact_treasure">Artefakty</option>
-                 <option value="adventure">Przygoda</option>
+                 <!-- Injected by JS -->
              </select>
              <button id="saveTask" class="btn-royal">ZAPISZ</button>
         </div>

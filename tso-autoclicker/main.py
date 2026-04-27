@@ -1,10 +1,8 @@
 import eel
 import os
 import threading
-import win32gui
-import win32con
-import time
 import pyautogui
+import time
 from logic.bot_engine import BotEngine
 
 # CONFIGURATION
@@ -13,139 +11,134 @@ eel.init(os.path.join(SCRIPT_DIR, 'web'))
 
 bot = BotEngine(SCRIPT_DIR)
 
-# TASK MAPPINGS (Files to find/click in sequence)
-TASK_MAP = {
-    "prolonged_treasure": ["szukanie_skarbu.png", "przedluzone_poszukiwania.png", "wyslij_zielony.png"],
+# --- TASK MAPPINGS ---
+EXPLORER_TASK_MAP = {
     "short_treasure": ["szukanie_skarbu.png", "krotkie_poszukiwania.png", "wyslij_zielony.png"],
     "medium_treasure": ["szukanie_skarbu.png", "srednie_poszukiwania.png", "wyslij_zielony.png"],
     "long_treasure": ["szukanie_skarbu.png", "dlugie_poszukiwania.png", "wyslij_zielony.png"],
     "very_long_treasure": ["szukanie_skarbu.png", "bdlugie_poszukiwania.png", "wyslij_zielony.png"],
+    "prolonged_treasure": ["szukanie_skarbu.png", "przedluzone_poszukiwania.png", "wyslij_zielony.png"],
     "artifact_treasure": ["szukanie_skarbu.png", "artefaktu_poszukiwania.png", "wyslij_zielony.png"],
-    "adventure": ["szukanie_przygody.png", "szukanie_przygody.png", "wyslij_zielony.png"] 
+    "adventure": ["szukanie_przygody.png", "wyslij_zielony.png"]
 }
 
-# EXPLORER CATEGORIES Mapping
+GEOLOGIST_TASK_MAP = {
+    "stone": ["poszukiwanie_kamienia.png", "wyslij_zielony.png"],
+    "copper": ["poszukiwanie_miedzi.png", "wyslij_zielony.png"],
+    "marble": ["poszukiwanie_marmuru.png", "wyslij_zielony.png"],
+    "iron": ["poszukiwanie_zelaza.png", "wyslij_zielony.png"],
+    "coal": ["poszukiwanie_wegla.png", "wyslij_zielony.png"],
+    "gold": ["poszukiwanie_zlota.png", "wyslij_zielony.png"],
+    "titanium": ["poszukiwanie_tytanu.png", "wyslij_zielony.png"],
+    "saltpeter": ["poszukiwanie_saletry.png", "wyslij_zielony.png"],
+    "granite": ["poszukiwanie_granitu.png", "wyslij_zielony.png"]
+}
+
+# --- LISTS ---
 EXPLORERS_LIST = [
-    {"name": "Zwykły", "files": ["zwykly_odkrywca.png"]},
-    {"name": "Szczęśliwy", "files": ["szczesliwy_odkrywca.png"]},
-    {"name": "Nieustraszony", "files": ["nieustraszony_odkrywca.png"]},
-    {"name": "Puszysty / Śnieżny", "files": ["sniezny_odkrywca.png", "puszysty_odkrywca.png"]},
-    {"name": "Zakochany", "files": ["zakochany_odkrywca.png"]},
-    {"name": "Królewski", "files": ["krolewski_odkrywca.png"]},
-    {"name": "Zoe", "files": ["zoe_odkrywca.png"]},
-    {"name": "Rina", "files": ["rina_odkrywca.png"]},
-    {"name": "Żądna", "files": ["zadna_odkrywca.png"]},
-    {"name": "Dobrotliwa", "files": ["dobrotliwa_odkrywca.png"]},
-    {"name": "Dzielna", "files": ["dzielna_odkrywca.png"]},
-    {"name": "Zauroczona", "files": ["zauroczona_odkrywca.png"]},
-    {"name": "Romantyczny", "files": ["romantyczny_odkrywca.png"]},
-    {"name": "Pokorny", "files": ["pokorny_odkrywca.png"]},
-    {"name": "Śmiały", "files": ["smialy_odkrywca.png"]},
-    {"name": "Uroczy", "files": ["uroczy_odkrywca.png"]},
-    {"name": "Zuchwały", "files": ["zuchwaly_odkrywca.png"]},
-    {"name": "Przestraszony", "files": ["przestraszony_odkrywca.png"]},
-    {"name": "Zapalony", "files": ["zapalony_odkrywca.png"]},
-    {"name": "Doświadczony", "files": ["doswiadczony_odkrywca.png"]},
-    {"name": "Czarnodrzewu", "files": ["czarnodrzewu_odkrywca.png"]},
-    {"name": "Pirat", "files": ["pirat_odkrywca.png"]},
-    {"name": "Staranny", "files": ["staranny_odkrywca.png"]},
-    {"name": "Bystry", "files": ["bystry_odkrywca.png"]},
-    {"name": "Przyjacielski", "files": ["przyjacielski_odkrywca.png"]},
-    {"name": "Stanowczy", "files": ["stanowczy_odkrywca.png"]},
-    {"name": "Widmowy", "files": ["widmowy_odkrywca.png"]}
+    {"name": "Zwykły", "files": ["zwykly_odkrywca.png"], "icon": "assets/zwykly_odkrywca.png"},
+    {"name": "Doświadczony", "files": ["doswiadczony_odkrywca.png"], "icon": "assets/doswiadczony_odkrywca.png"},
+    {"name": "Zuchwały", "files": ["zuchwaly_odkrywca.png"], "icon": "assets/zuchwaly_odkrywca.png"},
+    {"name": "Szybki", "files": ["szybki_odkrywca.png"], "icon": "assets/szybki_odkrywca.png"},
+    {"name": "Rina", "files": ["rina_odkrywca.png"], "icon": "assets/rina_odkrywca.png"},
+    {"name": "Zoe", "files": ["zoe_odkrywca.png"], "icon": "assets/zoe_odkrywca.png"},
+    {"name": "Szczęśliwy", "files": ["szczesliwy_odkrywca.png"], "icon": "assets/szczesliwy_odkrywca.png"},
+    {"name": "Śmiały", "files": ["smialy_odkrywca.png"], "icon": "assets/smialy_odkrywca.png"},
+    {"name": "Odważny", "files": ["odwazny_odkrywca.png"], "icon": "assets/odwazny_odkrywca.png"},
+    {"name": "Nieustraszony", "files": ["nieustraszony_odkrywca.png"], "icon": "assets/nieustraszony_odkrywca.png"},
+    {"name": "Staranny", "files": ["staranny_odkrywca.png"], "icon": "assets/staranny_odkrywca.png"},
+    {"name": "Puszysty", "files": ["puszysty_odkrywca.png"], "icon": "assets/puszysty_odkrywca.png"},
+    {"name": "Śnieżny", "files": ["sniezny_odkrywca.png"], "icon": "assets/sniezny_odkrywca.png"},
+    {"name": "Widmowy", "files": ["widmowy_odkrywca.png"], "icon": "assets/widmowy_odkrywca.png"},
+    {"name": "Przestraszony", "files": ["przestraszony_odkrywca.png"], "icon": "assets/przestraszony_odkrywca.png"},
+    {"name": "Zauroczona", "files": ["zauroczona_odkrywca.png"], "icon": "assets/zauroczona_odkrywca.png"},
+    {"name": "Dzielna", "files": ["dzielna_odkrywca.png"], "icon": "assets/dzielna_odkrywca.png"},
+    {"name": "Dobrotliwa", "files": ["dobrotliwa_odkrywca.png"], "icon": "assets/dobrotliwa_odkrywca.png"},
+    {"name": "Pokorny", "files": ["pokorny_odkrywca.png"], "icon": "assets/pokorny_odkrywca.png"},
+    {"name": "Żądna", "files": ["zadna_odkrywca.png"], "icon": "assets/zadna_odkrywca.png"},
+    {"name": "Romantyczny", "files": ["romantyczny_odkrywca.png"], "icon": "assets/romantyczny_odkrywca.png"},
+    {"name": "Uroczy", "files": ["uroczy_odkrywca.png"], "icon": "assets/uroczy_odkrywca.png"},
+    {"name": "Zakochany", "files": ["zakochany_odkrywca.png"], "icon": "assets/zakochany_odkrywca.png"},
+    {"name": "Zapalony", "files": ["zapalony_odkrywca.png"], "icon": "assets/zapalony_odkrywca.png"},
+    {"name": "Pirat", "files": ["pirat_odkrywca.png"], "icon": "assets/pirat_odkrywca.png"},
+    {"name": "Królewski", "files": ["krolewski_odkrywca.png"], "icon": "assets/krolewski_odkrywca.png"},
+    {"name": "Czarnodrzewu", "files": ["czarnodrzewu_odkrywca.png"], "icon": "assets/czarnodrzewu_odkrywca.png"},
+    {"name": "Przyjacielski", "files": ["przyjacielski_odkrywca.png"], "icon": "assets/przyjacielski_odkrywca.png"},
+    {"name": "Stanowczy", "files": ["stanowczy_odkrywca.png"], "icon": "assets/stanowczy_odkrywca.png"},
+    {"name": "Bystry", "files": ["bystry_odkrywca.png"], "icon": "assets/bystry_odkrywca.png"}
+]
+
+GEOLOGISTS_LIST = [
+    {"name": "Zwykły", "files": ["zwykly_geolog.png"], "icon": "assets/zwykly_geolog.png"},
+    {"name": "Wesoły", "files": ["wesoly_geolog.png"], "icon": "assets/wesoly_geolog.png"},
+    {"name": "Sumienny", "files": ["sumienny_geolog.png"], "icon": "assets/sumienny_geolog.png"},
+    {"name": "Pracowita", "files": ["pracowita_geolog.png"], "icon": "assets/pracowita_geolog.png"},
+    {"name": "Archeologiczny", "files": ["archeologiczny_geolog.png"], "icon": "assets/archeologiczny_geolog.png"},
+    {"name": "Biegły", "files": ["biegly_geolog.png"], "icon": "assets/biegly_geolog.png"},
+    {"name": "Dokładny", "files": ["dokladny_geolog.png"], "icon": "assets/dokladny_geolog.png"},
+    {"name": "Mumia", "files": ["mumia_geolog.png"], "icon": "assets/mumia_geolog.png"},
+    {"name": "Niezłomny", "files": ["niezlomny_geolog.png"], "icon": "assets/niezlomny_geolog.png"},
+    {"name": "Osmalony", "files": ["osmalony_geolog.png"], "icon": "assets/osmalony_geolog.png"},
+    {"name": "Piernik", "files": ["piernik_geolog.png"], "icon": "assets/piernik_geolog.png"},
+    {"name": "Przyjacielski", "files": ["przyjacielski_geolog.png"], "icon": "assets/przyjacielski_geolog.png"},
+    {"name": "Wyrafinowany", "files": ["wyrafinowany_geolog.png"], "icon": "assets/wyrafinowany_geolog.png"},
+    {"name": "Zimny", "files": ["zimny_geolog.png"], "icon": "assets/zimny_geolog.png"},
+    {"name": "Złota", "files": ["zlota_geolog.png"], "icon": "assets/zlota_geolog.png"},
+    {"name": "Zrównoważony", "files": ["zrownowazony_geolog.png"], "icon": "assets/zrownowazony_geolog.png"}
 ]
 
 @eel.expose
-def get_explorers():
-    return EXPLORERS_LIST
+def get_initial_data():
+    return {
+        "explorers": EXPLORERS_LIST,
+        "geologists": GEOLOGISTS_LIST
+    }
 
 @eel.expose
 def update_calibration(offset_x, offset_y):
-    """Updates offsets in the bot engine from UI sliders."""
     bot.set_offsets(offset_x, offset_y)
-    print(f" [Calib] Offset X: {offset_x}, Y: {offset_y}")
-
-@eel.expose
-def update_ignore_left(val):
-    """Updates the dead zone for notifications."""
-    bot.set_ignore_left(val)
-    print(f" [Calib] Ignore Left Zone: {val}px")
 
 @eel.expose
 def update_lag_buffer(val):
-    """Updates the post-send delay from UI."""
     bot.set_lag_buffer(val)
-    print(f" [Calib] Lag Buffer: {val}s")
 
 @eel.expose
 def set_turbo_mode(enabled):
-    """Toggles Turbo Mode in the bot engine."""
     bot.set_turbo_mode(enabled)
-    print(f" [Bot] Turbo Mode: {'ON' if enabled else 'OFF'}")
-
-def minimize_window():
-    """Minimizes ONLY the Eel window by searching for its title."""
-    def find_and_min():
-        time.sleep(1.0) # Wait for bot to start move mouse
-        # Specific window title from index.html
-        hwnd = win32gui.FindWindow(None, "TSO Royal Auto-Explorer")
-        if hwnd:
-            win32gui.ShowWindow(hwnd, win32con.SW_MINIMIZE)
-        else:
-            print(" [!] Could not find Eel window to minimize.")
-    
-    import time
-    threading.Thread(target=find_and_min).start()
 
 @eel.expose
-def start_bot(selected_explorers):
+def run_bot(config):
     def run():
-        bot.stop_requested = False 
-        eel.update_status("Uruchamianie bota... Minimalizacja.")
-        minimize_window()
-        
-        # 1. Group explorers by task to minimize scrolling
-        tasks_to_run = {}
-        for exp in selected_explorers:
-            tk = exp.get("task", "prolonged_treasure")
-            if tk not in tasks_to_run:
-                tasks_to_run[tk] = {"files": [], "names": []}
-            tasks_to_run[tk]["files"].extend(exp["files"])
-            tasks_to_run[tk]["names"].append(exp["name"])
-
-        final_msg = "Praca zakończona."
         try:
-            for task_key, data in tasks_to_run.items():
-                if bot.stop_requested: break
+            bot_type = config.get("type", "explorer")
+            active_list = EXPLORERS_LIST if bot_type == "explorer" else GEOLOGISTS_LIST
+            task_map = EXPLORER_TASK_MAP if bot_type == "explorer" else GEOLOGIST_TASK_MAP
+            
+            # 1. Build a mapping: filename -> task_steps
+            explorer_tasks = {}
+            explorer_files = []
+            
+            name_to_files = {e["name"]: e["files"] for e in active_list}
+            assignments = {a["name"]: a["task"] for a in config.get("individualTasks", [])}
+            
+            for name in config["selectedUnits"]:
+                files = name_to_files.get(name, [])
+                task_key = assignments.get(name, config["globalTask"])
+                steps = task_map.get(task_key, [])
                 
-                steps = TASK_MAP.get(task_key, TASK_MAP["prolonged_treasure"])
-                names_str = ", ".join(data["names"][:3]) + ("..." if len(data["names"]) > 3 else "")
-                
-                eel.update_status(f"Zadanie: {task_key} ({names_str})")
-                
-                config = {
-                    "explorers": data["files"],
-                    "task_steps": steps,
-                    "max_count": 999
-                }
-                
-                result = bot.run_bot(
-                    config, 
-                    on_progress=lambda n: eel.update_status(f"Wysłano {n} ({task_key})"),
-                    on_status=eel.update_status
-                )
-                
-                if isinstance(result, str) and "Zatrzymano" in result:
-                    eel.update_status(f"Przerwano: {result}")
-                    break
-                
-                if bot.stop_requested: break
-                time.sleep(1.5)
-                
-            if not bot.stop_requested:
-                final_msg = "Wszystkie grupy wysłane!"
-            else:
-                final_msg = "Praca zatrzymana."
+                for f in files:
+                    explorer_files.append(f)
+                    explorer_tasks[f] = steps
+            
+            final_msg = bot.run_bot({
+                "type": bot_type,
+                "explorers": explorer_files,
+                "explorer_tasks": explorer_tasks,
+                "max_count": 999
+            }, 
+            on_progress=eel.on_bot_progress,
+            on_status=eel.on_status_update)
+            
         except pyautogui.FailSafeException:
             final_msg = "Błąd: Myszka w rogu (FailSafe)!"
         except Exception as e:
@@ -158,11 +151,10 @@ def start_bot(selected_explorers):
 @eel.expose
 def stop_bot():
     bot.stop()
-    eel.on_bot_finished("Bot zatrzymany ręcznie.")
 
 if __name__ == "__main__":
-    print("Royal Explorer is ready. Opening UI...")
+    print("Royal Dispatcher Unified is ready.")
     try:
-        eel.start('index.html', size=(650, 850))
+        eel.start('index.html', size=(750, 850))
     except (SystemExit, KeyboardInterrupt):
         print("Closing...")

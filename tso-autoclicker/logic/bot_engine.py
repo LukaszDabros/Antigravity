@@ -56,7 +56,7 @@ class BotEngine:
         self.turbo_mode = bool(enabled)
         if not enabled: self.click_history = []
 
-    def is_recently_clicked(self, x, y, radius=35, duration=6):
+    def is_recently_clicked(self, x, y, radius=45, duration=10):
         """Checks if (x,y) was clicked in the last few seconds."""
         import time
         now = time.time()
@@ -211,15 +211,31 @@ class BotEngine:
 
     def scroll_top(self, star_pos):
         if not star_pos: return
-        target_y = max(100, star_pos.y - 150)
-        if star_pos.x == 0 and star_pos.y == 0: return
-        
+        target_y = max(100, star_pos.y - 250)
         pyautogui.moveTo(star_pos.x, target_y, duration=0.2)
+        # Just hover, don't click to avoid accidental closing
+        self.sleep_with_failsafe(0.1)
+        
         for _ in range(12): 
             if self.check_failsafe(): break
-            pyautogui.scroll(600)
+            pyautogui.scroll(1000)
             self.sleep_with_failsafe(0.02)
         self.sleep_with_failsafe(0.1)
+        
+    def scroll_bottom(self, star_pos):
+        if not star_pos: return
+        target_y = max(100, star_pos.y - 250) 
+        pyautogui.moveTo(star_pos.x, target_y, duration=0.3)
+        # Just hover, don't click to avoid accidental closing
+        self.sleep_with_failsafe(0.1)
+        
+        # Increased range to ensure we hit the real bottom
+        for _ in range(25):
+            if self.check_failsafe(): break
+            pyautogui.scroll(-1200)
+            self.sleep_with_failsafe(0.01)
+        
+        self.sleep_with_failsafe(0.2)
 
     def scan_for_explorer(self, explorer_files, on_status=None):
         """POOL SCAN: Searches for ANY of the provided files in one pass."""
@@ -279,7 +295,7 @@ class BotEngine:
             
         return None
 
-    def execute_task_cycle(self, explorer_files, task_steps, star_pos, on_status=None, retried_top=False):
+    def execute_task_cycle(self, explorer_files, explorer_tasks, star_pos, bot_type="explorer", on_status=None, retried_opposite=False):
         max_scrolls = 15
         found = None
         self.last_explorer_pos = None
@@ -288,31 +304,46 @@ class BotEngine:
             if self.check_failsafe(): break
             found = self.scan_for_explorer(explorer_files, on_status)
             if found: break
-            if on_status: on_status(f"Przewijam ({i+1}/{max_scrolls})...")
-            self.scroll_menu(star_pos)
+            
+            direction = "w górę" if bot_type == "geologist" else "w dół"
+            if on_status: on_status(f"Szukanie {direction} ({i+1}/{max_scrolls})...")
+            
+            # Scroll logic
+            if bot_type == "geologist":
+                pyautogui.scroll(800) # UP
+            else:
+                pyautogui.scroll(-800) # DOWN
+            self.sleep_with_failsafe(0.1)
 
-        if not found and not retried_top and not self.check_failsafe():
-            if on_status: on_status("Brak wyników. Wracam na górę...")
-            self.scroll_top(star_pos)
-            return self.execute_task_cycle(explorer_files, task_steps, star_pos, on_status, retried_top=True)
+        if not found and not retried_opposite and not self.check_failsafe():
+            if on_status: on_status("Weryfikacja przeciwnego końca listy...")
+            if bot_type == "geologist":
+                self.scroll_bottom(star_pos)
+            else:
+                self.scroll_top(star_pos)
+            return self.execute_task_cycle(explorer_files, explorer_tasks, star_pos, bot_type, on_status, retried_opposite=True)
 
         if not found or self.check_failsafe():
             return False
 
+        plik_found, pos = found
+        task_steps = explorer_tasks.get(plik_found, [])
+        
         self.sleep_with_failsafe(0.1)
 
         for step in task_steps:
             if self.check_failsafe(): break
             if not self.find_and_click(step, timeout=6, on_status=on_status):
                 if on_status: on_status(f"Błąd: Nie otwarto menu {step}. Szukam innych na tej stronie...")
-                # Zamiast od razu przewijać (co omija sąsiadów), robimy mały ruch myszką i próbujemy znów
                 pyautogui.moveRel(0, 50, duration=0.2)
-                # Zwracamy True, żeby run_bot mogło kontynuować, ale bez doliczania 'count' (obsłużone w run_bot)
                 return "RETRY_SAME_PAGE"
         
         return True
 
     def run_bot(self, config, on_progress=None, on_status=None):
+        self.stop_requested = False
+        self.click_history = []
+        
         if on_status: on_status("Bot startuje...")
         if self.check_failsafe(): return "Zatrzymano (ESC)"
         
@@ -320,22 +351,37 @@ class BotEngine:
         if not star_pos:
             return "Nie znaleziono Menu Gwiazdy"
 
-        if not self.find_and_click(self.UI_PIN_OFF, timeout=1, on_status=on_status):
+        # ENSURE PIN IS ON (Menu won't close accidentally)
+        if self.find_and_click(self.UI_PIN_ON, timeout=1, on_status=on_status):
+            if on_status: on_status("Menu jest już przypięte.")
+        else:
+            if not self.find_and_click(self.UI_PIN_OFF, timeout=2, on_status=on_status):
+                if on_status: on_status("Nie udało się przypiąć menu (może już jest?)")
             if self.check_failsafe(): return "Zatrzymano (ESC)"
 
         if not self.find_and_click(self.UI_EKIPA, timeout=2, on_status=on_status):
             return "Nie znaleziono zakładki Ekipa. Czy Menu Gwiazdy jest otwarte?"
             
-        self.sleep_with_failsafe(0.1)
-        self.scroll_top(star_pos)
+        self.sleep_with_failsafe(0.2)
+        
+        bot_type = config.get("type", "explorer")
+        if bot_type == "geologist":
+            self.scroll_bottom(star_pos)
+        else:
+            self.scroll_top(star_pos)
 
         count = 0
+        explorer_files = config.get("explorers", [])
+        explorer_tasks = config.get("explorer_tasks", {}) 
+        
+        if not explorer_tasks and "task_steps" in config:
+            explorer_tasks = {f: config["task_steps"] for f in explorer_files}
+
         while count < config.get("max_count", 999):
             if self.stop_requested: break
-            result = self.execute_task_cycle(config["explorers"], config["task_steps"], star_pos, on_status=on_status)
+            result = self.execute_task_cycle(explorer_files, explorer_tasks, star_pos, bot_type=bot_type, on_status=on_status)
             
             if result == "RETRY_SAME_PAGE":
-                # Don't increment count, don't sleep 4s, just loop immediately
                 self.sleep_with_failsafe(0.1)
                 continue
                 
@@ -347,12 +393,13 @@ class BotEngine:
                 on_progress(count)
             
             if self.turbo_mode:
-                # In Turbo Mode, we only do a tiny pause to let the UI settle
                 self.sleep_with_failsafe(0.2)
             else:
                 self.sleep_with_failsafe(self.lag_buffer)
             
-        return f"Wysłano {count} odkrywców."
+        pyautogui.moveTo(100, 100, duration=0.5)
+        unit_name = "geologów" if bot_type == "geologist" else "odkrywców"
+        return f"Wysłano {count} {unit_name}."
 
     def stop(self):
         self.stop_requested = True
