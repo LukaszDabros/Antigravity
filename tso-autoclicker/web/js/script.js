@@ -3,7 +3,8 @@ let allGeologists = [];
 let activeTab = 'explorer'; // 'explorer' or 'geologist'
 
 // Local State
-let selectedUnits = new Set();
+let selectedExplorers = new Set();
+let selectedGeologists = new Set();
 let individualTasks = {}; // name -> taskKey
 
 // DOM Elements
@@ -73,9 +74,10 @@ function switchTab(tab) {
 function renderGrid() {
     const list = activeTab === 'explorer' ? allExplorers : allGeologists;
     const taskNames = activeTab === 'explorer' ? EXPLORER_TASKS : GEOLOGIST_TASKS;
+    const currentSet = activeTab === 'explorer' ? selectedExplorers : selectedGeologists;
     
     unitGrid.innerHTML = list.map(unit => {
-        const isSelected = selectedUnits.has(unit.name);
+        const isSelected = currentSet.has(unit.name);
         const taskKey = individualTasks[unit.name] || bulkTaskSelect.value;
         const taskName = taskNames.find(t => t.id === taskKey)?.name || "Domyślne";
         
@@ -95,27 +97,30 @@ function renderGrid() {
 }
 
 function toggleUnit(name) {
-    if (selectedUnits.has(name)) selectedUnits.delete(name);
-    else selectedUnits.add(name);
+    const set = activeTab === 'explorer' ? selectedExplorers : selectedGeologists;
+    if (set.has(name)) set.delete(name);
+    else set.add(name);
     renderGrid();
 }
 
 // BULK ACTIONS
 document.getElementById('btnSelectAll').onclick = () => {
     const list = activeTab === 'explorer' ? allExplorers : allGeologists;
+    const set = activeTab === 'explorer' ? selectedExplorers : selectedGeologists;
     const allActiveNames = list.map(u => u.name);
-    const areAllSelected = allActiveNames.every(n => selectedUnits.has(n));
+    const areAllSelected = allActiveNames.every(n => set.has(n));
     
-    if (areAllSelected) allActiveNames.forEach(n => selectedUnits.delete(n));
-    else allActiveNames.forEach(n => selectedUnits.add(n));
+    if (areAllSelected) allActiveNames.forEach(n => set.delete(n));
+    else allActiveNames.forEach(n => set.add(n));
     
     renderGrid();
 };
 
 document.getElementById('btnSetAllTasks').onclick = () => {
     const list = activeTab === 'explorer' ? allExplorers : allGeologists;
+    const set = activeTab === 'explorer' ? selectedExplorers : selectedGeologists;
     list.forEach(u => {
-        if (selectedUnits.has(u.name)) {
+        if (set.has(u.name)) {
             individualTasks[u.name] = bulkTaskSelect.value;
         }
     });
@@ -143,6 +148,9 @@ function openSettings(name) {
 document.getElementById('saveTask').onclick = () => {
     if (currentSettingsUnit) {
         individualTasks[currentSettingsUnit] = document.getElementById('taskSelect').value;
+        // Auto-select when individual task is set
+        const set = activeTab === 'explorer' ? selectedExplorers : selectedGeologists;
+        set.add(currentSettingsUnit);
     }
     document.getElementById('settingsModal').style.display = 'none';
     renderGrid();
@@ -150,11 +158,13 @@ document.getElementById('saveTask').onclick = () => {
 
 // BOT CONTROL
 btnStart.onclick = async () => {
+    const set = activeTab === 'explorer' ? selectedExplorers : selectedGeologists;
     const list = activeTab === 'explorer' ? allExplorers : allGeologists;
-    const activeUnits = list.filter(u => selectedUnits.has(u.name));
+    const activeUnits = list.filter(u => set.has(u.name));
     
     if (activeUnits.length === 0) {
-        alert("Wybierz przynajmniej jednego specjalistę!");
+        const typePlural = activeTab === 'explorer' ? 'odkrywcy' : 'geologa';
+        alert(`Wybierz przynajmniej jednego ${typePlural}!`);
         return;
     }
 
