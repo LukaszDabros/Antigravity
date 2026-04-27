@@ -56,7 +56,7 @@ class BotEngine:
         self.turbo_mode = bool(enabled)
         if not enabled: self.click_history = []
 
-    def is_recently_clicked(self, x, y, radius=35, duration=6):
+    def is_recently_clicked(self, x, y, radius=45, duration=10):
         """Checks if (x,y) was clicked in the last few seconds."""
         import time
         now = time.time()
@@ -225,11 +225,15 @@ class BotEngine:
         if not star_pos: return
         target_y = max(100, star_pos.y - 150)
         pyautogui.moveTo(star_pos.x, target_y, duration=0.2)
+        # Click once to ensure focus
+        pyautogui.click()
+        self.sleep_with_failsafe(0.2)
+        
         for _ in range(15): 
             if self.check_failsafe(): break
-            pyautogui.scroll(-700) # Scroll DOWN
-            self.sleep_with_failsafe(0.02)
-        self.sleep_with_failsafe(0.1)
+            pyautogui.scroll(-800) # Scroll DOWN
+            self.sleep_with_failsafe(0.05) # Slower scroll steps for better registry
+        self.sleep_with_failsafe(0.2)
 
     def scan_for_explorer(self, explorer_files, on_status=None):
         """POOL SCAN: Searches for ANY of the provided files in one pass."""
