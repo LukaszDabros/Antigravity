@@ -222,16 +222,25 @@ class BotEngine:
 
     def scroll_bottom(self, star_pos):
         if not star_pos: return
-        target_y = max(100, star_pos.y - 150)
-        pyautogui.moveTo(star_pos.x, target_y, duration=0.2)
-        # Click once to ensure focus
+        # Click more centrally in the Star Menu to ensure focus on the list
+        # Star icon is usually at bottom center. Star Menu is above it.
+        target_y = max(100, star_pos.y - 250) 
+        pyautogui.moveTo(star_pos.x, target_y, duration=0.3)
         pyautogui.click()
-        self.sleep_with_failsafe(0.1)
+        self.sleep_with_failsafe(0.2)
         
-        # Use 'end' key - much more reliable for jumping to the bottom in TSO
+        # Try 'end' key first
         if self.check_failsafe(): return
         pyautogui.press('end')
         self.sleep_with_failsafe(0.3)
+
+        # Fallback: heavy scroll down
+        for _ in range(5):
+            if self.check_failsafe(): break
+            pyautogui.scroll(-2000)
+            self.sleep_with_failsafe(0.05)
+        
+        self.sleep_with_failsafe(0.2)
 
     def scan_for_explorer(self, explorer_files, on_status=None):
         """POOL SCAN: Searches for ANY of the provided files in one pass."""
