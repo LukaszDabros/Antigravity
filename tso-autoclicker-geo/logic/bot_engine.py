@@ -221,6 +221,16 @@ class BotEngine:
             self.sleep_with_failsafe(0.02)
         self.sleep_with_failsafe(0.1)
 
+    def scroll_bottom(self, star_pos):
+        if not star_pos: return
+        target_y = max(100, star_pos.y - 150)
+        pyautogui.moveTo(star_pos.x, target_y, duration=0.2)
+        for _ in range(15): 
+            if self.check_failsafe(): break
+            pyautogui.scroll(-700) # Scroll DOWN
+            self.sleep_with_failsafe(0.02)
+        self.sleep_with_failsafe(0.1)
+
     def scan_for_explorer(self, explorer_files, on_status=None):
         """POOL SCAN: Searches for ANY of the provided files in one pass."""
         if on_status: on_status("Skanowanie listy...")
@@ -279,7 +289,7 @@ class BotEngine:
             
         return None
 
-    def execute_task_cycle(self, explorer_files, explorer_tasks, star_pos, on_status=None, retried_top=False):
+    def execute_task_cycle(self, explorer_files, explorer_tasks, star_pos, on_status=None, retried_bottom=False):
         max_scrolls = 15
         found = None
         self.last_explorer_pos = None
@@ -288,13 +298,17 @@ class BotEngine:
             if self.check_failsafe(): break
             found = self.scan_for_explorer(explorer_files, on_status)
             if found: break
-            if on_status: on_status(f"Przewijam ({i+1}/{max_scrolls})...")
-            self.scroll_menu(star_pos)
+            if on_status: on_status(f"Przewijam w górę ({i+1}/{max_scrolls})...")
+            # Scroll UP (Geologists are at the bottom, so we move upwards)
+            target_y = max(50, star_pos.y - 150)
+            pyautogui.moveTo(star_pos.x, target_y, duration=0.1)
+            pyautogui.scroll(500) 
+            self.sleep_with_failsafe(0.1)
 
-        if not found and not retried_top and not self.check_failsafe():
-            if on_status: on_status("Brak wyników. Wracam na górę...")
-            self.scroll_top(star_pos)
-            return self.execute_task_cycle(explorer_files, explorer_tasks, star_pos, on_status, retried_top=True)
+        if not found and not retried_bottom and not self.check_failsafe():
+            if on_status: on_status("Brak wyników. Wracam na dół...")
+            self.scroll_bottom(star_pos)
+            return self.execute_task_cycle(explorer_files, explorer_tasks, star_pos, on_status, retried_bottom=True)
 
         if not found or self.check_failsafe():
             return False
@@ -328,7 +342,8 @@ class BotEngine:
             return "Nie znaleziono zakładki Ekipa. Czy Menu Gwiazdy jest otwarte?"
             
         self.sleep_with_failsafe(0.1)
-        self.scroll_top(star_pos)
+        # Start at the BOTTOM for geologists
+        self.scroll_bottom(star_pos)
 
         count = 0
         explorer_files = config.get("explorers", [])
@@ -358,6 +373,8 @@ class BotEngine:
             else:
                 self.sleep_with_failsafe(self.lag_buffer)
             
+        # Completion: move mouse to side and reset flags
+        pyautogui.moveTo(100, 100, duration=0.5)
         return f"Wysłano {count} geologów."
 
     def stop(self):
