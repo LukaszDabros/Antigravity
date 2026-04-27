@@ -229,11 +229,11 @@ class BotEngine:
         # Just hover, don't click to avoid accidental closing
         self.sleep_with_failsafe(0.1)
         
-        # Pure intensive scroll - without 'end' key which closes menu for user
-        for _ in range(15):
+        # Increased range to ensure we hit the real bottom
+        for _ in range(25):
             if self.check_failsafe(): break
             pyautogui.scroll(-1200)
-            self.sleep_with_failsafe(0.02)
+            self.sleep_with_failsafe(0.01)
         
         self.sleep_with_failsafe(0.2)
 
@@ -296,7 +296,7 @@ class BotEngine:
         return None
 
     def execute_task_cycle(self, explorer_files, explorer_tasks, star_pos, on_status=None, retried_bottom=False):
-        max_scrolls = 15
+        max_scrolls = 10 # Reduced to avoid long mouse lock at the end
         found = None
         self.last_explorer_pos = None
         
@@ -304,15 +304,14 @@ class BotEngine:
             if self.check_failsafe(): break
             found = self.scan_for_explorer(explorer_files, on_status)
             if found: break
-            if on_status: on_status(f"Przewijam w górę ({i+1}/{max_scrolls})...")
-            # Scroll UP (Geologists are at the bottom, so we move upwards)
-            target_y = max(50, star_pos.y - 150)
-            pyautogui.moveTo(star_pos.x, target_y, duration=0.1)
-            pyautogui.scroll(500) 
+            if on_status: on_status(f"Szukanie w górę ({i+1}/{max_scrolls})...")
+            # Scroll UP
+            pyautogui.scroll(800) 
             self.sleep_with_failsafe(0.1)
 
         if not found and not retried_bottom and not self.check_failsafe():
-            if on_status: on_status("Brak wyników. Wracam na dół...")
+            # Only one retry at the very end to be 100% sure
+            if on_status: on_status("Weryfikacja końca listy...")
             self.scroll_bottom(star_pos)
             return self.execute_task_cycle(explorer_files, explorer_tasks, star_pos, on_status, retried_bottom=True)
 
