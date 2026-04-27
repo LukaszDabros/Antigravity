@@ -215,11 +215,10 @@ class BotEngine:
         if star_pos.x == 0 and star_pos.y == 0: return
         
         pyautogui.moveTo(star_pos.x, target_y, duration=0.2)
-        for _ in range(12): 
-            if self.check_failsafe(): break
-            pyautogui.scroll(600)
-            self.sleep_with_failsafe(0.02)
-        self.sleep_with_failsafe(0.1)
+        # Use 'home' key for top
+        if self.check_failsafe(): return
+        pyautogui.press('home')
+        self.sleep_with_failsafe(0.3)
 
     def scroll_bottom(self, star_pos):
         if not star_pos: return
@@ -227,13 +226,12 @@ class BotEngine:
         pyautogui.moveTo(star_pos.x, target_y, duration=0.2)
         # Click once to ensure focus
         pyautogui.click()
-        self.sleep_with_failsafe(0.2)
+        self.sleep_with_failsafe(0.1)
         
-        for _ in range(15): 
-            if self.check_failsafe(): break
-            pyautogui.scroll(-800) # Scroll DOWN
-            self.sleep_with_failsafe(0.05) # Slower scroll steps for better registry
-        self.sleep_with_failsafe(0.2)
+        # Use 'end' key - much more reliable for jumping to the bottom in TSO
+        if self.check_failsafe(): return
+        pyautogui.press('end')
+        self.sleep_with_failsafe(0.3)
 
     def scan_for_explorer(self, explorer_files, on_status=None):
         """POOL SCAN: Searches for ANY of the provided files in one pass."""
