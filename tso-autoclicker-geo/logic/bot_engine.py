@@ -213,7 +213,7 @@ class BotEngine:
         if not star_pos: return
         target_y = max(100, star_pos.y - 250)
         pyautogui.moveTo(star_pos.x, target_y, duration=0.2)
-        pyautogui.click()
+        # Just hover, don't click to avoid accidental closing
         self.sleep_with_failsafe(0.1)
         
         for _ in range(12): 
@@ -226,8 +226,8 @@ class BotEngine:
         if not star_pos: return
         target_y = max(100, star_pos.y - 250) 
         pyautogui.moveTo(star_pos.x, target_y, duration=0.3)
-        pyautogui.click()
-        self.sleep_with_failsafe(0.2)
+        # Just hover, don't click to avoid accidental closing
+        self.sleep_with_failsafe(0.1)
         
         # Pure intensive scroll - without 'end' key which closes menu for user
         for _ in range(15):
@@ -341,13 +341,18 @@ class BotEngine:
         if not star_pos:
             return "Nie znaleziono Menu Gwiazdy"
 
-        if not self.find_and_click(self.UI_PIN_OFF, timeout=1, on_status=on_status):
+        # ENSURE PIN IS ON (Menu won't close accidentally)
+        if self.find_and_click(self.UI_PIN_ON, timeout=1, on_status=on_status):
+            if on_status: on_status("Menu jest już przypięte.")
+        else:
+            if not self.find_and_click(self.UI_PIN_OFF, timeout=2, on_status=on_status):
+                if on_status: on_status("Nie udało się przypiąć menu (może już jest?)")
             if self.check_failsafe(): return "Zatrzymano (ESC)"
 
         if not self.find_and_click(self.UI_EKIPA, timeout=2, on_status=on_status):
             return "Nie znaleziono zakładki Ekipa. Czy Menu Gwiazdy jest otwarte?"
             
-        self.sleep_with_failsafe(0.1)
+        self.sleep_with_failsafe(0.2)
         # Start at the BOTTOM for geologists
         self.scroll_bottom(star_pos)
 
