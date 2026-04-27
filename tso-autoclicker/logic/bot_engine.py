@@ -296,9 +296,13 @@ class BotEngine:
         return None
 
     def execute_task_cycle(self, explorer_files, explorer_tasks, star_pos, bot_type="explorer", on_status=None, retried_opposite=False):
-        max_scrolls = 15
+        max_scrolls = 20 # Increased to be safe
         found = None
         self.last_explorer_pos = None
+        
+        # Ensure mouse is over the Star Menu for scrolling
+        target_y = max(100, star_pos.y - 250)
+        pyautogui.moveTo(star_pos.x, target_y, duration=0.2)
         
         for i in range(max_scrolls):
             if self.check_failsafe(): break
@@ -310,10 +314,10 @@ class BotEngine:
             
             # Scroll logic
             if bot_type == "geologist":
-                pyautogui.scroll(800) # UP
+                pyautogui.scroll(1000) # UP
             else:
-                pyautogui.scroll(-800) # DOWN
-            self.sleep_with_failsafe(0.1)
+                pyautogui.scroll(-1000) # DOWN
+            self.sleep_with_failsafe(0.15)
 
         if not found and not retried_opposite and not self.check_failsafe():
             if on_status: on_status("Weryfikacja przeciwnego końca listy...")
