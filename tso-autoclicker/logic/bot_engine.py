@@ -246,7 +246,7 @@ class BotEngine:
         haystack_img = cv2.cvtColor(np.array(pyautogui.screenshot()), cv2.COLOR_RGB2GRAY)
         
         best_match = {"score": 0.0, "file": ""}
-        conf_levels = [0.88, 0.82] # Adjusted for Widmowy/Przestraszony stability
+        conf_levels = [0.88, 0.80, 0.75] # Added 0.75 for harder to detect units like Zoe
         
         for conf in conf_levels:
             for plik in explorer_files:
