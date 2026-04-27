@@ -36,6 +36,10 @@
                 </select>
                 <button id="btnSetAllTasks" class="btn-royal small">USTAW WSZYSTKIM</button>
                 <button id="btnSelectAll" class="btn-royal small">ZAZNACZ WSZYSTKICH</button>
+                <label class="turbo-toggle btn-royal small">
+                    <input type="checkbox" id="chkTurbo">
+                    <span>TURBO ⚡</span>
+                </label>
             </div>
 
             <main>
@@ -59,14 +63,7 @@
                             <div class="slider-row">
                                 <span>Czas oczekiwania: <strong id="valLag">4.0</strong>s</span>
                                 <input type="range" id="lagBuffer" min="1.0" max="10.0" step="0.5" value="4.0">
-                                <p class="hint">Czas przerwy przed wysłaniem kolejnego odkrywcy (lag serwera).</p>
-                            </div>
-                            <div class="slider-row turbo-row">
-                                <label class="turbo-label">
-                                    <input type="checkbox" id="chkTurbo">
-                                    <span>Tryb Turbo ⚡ (Błyskawiczne wysyłanie)</span>
-                                </label>
-                                <p class="hint">Bot klika kolejnych odkrywców bez czekania na lag.</p>
+                                <p class="hint">Czas przerwy przed wysłaniem kolejnego geologa (lag serwera).</p>
                             </div>
                         </div>
                     </div>
