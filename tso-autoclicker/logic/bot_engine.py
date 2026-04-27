@@ -23,6 +23,9 @@ class BotEngine:
         self.UI_PIN_OFF = "pinezka.png"
         self.UI_PIN_ON = "pinezka_on.png"
         self.UI_EKIPA = "ekipa.png"
+        
+        self.click_history = [] # List of (x, y, timestamp)
+        self.turbo_mode = False
 
         # TSO-style "FailSafe": corner of the screen
         pyautogui.FAILSAFE = True
@@ -48,6 +51,24 @@ class BotEngine:
         """Updates the server lag buffer from UI."""
         self.lag_buffer = float(val)
 
+    def set_turbo_mode(self, enabled):
+        """Toggles Turbo Mode (batch dispatch without lag wait)."""
+        self.turbo_mode = bool(enabled)
+        if not enabled: self.click_history = []
+
+    def is_recently_clicked(self, x, y, radius=35, duration=6):
+        """Checks if (x,y) was clicked in the last few seconds."""
+        import time
+        now = time.time()
+        # Clean up old history
+        self.click_history = [h for h in self.click_history if now - h[2] < duration]
+        
+        for h_x, h_y, h_time in self.click_history:
+            dist = ((x - h_x)**2 + (y - h_y)**2)**0.5
+            if dist < radius:
+                return True
+        return False
+
     def check_failsafe(self):
         """Checks if STOP was requested via UI or ESC key."""
         if self.stop_requested: return True
@@ -64,6 +85,29 @@ class BotEngine:
         while time.time() - start < duration:
             if self.check_failsafe(): break
             time.sleep(0.05)
+
+    def _opencv_locate_all(self, needle_path, haystack_img, confidence=0.75):
+        """Returns ALL unique matches found in the haystack."""
+        try:
+            import cv2
+            import numpy as np
+            needle = cv2.imread(needle_path, cv2.IMREAD_GRAYSCALE)
+            if needle is None: return []
+            
+            h, w = needle.shape
+            res = cv2.matchTemplate(haystack_img, needle, cv2.TM_CCOEFF_NORMED)
+            loc = np.where(res >= confidence)
+            
+            points = []
+            for pt in zip(*loc[::-1]): # switch x, y
+                center_x = pt[0] + w // 2
+                center_y = pt[1] + h // 2
+                # Deduplicate close points (radius 20)
+                if not any(abs(center_x - p[0]) < 20 and abs(center_y - p[1]) < 20 for p in points):
+                    points.append((center_x, center_y))
+            return points
+        except:
+            return []
 
     def _opencv_locate(self, needle_path, haystack_img, confidence=0.75):
         """Ultra-fast search for needle in pre-captured haystack image."""
@@ -194,26 +238,41 @@ class BotEngine:
                 full_path = os.path.join(self.script_dir, plik)
                 if not os.path.exists(full_path): continue
                 
-                pos, score = self._opencv_locate(full_path, haystack_img, confidence=conf)
-                if pos:
-                    # Filter out matches in the "Dead Zone" (Left 260px)
-                    if pos.x < self.ignore_left:
+                # Get all matches for this explorer type
+                matches = self._opencv_locate_all(full_path, haystack_img, confidence=conf)
+                
+                # Filter and pick the first valid one
+                for pos_x, pos_y in matches:
+                    if pos_x < self.ignore_left: continue
+                    if self.turbo_mode and self.is_recently_clicked(pos_x, pos_y):
                         continue
-                        
+                    
                     screen_w, screen_h = pyautogui.size()
-                    if 50 <= pos.x < screen_w - 50 and 50 <= pos.y < screen_h - 50:
-                        final_x = pos.x + self.offset_x
-                        final_y = pos.y + self.offset_y
+                    if 50 <= pos_x < screen_w - 50 and 50 <= pos_y < screen_h - 50:
+                        final_x = pos_x + self.offset_x
+                        final_y = pos_y + self.offset_y
                         
                         if on_status: on_status(f"Wybieram: {plik}")
                         self.stable_click(final_x, final_y, on_status=on_status)
+                        
+                        # Add to click history if in Turbo Mode
+                        if self.turbo_mode:
+                            import time
+                            self.click_history.append((pos_x, pos_y, time.time()))
+
+                        from collections import namedtuple
+                        Point = namedtuple('Point', ['x', 'y'])
+                        pos = Point(pos_x, pos_y)
                         
                         self.last_explorer_pos = pos
                         self.sleep_with_failsafe(0.5) # Wait for sub-menu popup
                         return plik, pos
                 
-                if score > best_match["score"]:
-                    best_match = {"score": score, "file": plik}
+                # Fallback for "Nearest" status display (only for the first match)
+                if not matches:
+                    _, score = self._opencv_locate(full_path, haystack_img, confidence=0.0)
+                    if score > best_match["score"]:
+                        best_match = {"score": score, "file": plik}
         
         if on_status and best_match["score"] > 0.4:
             on_status(f"Najbliższy: {best_match['file']} ({int(best_match['score']*100)}%) - [Cel: >82%]")
@@ -286,7 +345,12 @@ class BotEngine:
             count += 1
             if on_progress:
                 on_progress(count)
-            self.sleep_with_failsafe(self.lag_buffer)
+            
+            if self.turbo_mode:
+                # In Turbo Mode, we only do a tiny pause to let the UI settle
+                self.sleep_with_failsafe(0.2)
+            else:
+                self.sleep_with_failsafe(self.lag_buffer)
             
         return f"Wysłano {count} odkrywców."
 

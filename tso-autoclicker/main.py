@@ -77,6 +77,12 @@ def update_lag_buffer(val):
     bot.set_lag_buffer(val)
     print(f" [Calib] Lag Buffer: {val}s")
 
+@eel.expose
+def set_turbo_mode(enabled):
+    """Toggles Turbo Mode in the bot engine."""
+    bot.set_turbo_mode(enabled)
+    print(f" [Bot] Turbo Mode: {'ON' if enabled else 'OFF'}")
+
 def minimize_window():
     """Minimizes ONLY the Eel window by searching for its title."""
     def find_and_min():

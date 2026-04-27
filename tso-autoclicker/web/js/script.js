@@ -17,6 +17,7 @@ const lagBuffer = document.getElementById('lagBuffer');
 const valLag = document.getElementById('valLag');
 const toggleCalib = document.getElementById('toggleCalib');
 const calibContent = document.getElementById('calibContent');
+const chkTurbo = document.getElementById('chkTurbo');
 
 let isAllSelected = false;
 
@@ -155,12 +156,21 @@ toggleCalib.onclick = () => {
     localStorage.setItem('calibCollapsed', isCollapsed);
 };
 
+chkTurbo.onchange = () => {
+    eel.set_turbo_mode(chkTurbo.checked);
+    localStorage.setItem('turboEnabled', chkTurbo.checked);
+};
+
 // LOAD PREFERENCES
 function loadPrefs() {
     const isCollapsed = localStorage.getItem('calibCollapsed') === 'true';
     if (!isCollapsed) {
         calibContent.classList.remove('collapsed');
     }
+    
+    const turboEnabled = localStorage.getItem('turboEnabled') === 'true';
+    chkTurbo.checked = turboEnabled;
+    eel.set_turbo_mode(turboEnabled);
 }
 
 loadPrefs();
