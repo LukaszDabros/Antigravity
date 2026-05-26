@@ -137,7 +137,7 @@ const scheduleData = {
           "teacher": "A.Krynicka-Ślusarek",
           "groups": [
             "5/6a dz. siłownia",
-            "5/6a dz. sala"
+            "5/6a dz. basen"
           ]
         }
       ]
