@@ -51,7 +51,7 @@ async function init() {
     chkTurbo.checked = storedTurbo;
     eel.set_turbo_mode(storedTurbo);
     
-    const storedLag = localStorage.getItem('lag_buffer') || '4.0';
+    const storedLag = localStorage.getItem('lag_buffer') || '0.5';
     lagBuffer.value = storedLag;
     valLag.innerText = storedLag;
     eel.update_lag_buffer(parseFloat(storedLag));
@@ -80,14 +80,16 @@ function renderGrid() {
         const isSelected = currentSet.has(unit.name);
         const taskKey = individualTasks[unit.name] || bulkTaskSelect.value;
         const taskName = taskNames.find(t => t.id === taskKey)?.name || "Domyślne";
+        const defaultThumb = activeTab === 'explorer' ? 'assets/zwykly_odkrywca.png' : 'assets/zwykly_geolog.png';
         
         return `
-            <div class="explorer-card ${isSelected ? 'selected' : ''}" onclick="toggleUnit('${unit.name}')">
+            <div class="explorer-card ${isSelected ? 'selected' : ''} ${unit.is_dummy ? 'dummy-unit' : ''}" onclick="toggleUnit('${unit.name}')">
                 <div class="card-header">
-                    <img src="${unit.icon}" class="unit-thumb" onerror="this.src='assets/zwykly_geolog.png'">
+                    <img src="${unit.icon}" class="unit-thumb" onerror="this.src='${defaultThumb}'">
                     <div class="card-content">
                         <h3>${unit.name}</h3>
                         <div class="task-label">Zadanie: ${taskName}</div>
+                        ${unit.is_dummy ? '<span class="dummy-badge">Brak grafiki</span>' : ''}
                     </div>
                 </div>
                 <button class="btn-settings" onclick="event.stopPropagation(); openSettings('${unit.name}')">⚙️</button>

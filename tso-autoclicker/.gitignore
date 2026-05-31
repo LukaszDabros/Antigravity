@@ -9,7 +9,10 @@ __pycache__/
 
 # Ignoruj pliki logów (jeśli zostaną dodane)
 *.log
+debug_log.txt
 
-# Opcjonalnie: Ignorowanie obrazków (półfabrykatów). Usun # aby włączyć.
-# *.png
-# !icon.png 
+# Ignoruj tymczasowe skrypty testowe i katalog scratch
+debug_x.py
+test_close_x.py
+scratch/
+

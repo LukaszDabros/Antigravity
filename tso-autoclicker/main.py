@@ -9,7 +9,7 @@ from logic.bot_engine import BotEngine
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 eel.init(os.path.join(SCRIPT_DIR, 'web'))
 
-bot = BotEngine(SCRIPT_DIR)
+bot = BotEngine(os.path.join(SCRIPT_DIR, 'web', 'assets'))
 
 # --- TASK MAPPINGS ---
 EXPLORER_TASK_MAP = {
@@ -36,36 +36,35 @@ GEOLOGIST_TASK_MAP = {
 
 # --- LISTS ---
 EXPLORERS_LIST = [
-    {"name": "Zwykły", "files": ["zwykly_odkrywca.png"], "icon": "assets/zwykly_odkrywca.png"},
-    {"name": "Doświadczony", "files": ["doswiadczony_odkrywca.png"], "icon": "assets/doswiadczony_odkrywca.png"},
-    {"name": "Zuchwały", "files": ["zuchwaly_odkrywca.png"], "icon": "assets/zuchwaly_odkrywca.png"},
-    {"name": "Szybki", "files": ["szybki_odkrywca.png"], "icon": "assets/szybki_odkrywca.png"},
-    {"name": "Rina", "files": ["rina_odkrywca.png"], "icon": "assets/rina_odkrywca.png"},
-    {"name": "Zoe", "files": ["zoe_odkrywca.png"], "icon": "assets/zoe_odkrywca.png"},
-    {"name": "Szczęśliwy", "files": ["szczesliwy_odkrywca.png"], "icon": "assets/szczesliwy_odkrywca.png"},
-    {"name": "Śmiały", "files": ["smialy_odkrywca.png"], "icon": "assets/smialy_odkrywca.png"},
-    {"name": "Odważny", "files": ["odwazny_odkrywca.png"], "icon": "assets/odwazny_odkrywca.png"},
-    {"name": "Nieustraszony", "files": ["nieustraszony_odkrywca.png"], "icon": "assets/nieustraszony_odkrywca.png"},
-    {"name": "Staranny", "files": ["staranny_odkrywca.png"], "icon": "assets/staranny_odkrywca.png"},
-    {"name": "Puszysty", "files": ["puszysty_odkrywca.png"], "icon": "assets/puszysty_odkrywca.png"},
-    {"name": "Śnieżny", "files": ["sniezny_odkrywca.png"], "icon": "assets/sniezny_odkrywca.png"},
-    {"name": "Widmowy", "files": ["widmowy_odkrywca.png"], "icon": "assets/widmowy_odkrywca.png"},
-    {"name": "Przestraszony", "files": ["przestraszony_odkrywca.png"], "icon": "assets/przestraszony_odkrywca.png"},
-    {"name": "Zauroczona", "files": ["zauroczona_odkrywca.png"], "icon": "assets/zauroczona_odkrywca.png"},
-    {"name": "Dzielna", "files": ["dzielna_odkrywca.png"], "icon": "assets/dzielna_odkrywca.png"},
-    {"name": "Dobrotliwa", "files": ["dobrotliwa_odkrywca.png"], "icon": "assets/dobrotliwa_odkrywca.png"},
-    {"name": "Pokorny", "files": ["pokorny_odkrywca.png"], "icon": "assets/pokorny_odkrywca.png"},
-    {"name": "Żądna", "files": ["zadna_odkrywca.png"], "icon": "assets/zadna_odkrywca.png"},
-    {"name": "Romantyczny", "files": ["romantyczny_odkrywca.png"], "icon": "assets/romantyczny_odkrywca.png"},
-    {"name": "Uroczy", "files": ["uroczy_odkrywca.png"], "icon": "assets/uroczy_odkrywca.png"},
-    {"name": "Zakochany", "files": ["zakochany_odkrywca.png"], "icon": "assets/zakochany_odkrywca.png"},
-    {"name": "Zapalony", "files": ["zapalony_odkrywca.png"], "icon": "assets/zapalony_odkrywca.png"},
-    {"name": "Pirat", "files": ["pirat_odkrywca.png"], "icon": "assets/pirat_odkrywca.png"},
-    {"name": "Królewski", "files": ["krolewski_odkrywca.png"], "icon": "assets/krolewski_odkrywca.png"},
-    {"name": "Czarnodrzewu", "files": ["czarnodrzewu_odkrywca.png"], "icon": "assets/czarnodrzewu_odkrywca.png"},
-    {"name": "Przyjacielski", "files": ["przyjacielski_odkrywca.png"], "icon": "assets/przyjacielski_odkrywca.png"},
-    {"name": "Stanowczy", "files": ["stanowczy_odkrywca.png"], "icon": "assets/stanowczy_odkrywca.png"},
-    {"name": "Bystry", "files": ["bystry_odkrywca.png"], "icon": "assets/bystry_odkrywca.png"}
+    {"name": "Zwykły Odkrywca", "files": ["zwykly_odkrywca.png"], "icon": "assets/zwykly_odkrywca.png"},
+    {"name": "Tubylczy Zwiadowca", "files": ["tubylczy_zwiadowca.png", "szybki_odkrywca.png"], "icon": "assets/tubylczy_zwiadowca.png"},
+    {"name": "Doświadczony Odkrywca", "files": ["doswiadczony_odkrywca.png"], "icon": "assets/doswiadczony_odkrywca.png"},
+    {"name": "Szczęśliwy Odkrywca", "files": ["szczesliwy_odkrywca.png"], "icon": "assets/szczesliwy_odkrywca.png"},
+    {"name": "Nieustraszona Odkrywczyni", "files": ["nieustraszony_odkrywca.png"], "icon": "assets/nieustraszony_odkrywca.png"},
+    {"name": "Dzielna Odkrywczyni", "files": ["dzielna_odkrywca.png"], "icon": "assets/dzielna_odkrywca.png"},
+    {"name": "Staranny Odkrywca", "files": ["staranny_odkrywca.png"], "icon": "assets/staranny_odkrywca.png"},
+    {"name": "Urocza Odkrywczyni", "files": ["uroczy_odkrywca.png"], "icon": "assets/uroczy_odkrywca.png"},
+    {"name": "Księżniczka Zoe", "files": ["zoe_odkrywca.png"], "icon": "assets/zoe_odkrywca.png"},
+    {"name": "Żądna Przygód Odkrywczyni", "files": ["zadna_odkrywca.png"], "icon": "assets/zadna_odkrywca.png"},
+    {"name": "Stanowcza Odkrywczyni", "files": ["stanowczy_odkrywca.png"], "icon": "assets/stanowczy_odkrywca.png"},
+    {"name": "Zauroczona Odkrywczyni", "files": ["zauroczona_odkrywca.png"], "icon": "assets/zauroczona_odkrywca.png"},
+    {"name": "Pokorny Odkrywca", "files": ["pokorny_odkrywca.png"], "icon": "assets/pokorny_odkrywca.png"},
+    {"name": "Zapalona Odkrywczyni", "files": ["zapalony_odkrywca.png"], "icon": "assets/zapalony_odkrywca.png"},
+    {"name": "Śmiały Odkrywca", "files": ["smialy_odkrywca.png"], "icon": "assets/smialy_odkrywca.png"},
+    {"name": "Przestraszony Odkrywca", "files": ["przestraszony_odkrywca.png"], "icon": "assets/przestraszony_odkrywca.png"},
+    {"name": "Śnieżny Odkrywca", "files": ["sniezny_odkrywca.png"], "icon": "assets/sniezny_odkrywca.png"},
+    {"name": "Romantyczny Odkrywca", "files": ["romantyczny_odkrywca.png"], "icon": "assets/romantyczny_odkrywca.png"},
+    {"name": "Macierzyńska Odkrywczyni", "files": ["macierzynska_odkrywca.png"], "icon": "assets/macierzynska_odkrywca.png"},
+    {"name": "Dobrotliwa Odkrywczyni", "files": ["dobrotliwa_odkrywca.png"], "icon": "assets/dobrotliwa_odkrywca.png"},
+    {"name": "Królewski Odkrywca", "files": ["krolewski_odkrywca.png"], "icon": "assets/krolewski_odkrywca.png"},
+    {"name": "Odkrywca Pirat", "files": ["pirat_odkrywca.png"], "icon": "assets/pirat_odkrywca.png"},
+    {"name": "Puszysty Odkrywca", "files": ["puszysty_odkrywca.png"], "icon": "assets/puszysty_odkrywca.png"},
+    {"name": "Odkrywczyni Rina", "files": ["rina_odkrywca.png"], "icon": "assets/rina_odkrywca.png"},
+    {"name": "Zakochany Odkrywca", "files": ["zakochany_odkrywca.png"], "icon": "assets/zakochany_odkrywca.png"},
+    {"name": "Odkrywczyni Czarnodrzewiu", "files": ["czarnodrzewu_odkrywca.png"], "icon": "assets/czarnodrzewu_odkrywca.png"},
+    {"name": "Przyjacielski Odkrywca", "files": ["przyjacielski_odkrywca.png"], "icon": "assets/przyjacielski_odkrywca.png"},
+    {"name": "Widmowy Odkrywca", "files": ["widmowy_odkrywca.png"], "icon": "assets/widmowy_odkrywca.png"},
+    {"name": "Odkrywczyni Nora", "files": ["nora_odkrywca.png"], "icon": "assets/nora_odkrywca.png"}
 ]
 
 GEOLOGISTS_LIST = [
@@ -89,9 +88,29 @@ GEOLOGISTS_LIST = [
 
 @eel.expose
 def get_initial_data():
+    enriched_explorers = []
+    for exp in EXPLORERS_LIST:
+        is_dummy = True
+        for file in exp["files"]:
+            path = os.path.join(SCRIPT_DIR, 'web', 'assets', file)
+            if os.path.exists(path) and os.path.getsize(path) >= 500:
+                is_dummy = False
+                break
+        enriched_explorers.append({**exp, "is_dummy": is_dummy})
+
+    enriched_geologists = []
+    for geo in GEOLOGISTS_LIST:
+        is_dummy = True
+        for file in geo["files"]:
+            path = os.path.join(SCRIPT_DIR, 'web', 'assets', file)
+            if os.path.exists(path) and os.path.getsize(path) >= 500:
+                is_dummy = False
+                break
+        enriched_geologists.append({**geo, "is_dummy": is_dummy})
+
     return {
-        "explorers": EXPLORERS_LIST,
-        "geologists": GEOLOGISTS_LIST
+        "explorers": enriched_explorers,
+        "geologists": enriched_geologists
     }
 
 @eel.expose
