@@ -1403,6 +1403,749 @@ const questions = [
   }
 ];
 
+const kidsQuestions = [
+  // ==========================================
+  // HISTORIA POLSKIEGO I ŚWIATOWEGO SPORTU (201-216)
+  // ==========================================
+  {
+    id: 201,
+    category: "historia",
+    difficulty: "latwe",
+    question: "W którym kraju narodziły się starożytne igrzyska olimpijskie?",
+    options: ["Grecja", "Rzym / Włochy", "Egipt", "Francja"],
+    correct: 0,
+    explanation: "Starożytne igrzyska olimpijskie odbywały się w Olimpii w starożytnej Grecji od 776 roku p.n.e."
+  },
+  {
+    id: 202,
+    category: "historia",
+    difficulty: "latwe",
+    question: "Jak nazywa się legendarny polski lekkoatleta, przedwojenny mistrz olimpijski na 10 000 metrów, patron wielu stadionów i szkół?",
+    options: ["Janusz Kusociński", "Kamil Stoch", "Robert Lewandowski", "Adam Małysz"],
+    correct: 0,
+    explanation: "Janusz Kusociński zdobył złoty medal w biegu na 10 000 m w Los Angeles w 1932 roku."
+  },
+  {
+    id: 203,
+    category: "historia",
+    difficulty: "latwe",
+    question: "Który polski skoczek jako pierwszy zdobył medal na zimowych igrzyskach olimpijskich (Sapporo 1972)?",
+    options: ["Wojciech Fortuna", "Adam Małysz", "Kamil Stoch", "Piotr Żyła"],
+    correct: 0,
+    explanation: "Wojciech Fortuna zdobył złoty medal na dużej skoczni w Sapporo w 1972 roku."
+  },
+  {
+    id: 204,
+    category: "historia",
+    difficulty: "latwe",
+    question: "Ile razy reprezentacja Polski w piłce nożnej zajęła 3. miejsce na mistrzostwach świata (w latach 1974 i 1982)?",
+    options: ["1 raz", "2 razy", "3 razy", "4 razy"],
+    correct: 1,
+    explanation: "Polska zdobyła srebrne medale (za 3. miejsce) na mistrzostwach świata w RFN w 1974 r. oraz w Hiszpanii w 1982 r."
+  },
+  {
+    id: 205,
+    category: "historia",
+    difficulty: "latwe",
+    question: "Który polski kolarz szosowy jako pierwszy zdobył medal mistrzostw świata dla Polski i jest organizatorem Tour de Pologne?",
+    options: ["Czesław Lang", "Ryszard Szurkowski", "Rafał Majka", "Michał Kwiatkowski"],
+    correct: 0,
+    explanation: "Czesław Lang to wicemistrz olimpijski z Moskwy (1980), który po zakończeniu kariery został dyrektorem Tour de Pologne."
+  },
+  {
+    id: 206,
+    category: "historia",
+    difficulty: "latwe",
+    question: "Jakim symbolem rozpala się znicz podczas ceremonii otwarcia igrzysk olimpijskich?",
+    options: ["Ogniem olimpijskim", "Lampionem", "Zapałkami", "Świeczkami"],
+    correct: 0,
+    explanation: "Ogień olimpijski jest przenoszony za pomocą sztafety z Grecji do miasta-gospodarza igrzysk."
+  },
+  {
+    id: 207,
+    category: "historia",
+    difficulty: "latwe",
+    question: "Gdzie w Polsce odbywa się co roku słynny noworoczny konkurs skoków narciarskich na Wielkiej Krokwi?",
+    options: ["W Zakopanem", "W Wiśle", "W Szczyrku", "Karpaczu"],
+    correct: 0,
+    explanation: "Zakopane i Wielka Krokiew to stolica polskich skoków narciarskich, gdzie odbywają się zawody Pucharu Świata."
+  },
+  {
+    id: 208,
+    category: "historia",
+    difficulty: "latwe",
+    question: "Jaki sport uprawiał legendarny bokser Muhammad Ali?",
+    options: ["Boks", "Zapasy", "Judo", "Karate"],
+    correct: 0,
+    explanation: "Muhammad Ali był wielokrotnym mistrzem świata wagi ciężkiej i jest uznawany za jednego z najwybitniejszych bokserów w historii."
+  },
+  {
+    id: 209,
+    category: "historia",
+    difficulty: "latwe",
+    question: "W którym roku Polska wspólnie z Ukrainą organizowała Mistrzostwa Europy w piłce nożnej (Euro)?",
+    options: ["2008", "2010", "2012", "2016"],
+    correct: 2,
+    explanation: "Turniej UEFA Euro 2012 odbył się na stadionach Polski i Ukrainy. Finał rozegrano w Kijowie, a mecz otwarcia w Warszawie."
+  },
+  {
+    id: 210,
+    category: "historia",
+    difficulty: "latwe",
+    question: "Jak nazywa się legendarny polski biegacz długodystansowy, mistrz olimpijski z Moskwy (1980) w biegu na 3000 m z przeszkodami, który tragicznie zginął w wypadku?",
+    options: ["Bronisław Malinowski", "Janusz Kusociński", "Zdzisław Krzyszkowiak", "Paweł Fajdek"],
+    correct: 0,
+    explanation: "Bronisław Malinowski był wybitnym biegaczem przeszkodowym, mistrzem (1980) i wicemistrzem olimpijskim (1976)."
+  },
+  {
+    id: 211,
+    category: "historia",
+    difficulty: "latwe",
+    question: "Który polski klub piłkarski jako jedyny dotarł do finału europejskiego pucharu (Puchar Zdobywców Pucharów w 1970 r.)?",
+    options: ["Górnik Zabrze", "Legia Warszawa", "Wisła Kraków", "Lech Poznań"],
+    correct: 0,
+    explanation: "Górnik Zabrze zagrał w finale w 1970 roku, ulegając Manchesterowi City 1:2."
+  },
+  {
+    id: 212,
+    category: "historia",
+    difficulty: "latwe",
+    question: "Jak nazywa się ojczyzna karate i judo – popularnych sztuk walki?",
+    options: ["Japonia", "Chiny", "Korea", "Brazylia"],
+    correct: 0,
+    explanation: "Obie te dyscypliny wywodzą się z Japonii i są obecnie popularnymi sportami olimpijskimi."
+  },
+  {
+    id: 213,
+    category: "historia",
+    difficulty: "latwe",
+    question: "Który polski skoczek narciarski wygrał Puchar Świata cztery razy i zdobył cztery medale olimpijskie na początku XXI wieku?",
+    options: ["Adam Małysz", "Kamil Stoch", "Dawid Kubacki", "Piotr Żyła"],
+    correct: 0,
+    explanation: "Adam Małysz zdominował skoki narciarskie, zdobywając Kryształowe Kule w latach 2001, 2002, 2003 i 2007."
+  },
+  {
+    id: 214,
+    category: "historia",
+    difficulty: "latwe",
+    question: "W jakim mieście w 2024 roku odbyły się letnie igrzyska olimpijskie?",
+    options: ["W Paryżu", "W Londynie", "W Rzymie", "W Tokio"],
+    correct: 0,
+    explanation: "Letnie Igrzyska Olimpijskie w 2024 roku gościł Paryż, stolica Francji."
+  },
+  {
+    id: 215,
+    category: "historia",
+    difficulty: "latwe",
+    question: "Kto był legendarnym trenerem polskich piłkarzy, z którym zdobyliśmy złoto olimpijskie w 1972 r. i trzecie miejsce na świecie w 1974 r.?",
+    options: ["Kazimierz Górski", "Hubert Wagner", "Leo Beenhakker", "Adam Nawałka"],
+    correct: 0,
+    explanation: "Kazimierz Górski jest uznawany za trenera wszech czasów polskiej piłki nożnej."
+  },
+  {
+    id: 216,
+    category: "historia",
+    difficulty: "latwe",
+    question: "Która dyscyplina sportowa jest najstarszą na świecie i obejmuje biegi, rzuty oraz skoki?",
+    options: ["Lekkoatletyka", "Piłka nożna", "Gimnastyka", "Zapasy"],
+    correct: 0,
+    explanation: "Lekkoatletyka jest często nazywana „królową sportu” i stanowiła podstawę starożytnych igrzysk."
+  },
+
+  // ==========================================
+  // PRZEPISY GRY (217-232)
+  // ==========================================
+  {
+    id: 217,
+    category: "przepisy",
+    difficulty: "latwe",
+    question: "Ile minut trwa cały regulaminowy mecz piłki nożnej (bez dogrywki)?",
+    options: ["60 minut", "80 minut", "90 minut", "100 minut"],
+    correct: 2,
+    explanation: "Mecz piłki nożnej trwa 90 minut, podzielonych na dwie połowy po 45 minut każda."
+  },
+  {
+    id: 218,
+    category: "przepisy",
+    difficulty: "latwe",
+    question: "Z ilu zawodników składa się drużyna na boisku w trakcie meczu siatkówki?",
+    options: ["5", "6", "7", "11"],
+    correct: 1,
+    explanation: "Na boisku w siatkówce w każdej drużynie gra jednocześnie 6 zawodników."
+  },
+  {
+    id: 219,
+    category: "przepisy",
+    difficulty: "latwe",
+    question: "Ile kroków z piłką w dłoniach (bez kozłowania) może zrobić koszykarz, zanim sędzia odgwiżdże błąd kroków?",
+    options: ["Maksymalnie 2 kroki", "Maksymalnie 3 kroki", "Dowolną liczbę", "Żadnego kroku"],
+    correct: 0,
+    explanation: "W koszykówce po zakończeniu kozłowania zawodnik może wykonać maksymalnie dwa kroki przed oddaniem rzutu lub podaniem."
+  },
+  {
+    id: 220,
+    category: "przepisy",
+    difficulty: "latwe",
+    question: "Jaki kolor ma karta pokazana przez sędziego piłkarskiego, która oznacza wykluczenie zawodnika z gry i opuszczenie boiska?",
+    options: ["Żółty", "Niebieski", "Czerwony", "Zielony"],
+    correct: 2,
+    explanation: "Czerwona kartka oznacza natychmiastowe wyrzucenie zawodnika z boiska bez prawa powrotu i konieczność gry w osłabieniu."
+  },
+  {
+    id: 221,
+    category: "przepisy",
+    difficulty: "latwe",
+    question: "Z ilu graczy składa się drużyna na boisku w meczu piłki nożnej?",
+    options: ["9 osób", "10 osób", "11 osób", "12 osób"],
+    correct: 2,
+    explanation: "Na boisku piłkarskim w każdej drużynie występuje 11 zawodników, w tym jeden bramkarz."
+  },
+  {
+    id: 222,
+    category: "przepisy",
+    difficulty: "latwe",
+    question: "Czy w siatkówce wolno odbić piłkę jakąkolwiek częścią ciała (np. nogą lub głową)?",
+    options: ["Tak, każdą częścią ciała", "Nie, tylko dłońmi i rękami", "Nie, tylko powyżej pasa", "Tylko klatką piersiową"],
+    correct: 0,
+    explanation: "Zgodnie z przepisami siatkówki, piłka może dotknąć każdej części ciała zawodnika."
+  },
+  {
+    id: 223,
+    category: "przepisy",
+    difficulty: "latwe",
+    question: "Jak nazywa się błąd w piłce ręcznej polegający na tym, że zawodnik biegnie z piłką bez jej kozłowania więcej niż 3 kroki?",
+    options: ["Błąd kroków", "Błąd podwójnego kozłowania", "Spalony", "Błąd szarży"],
+    correct: 0,
+    explanation: "W piłce ręcznej zawodnik trzymający piłkę może wykonać maksymalnie 3 kroki bez kozłowania."
+  },
+  {
+    id: 224,
+    category: "przepisy",
+    difficulty: "latwe",
+    question: "Co oznacza gwizdek sędziego w piłce nożnej informujący o pozycji „spalonej” (tzw. ofsajd)?",
+    options: ["Zawodnik podał do kolegi, który był bliżej bramki rywala niż obrońcy w momencie podania", "Zawodnik faulował bramkarza", "Piłka opuściła boisko za bramką", "Zawodnik dotknął piłki ręką"],
+    correct: 0,
+    explanation: "Spalony występuje wtedy, gdy w momencie podania zawodnik drużyny atakującej znajduje się na połowie przeciwnika i jest bliżej linii bramkowej niż przedostatni zawodnik drużyny broniącej."
+  },
+  {
+    id: 225,
+    category: "przepisy",
+    difficulty: "latwe",
+    question: "Ile punktów otrzymuje drużyna w koszykówce za celny rzut z rzutów wolnych (po faulu)?",
+    options: ["1 punkt", "2 punkty", "3 punkty", "4 punkty"],
+    correct: 0,
+    explanation: "Rzut wolny w koszykówce wart jest dokładnie 1 punkt."
+  },
+  {
+    id: 226,
+    category: "przepisy",
+    difficulty: "latwe",
+    question: "Co dzieje się w grze w „dwa ognie” (zbijak), gdy zawodnik złapie piłkę rzuconą przez przeciwnika bezpośrednio w ręce (tzw. klapa)?",
+    options: ["Zawodnik nie zostaje zbity i gra dalej", "Zawodnik zostaje zbity i schodzi z boiska", "Drużyna traci punkt", "Gra zostaje przerwana"],
+    correct: 0,
+    explanation: "Złapanie piłki (klapa/chwyt) chroni zawodnika przed zbiciem, a piłka zostaje w posiadaniu jego drużyny."
+  },
+  {
+    id: 227,
+    category: "przepisy",
+    difficulty: "latwe",
+    question: "Czy bramkarz w piłce nożnej może łapać piłkę w ręce poza swoim polem karnym?",
+    options: ["Nie, grozi za to rzut wolny lub kartka", "Tak, na całym boisku", "Tak, ale tylko na własnej połowie", "Tak, jeśli piłka leci wysoko"],
+    correct: 0,
+    explanation: "Bramkarz może grać rękami wyłącznie we własnym polu karnym (tzw. szesnastce)."
+  },
+  {
+    id: 228,
+    category: "przepisy",
+    difficulty: "latwe",
+    question: "Ilu zawodników gra na boisku w drużynie koszykówki podczas meczu?",
+    options: ["5 osób", "6 osób", "7 osób", "11 osób"],
+    correct: 0,
+    explanation: "W klasycznym meczu koszykówki na boisku gra po 5 zawodników w każdej drużynie."
+  },
+  {
+    id: 229,
+    category: "przepisy",
+    difficulty: "latwe",
+    question: "W jakiej dyscyplinie sportowej zawodnik po zdobyciu punktu przebiega przez bazy wokół boiska, aby zdobyć „run”?",
+    options: ["Baseball", "Krykiet", "Hokej", "Tenis"],
+    correct: 0,
+    explanation: "W baseballu celem jest odbicie piłki i przebiegnięcie przez cztery bazy w celu zdobycia punktu."
+  },
+  {
+    id: 230,
+    category: "przepisy",
+    difficulty: "latwe",
+    question: "Co oznacza żółta kartka w piłce nożnej?",
+    options: ["Ostrzeżenie dla zawodnika za niesportowe zachowanie lub faul", "Wykluczenie z gry na 2 minuty", "Koniec meczu", "Przyznanie punktu rywalom"],
+    correct: 0,
+    explanation: "Żółta kartka to oficjalne ostrzeżenie. Dwie żółte kartki w jednym meczu oznaczają czerwoną i wykluczenie z gry."
+  },
+  {
+    id: 231,
+    category: "przepisy",
+    difficulty: "latwe",
+    question: "Ile razy maksymalnie (oprócz bloku) drużyna siatkarska może odbić piłkę, zanim przebije ją na stronę przeciwnika?",
+    options: ["2 razy", "3 razy", "4 razy", "5 razy"],
+    correct: 1,
+    explanation: "Drużyna siatkarska ma prawo do maksymalnie 3 odbić, aby przebić piłkę na stronę rywala."
+  },
+  {
+    id: 232,
+    category: "przepisy",
+    difficulty: "latwe",
+    question: "W jakim sporcie nie wolno dotknąć piłki ręką (z wyjątkiem bramkarza i autów)?",
+    options: ["Piłka nożna", "Koszykówka", "Piłka ręczna", "Siatkówka"],
+    correct: 0,
+    explanation: "W piłce nożnej celowe dotknięcie piłki dłonią lub ręką przez gracza z pola jest faulem."
+  },
+
+  // ==========================================
+  // WYNIKI I REKORDY (233-248)
+  // ==========================================
+  {
+    id: 233,
+    category: "wyniki",
+    difficulty: "latwe",
+    question: "Kto jest najlepszym strzelcem w historii reprezentacji Polski w piłce nożnej?",
+    options: ["Robert Lewandowski", "Włodzimierz Lubański", "Grzegorz Lato", "Zbigniew Boniek"],
+    correct: 0,
+    explanation: "Robert Lewandowski zdobył najwięcej bramek w barwach narodowych w historii polskiego futbolu."
+  },
+  {
+    id: 234,
+    category: "wyniki",
+    difficulty: "latwe",
+    question: "W jakiej dyscyplinie sportu Polacy zdobyli złoty medal Mistrzostw Świata w 2014 i 2018 roku?",
+    options: ["Siatkówka mężczyzn", "Piłka nożna", "Piłka ręczna", "Skoki narciarskie"],
+    correct: 0,
+    explanation: "Reprezentacja Polski siatkarzy zdobyła dwa mistrzostwa świata z rzędu pod wodzą Stephane'a Antigi (2014) i Vitala Heynena (2018)."
+  },
+  {
+    id: 235,
+    category: "wyniki",
+    difficulty: "latwe",
+    question: "Ile metrów ma długość basenu olimpijskiego, na którym odbywają się najważniejsze zawody pływackie?",
+    options: ["25 metrów", "50 metrów", "100 metrów", "75 metrów"],
+    correct: 1,
+    explanation: "Basen olimpijski (tzw. długi basen) ma długość dokładnie 50 metrów. Basen krótki ma 25 metrów."
+  },
+  {
+    id: 236,
+    category: "wyniki",
+    difficulty: "latwe",
+    question: "Jaki dystans ma najsłynniejszy i najkrótszy bieg sprinterski na igrzyskach olimpijskich, wyłaniający „najszybszego człowieka świata”?",
+    options: ["60 metrów", "100 metrów", "200 metrów", "400 metrów"],
+    correct: 1,
+    explanation: "Bieg na 100 metrów jest koronnym dystansem sprinterskim lekkoatletyki."
+  },
+  {
+    id: 237,
+    category: "wyniki",
+    difficulty: "latwe",
+    question: "Z jakiego kraju pochodzi biegacz Usain Bolt, wielokrotny rekordzista świata w sprintach na 100 m i 200 m?",
+    options: ["Z Jamajki", "Z USA", "Z Kenii", "Z Wielkiej Brytanii"],
+    correct: 0,
+    explanation: "Usain Bolt to jamajski sprinter, ośmiokrotny mistrz olimpijski i rekordzista świata w biegach na 100 m i 200 m."
+  },
+  {
+    id: 238,
+    category: "wyniki",
+    difficulty: "latwe",
+    question: "Który polski skoczek narciarski jako jedyny wygrał prestiżowy Turniej Czterech Skoczni trzy razy (w tym wszystkie 4 konkursy w jednej edycji)?",
+    options: ["Kamil Stoch", "Adam Małysz", "Dawid Kubacki", "Piotr Żyła"],
+    correct: 0,
+    explanation: "Kamil Stoch wygrał Turniej Czterech Skoczni w sezonach 2016/17, 2017/18 (wygrywając wszystkie 4 konkursy) oraz 2020/21."
+  },
+  {
+    id: 239,
+    category: "wyniki",
+    difficulty: "latwe",
+    question: "Ile złotych medali olimpijskich zdobyła polska lekkoatletka Anita Włodarczyk w rzucie młotem?",
+    options: ["1 złoty medal", "2 złote medale", "3 złote medale", "4 złote medale"],
+    correct: 2,
+    explanation: "Anita Włodarczyk wywalczyła złoto w Londynie (2012), Rio de Janeiro (2016) i Tokio (2020), będąc trzykrotną mistrzynią olimpijską."
+  },
+  {
+    id: 240,
+    category: "wyniki",
+    difficulty: "latwe",
+    question: "Ile punktów w meczu koszykówki otrzymuje zespół za celny rzut zza specjalnej linii w kształcie łuku (tzw. rzut z dystansu)?",
+    options: ["1 punkt", "2 punkty", "3 punkty", "4 punkty"],
+    correct: 2,
+    explanation: "Rzut zza linii rzutów za trzy punkty (w koszykówce FIBA oddalonej o 6,75 m) daje drużynie 3 punkty."
+  },
+  {
+    id: 241,
+    category: "wyniki",
+    difficulty: "latwe",
+    question: "Jaki kolor medalu otrzymuje zwycięzca danej konkurencji sportowej na igrzyskach olimpijskich?",
+    options: ["Złoty", "Srebrny", "Brązowy", "Biały"],
+    correct: 0,
+    explanation: "Zwycięzca otrzymuje złoty medal, zdobywca drugiego miejsca srebrny, a trzeciego brązowy."
+  },
+  {
+    id: 242,
+    category: "wyniki",
+    difficulty: "latwe",
+    question: "Jak nazywa się legendarna polska tenisistka stołowa, wielokrotna mistrzyni i medalistka paraolimpijska, która grała też na igrzyskach dla sprawnych sportowców?",
+    options: ["Natalia Partyka", "Li Qian", "Lucjan Błaszczyk", "Samuel Kulczycki"],
+    correct: 0,
+    explanation: "Natalia Partyka to wybitna tenisistka stołowa, reprezentująca Polskę zarówno na Igrzyskach Olimpijskich, jak i Paraolimpijskich."
+  },
+  {
+    id: 243,
+    category: "wyniki",
+    difficulty: "latwe",
+    question: "Który polski lekkoatleta w chodzie sportowym zdobył aż 4 złote medale olimpijskie i jest jednym z najbardziej utytułowanych polskich sportowców?",
+    options: ["Robert Korzeniowski", "Bronisław Malinowski", "Wojciech Nowicki", "Dawid Tomala"],
+    correct: 0,
+    explanation: "Robert Korzeniowski wygrał chód na 50 km (Atlanta 1996, Sydney 2000, Ateny 2004) oraz chód na 20 km (Sydney 2000)."
+  },
+  {
+    id: 244,
+    category: "wyniki",
+    difficulty: "latwe",
+    question: "W jakiej dyscyplinie sportu polska sztafeta kobiet (nazwana Aniołkami Matusińskiego) zdobywała medale mistrzostw świata i igrzysk w biegu 4x400 m?",
+    options: ["Lekkoatletyka (biegi)", "Pływanie", "Wioślarstwo", "Biathlon"],
+    correct: 0,
+    explanation: "Polska sztafeta 4x400 metrów prowadzona przez Aleksandra Matusińskiego odnosiła ogromne sukcesy na arenie międzynarodowej."
+  },
+  {
+    id: 245,
+    category: "wyniki",
+    difficulty: "latwe",
+    question: "Ile sekund ma minuta gry w sportach zespołowych (oraz ogólnie w czasie)?",
+    options: ["50 sekund", "60 sekund", "80 sekund", "100 sekund"],
+    correct: 1,
+    explanation: "Każda minuta, także ta mierzona na stoperze sędziowskim, ma dokładnie 60 sekund."
+  },
+  {
+    id: 246,
+    category: "wyniki",
+    difficulty: "latwe",
+    question: "Która polska biegaczka narciarska zdobyła 5 medali olimpijskich i wygrała prestiżowy bieg Tour de Ski cztery razy z rzędu?",
+    options: ["Justyna Kowalczyk", "Marit Bjoergen", "Therese Johaug", "Sylwia Jaśkowiec"],
+    correct: 0,
+    explanation: "Justyna Kowalczyk to wybitna biegaczka narciarska, mistrzyni olimpijska z Vancouver (2010) i Soczi (2014)."
+  },
+  {
+    id: 247,
+    category: "wyniki",
+    difficulty: "latwe",
+    question: "W jakiej dyscyplinie sportowej mistrzem świata w rajdach samochodowych (kategorii WRC2) i wielokrotnym zwycięzcą Rajdu Polski był Kajetan Kajetanowicz?",
+    options: ["Rajdy samochodowe", "Formuła 1", "Motocross", "Kolarstwo"],
+    correct: 0,
+    explanation: "Kajetan Kajetanowicz to jeden z najbardziej utytułowanych polskich kierowców rajdowych."
+  },
+  {
+    id: 248,
+    category: "wyniki",
+    difficulty: "latwe",
+    question: "Jaki jest najwyższy możliwy wynik (w punktach) za jeden rzut w popularnej grze w rzutki (dart) do tarczy?",
+    options: ["20 punktów", "50 punktów", "60 punktów", "100 punktów"],
+    correct: 2,
+    explanation: "Najwyższy wynik to trafienie w potrójne pole liczby 20 (tzw. potrójna dwudziestka), co daje 60 punktów."
+  },
+
+  // ==========================================
+  // OLIMPIJCZYCY I GWIAZDY SPORTU (249-264)
+  // ==========================================
+  {
+    id: 249,
+    category: "olimpijczycy",
+    difficulty: "latwe",
+    question: "Jak nazywa się wybitna polska tenisistka, liderka rankingu WTA, która wygrała turnieje wielkoszlemowe, w tym wielokrotnie Roland Garros w Paryżu?",
+    options: ["Iga Świątek", "Agnieszka Radwańska", "Magda Linette", "Maryla Rodowicz"],
+    correct: 0,
+    explanation: "Iga Świątek to polska tenisistka, która zapisała się w historii jako wielokrotna zwyciężczyni turniejów wielkoszlemowych."
+  },
+  {
+    id: 250,
+    category: "olimpijczycy",
+    difficulty: "latwe",
+    question: "Który polski lekkoatleta specjalizuje się w rzucie młotem, jest pięciokrotnym mistrzem świata i mistrzem olimpijskim z Tokio (2020)?",
+    options: ["Paweł Fajdek", "Wojciech Nowicki", "Piotr Małachowski", "Konrad Bukowiecki"],
+    correct: 1,
+    explanation: "Wojciech Nowicki zdobył złoty medal olimpijski w Tokio w rzucie młotem, a Paweł Fajdek brązowy medal."
+  },
+  {
+    id: 251,
+    category: "olimpijczycy",
+    difficulty: "latwe",
+    question: "Jak nazywa się polski piłkarz grający na pozycji napastnika, który występował w Bayernie Monachium i FC Barcelona?",
+    options: ["Robert Lewandowski", "Arkadiusz Milik", "Piotr Zieliński", "Wojciech Szczęsny"],
+    correct: 0,
+    explanation: "Robert Lewandowski to kapitan reprezentacji Polski i jeden z najlepszych napastników na świecie."
+  },
+  {
+    id: 252,
+    category: "olimpijczycy",
+    difficulty: "latwe",
+    question: "W jakiej dyscyplinie sportu sukcesy święci polska sportsmenka Aleksandra Mirosław, mistrzyni olimpijska i rekordzistka świata?",
+    options: ["Wspinaczka sportowa (na czas)", "Pływanie", "Biegi płotkarskie", "Gimnastyka artystyczna"],
+    correct: 0,
+    explanation: "Aleksandra Mirosław to wybitna polska zawodniczka we wspinaczce na czas, wielokrotna mistrzyni i rekordzistka globu."
+  },
+  {
+    id: 253,
+    category: "olimpijczycy",
+    difficulty: "latwe",
+    question: "Jak nazywa się polski skoczek narciarski, trzykrotny indywidualny mistrz olimpijski, który zdobył złote medale w Soczi i Pjongczangu?",
+    options: ["Kamil Stoch", "Adam Małysz", "Dawid Kubacki", "Piotr Żyła"],
+    correct: 0,
+    explanation: "Kamil Stoch zdobył dwa złote medale w Soczi (2014) oraz jeden w Pjongczangu (2018)."
+  },
+  {
+    id: 254,
+    category: "olimpijczycy",
+    difficulty: "latwe",
+    question: "Z jakiego sportu znana jest Maja Włoszczowska, dwukrotna wicemistrzyni olimpijska?",
+    options: ["Kolarstwo górskie (MTB)", "Pływanie synchroniczne", "Wioślarstwo", "Narciarstwo alpejskie"],
+    correct: 0,
+    explanation: "Maja Włoszczowska zdobyła srebrne medale olimpijskie w Pekinie (2008) oraz w Rio de Janeiro (2016) w kolarstwie górskim."
+  },
+  {
+    id: 255,
+    category: "olimpijczycy",
+    difficulty: "latwe",
+    question: "Jaki sport uprawia polski zawodnik Hubert Hurkacz?",
+    options: ["Tenis ziemny", "Koszykówka", "Siatkówka", "Golf"],
+    correct: 0,
+    explanation: "Hubert Hurkacz to najlepszy obecnie polski tenisista, zwycięzca wielu prestiżowych turniejów ATP."
+  },
+  {
+    id: 256,
+    category: "olimpijczycy",
+    difficulty: "latwe",
+    question: "Z jakiego sportu znana jest Bartosz Kurek, kapitan reprezentacji Polski, uznany za najlepszego siatkarza świata?",
+    options: ["Piłka siatkowa", "Piłka ręczna", "Piłka nożna", "Hokej na lodzie"],
+    correct: 0,
+    explanation: "Bartosz Kurek to legendarny polski atakujący i lider siatkarskiej kadry narodowej."
+  },
+  {
+    id: 257,
+    category: "olimpijczycy",
+    difficulty: "latwe",
+    question: "Która polska lekkoatletka, specjalizująca się w rzucie młotem, pobiła rekord świata i jako pierwsza kobieta rzuciła młotem ponad 80 metrów?",
+    options: ["Anita Włodarczyk", "Kamila Skolimowska", "Maria Andrejczyk", "Pia Skrzyszowska"],
+    correct: 0,
+    explanation: "Anita Włodarczyk jest absolutną rekordzistką świata w rzucie młotem z wynikiem 82,98 m."
+  },
+  {
+    id: 258,
+    category: "olimpijczycy",
+    difficulty: "latwe",
+    question: "Jak nazywa się polski skoczek narciarski znany z ogromnego poczucia humoru, który dwukrotnie zdobył złoty medal mistrzostw świata w skokach na skoczni normalnej?",
+    options: ["Piotr Żyła", "Kamil Stoch", "Dawid Kubacki", "Aleksander Zniszczoł"],
+    correct: 0,
+    explanation: "Piotr Żyła zdobył złote medale mistrzostw świata w Oberstdorfie (2021) oraz Planicy (2023)."
+  },
+  {
+    id: 259,
+    category: "olimpijczycy",
+    difficulty: "latwe",
+    question: "W jakiej dyscyplinie sportu cztery medale olimpijskie (w tym 3 złote) zdobyła Irena Szewińska?",
+    options: ["Lekkoatletyka (sprinty i skok w dal)", "Pływanie", "Wioślarstwo", "Szermierka"],
+    correct: 0,
+    explanation: "Irena Szewińska to najwybitniejsza polska sportsmenka, wielokrotna rekordzistka świata i medalistka igrzysk."
+  },
+  {
+    id: 260,
+    category: "olimpijczycy",
+    difficulty: "latwe",
+    question: "Jak nazywa się polski lekkoatleta, mistrz olimpijski z Tokio (2020) w chodzie na 50 kilometrów?",
+    options: ["Dawid Tomala", "Robert Korzeniowski", "Paweł Fajdek", "Piotr Lisek"],
+    correct: 0,
+    explanation: "Dawid Tomala sprawił wielką niespodziankę, wygrywając chód na 50 km podczas igrzysk w Tokio w 2021 roku."
+  },
+  {
+    id: 261,
+    category: "olimpijczycy",
+    difficulty: "latwe",
+    question: "Jak nazywa się polski koszykarz, który przez wiele lat grał w amerykańskiej lidze NBA w takich drużynach jak Phoenix Suns czy Washington Wizards?",
+    options: ["Marcin Gortat", "Jeremy Sochan", "Maciej Lampe", "Aleksander Balcerowski"],
+    correct: 0,
+    explanation: "Marcin Gortat, zwany „Polish Hammer”, spędził w NBA 12 sezonów i jako jedyny Polak zagrał w finale tej ligi."
+  },
+  {
+    id: 262,
+    category: "olimpijczycy",
+    difficulty: "latwe",
+    question: "W jakiej dyscyplinie sportu polska osada wioślarska kobiet (tzw. Czwórka Podwójna) zdobyła medal olimpijski w Tokio?",
+    options: ["Wioślarstwo", "Kajakarstwo", "Żeglarstwo", "Pływanie"],
+    correct: 0,
+    explanation: "Czwórka podwójna kobiet zdobyła srebrny medal na igrzyskach olimpijskich w Tokio."
+  },
+  {
+    id: 263,
+    category: "olimpijczycy",
+    difficulty: "latwe",
+    question: "Który polski skoczek narciarski, brązowy medalista olimpijski z Pekinu, słynie z bardzo spokojnego i precyzyjnego stylu skakania?",
+    options: ["Dawid Kubacki", "Kamil Stoch", "Maciej Kot", "Stefan Hula"],
+    correct: 0,
+    explanation: "Dawid Kubacki to mistrz świata z Seefeld (2019) oraz brązowy medalista igrzysk w Pekinie (2022)."
+  },
+  {
+    id: 264,
+    category: "olimpijczycy",
+    difficulty: "latwe",
+    question: "Jak nazywa się polska mistrzyni olimpijska z Sydney (2000) w rzucie młotem, która zdobyła złoto mając zaledwie 17 lat i której pamięci poświęcony jest coroczny memoriał?",
+    options: ["Kamila Skolimowska", "Anita Włodarczyk", "Joanna Fiodorow", "Malwina Kopron"],
+    correct: 0,
+    explanation: "Kamila Skolimowska była najmłodszą polską mistrzynią olimpijską. Zmarła nagle w 2009 roku w wieku 26 lat."
+  },
+
+  // ==========================================
+  // WIEDZA OGÓLNA I WF (265-280)
+  // ==========================================
+  {
+    id: 265,
+    category: "ogolne",
+    difficulty: "latwe",
+    question: "Co należy zrobić bezpośrednio przed każdym treningiem lub lekcją WF, aby przygotować mięśnie i stawy do wysiłku?",
+    options: ["Rozgrzewkę", "Rozciąganie statyczne", "Odpoczynek", "Zjeść duży posiłek"],
+    correct: 0,
+    explanation: "Rozgrzewka podnosi temperaturę ciała, przyspiesza tętno i przygotowuje mięśnie do intensywnego wysiłku, zapobiegając kontuzjom."
+  },
+  {
+    id: 266,
+    category: "ogolne",
+    difficulty: "latwe",
+    question: "Jaki kolor ma flaga olimpijska, na której znajduje się pięć kolorowych splecionych kół?",
+    options: ["Biały", "Niebieski", "Żółty", "Czerwony"],
+    correct: 0,
+    explanation: "Flaga olimpijska ma białe tło, które symbolizuje pokój i czystość sportowej rywalizacji."
+  },
+  {
+    id: 267,
+    category: "ogolne",
+    difficulty: "latwe",
+    question: "Ile kółek znajduje się na fladze olimpijskiej i co one symbolizują?",
+    options: ["5 kółek – symbolizują 5 kontynentów zamieszkanych przez ludzi", "3 kółka – symbolizują rodzaje medali", "6 kółek – symbolizują kontynenty", "4 kółka – symbolizują pory roku"],
+    correct: 0,
+    explanation: "Pięć splecionych kół symbolizuje jedność pięciu kontynentów: Europy, Azji, Afryki, Ameryki i Australii z Oceanią."
+  },
+  {
+    id: 268,
+    category: "ogolne",
+    difficulty: "latwe",
+    question: "Co to jest „fair play” w sporcie?",
+    options: ["Czysta, uczciwa gra z szacunkiem dla przeciwnika i zasad", "Szybki atak na bramkę rywala", "Zasada gry bez bramkarza", "Rzucenie ręcznika na ring"],
+    correct: 0,
+    explanation: "Fair play to podstawa etyki sportowej. Oznacza uczciwą rywalizację, szacunek dla rywala i sędziów oraz przestrzeganie reguł."
+  },
+  {
+    id: 269,
+    category: "ogolne",
+    difficulty: "latwe",
+    question: "W jakiej dyscyplinie sportowej używa się rakiety, małej siatki pośrodku stołu oraz lekkiej, plastikowej piłeczki?",
+    options: ["Tenis stołowy (ping-pong)", "Tenis ziemny", "Badminton", "Squash"],
+    correct: 0,
+    explanation: "Tenis stołowy jest popularną grą rekreacyjną oraz dyscypliną olimpijską."
+  },
+  {
+    id: 270,
+    category: "ogolne",
+    difficulty: "latwe",
+    question: "W jakiej wodnej dyscyplinie sportowej zawodnicy ścigają się na dystansach, używając takich stylów jak kraul, żabka czy motylkowy?",
+    options: ["Pływanie", "Wioślarstwo", "Kajakarstwo", "Żeglarstwo"],
+    correct: 0,
+    explanation: "Pływanie to jedna z najważniejszych dyscyplin letnich igrzysk olimpijskich."
+  },
+  {
+    id: 271,
+    category: "ogolne",
+    difficulty: "latwe",
+    question: "Który napój jest najbardziej wskazany do picia podczas lekcji WF i treningu sportowego, aby odpowiednio nawodnić organizm?",
+    options: ["Woda niegazowana", "Sok owocowy", "Napoje gazowane (np. cola)", "Herbata z cukrem"],
+    correct: 0,
+    explanation: "Czysta woda najlepiej nawadnia organizm podczas wysiłku fizycznego, nie dostarczając zbędnego cukru."
+  },
+  {
+    id: 272,
+    category: "ogolne",
+    difficulty: "latwe",
+    question: "Jak nazywa się urządzenie służące do mierzenia liczby wykonanych kroków w ciągu dnia?",
+    options: ["Krokomierz (pedometr)", "Stoper", "Termometr", "Ciśnieniomierz"],
+    correct: 0,
+    explanation: "Krokomierz mierzy liczbę kroków na podstawie ruchu ciała. Dziś jest funkcją niemal każdego smartfona lub opaski sportowej."
+  },
+  {
+    id: 273,
+    category: "ogolne",
+    difficulty: "latwe",
+    question: "W jakim sporcie zimowym zawodnicy zjeżdżają ze stoku na jednej szerokiej desce przymocowanej do butów?",
+    options: ["Snowboard", "Narciarstwo alpejskie", "Saneczkarstwo", "Łyżwiarstwo"],
+    correct: 0,
+    explanation: "Snowboarding to popularny sport zimowy, polegający na jeździe i wykonywaniu ewolucji na desce snowboardowej."
+  },
+  {
+    id: 274,
+    category: "ogolne",
+    difficulty: "latwe",
+    question: "Jaki przyrząd gimnastyczny w kształcie koła jest kręcony wokół bioder, talii lub rąk podczas ćwiczeń?",
+    options: ["Hula-hoop", "Skakanka", "Wstążka", "Piłka lekarska"],
+    correct: 0,
+    explanation: "Kręcenie hula-hoop to doskonałe ćwiczenie na mięśnie brzucha i koordynację ruchową."
+  },
+  {
+    id: 275,
+    category: "ogolne",
+    difficulty: "latwe",
+    question: "Co należy zrobić po zakończeniu intensywnego treningu, aby uspokoić organizm i rozluźnić mięśnie?",
+    options: ["Rozciąganie statyczne i wyciszenie (cool down)", "Szybki sprint na 100 m", "Zjeść chipsy", "Od razu pójść spać"],
+    correct: 0,
+    explanation: "Faza wyciszenia i lekkie rozciąganie po wysiłku przyspieszają regenerację i zapobiegają bólom mięśniowym."
+  },
+  {
+    id: 276,
+    category: "ogolne",
+    difficulty: "latwe",
+    question: "W jakim sporcie zawodnik próbuje trafić ciężką kulą w ustawione na końcu toru kręgle?",
+    options: ["Bowling (kręgle)", "Bilard", "Bole", "Curling"],
+    correct: 0,
+    explanation: "W bowlingu celem jest strącenie jak największej liczby kręgli za pomocą specjalnej kuli z otworami na palce."
+  },
+  {
+    id: 277,
+    category: "ogolne",
+    difficulty: "latwe",
+    question: "Który z tych sportów jest sportem zespołowym (gra się w drużynie)?",
+    options: ["Siatkówka", "Bieg maratoński", "Tenis ziemny (singiel)", "Skok o tyczce"],
+    correct: 0,
+    explanation: "Siatkówka to typowy sport drużynowy, w którym współdziała 6 zawodników na boisku."
+  },
+  {
+    id: 278,
+    category: "ogolne",
+    difficulty: "latwe",
+    question: "Jak nazywa się miękka mata, na której ćwiczy się przewroty w tył i w przód na lekcji WF, aby chronić kręgosłup i głowę?",
+    options: ["Materac gimnastyczny", "Karimata", "Trampolina", "Ławka gimnastyczna"],
+    correct: 0,
+    explanation: "Materac amortyzuje upadki i chroni ciało podczas ćwiczeń gimnastycznych i akrobatycznych."
+  },
+  {
+    id: 279,
+    category: "ogolne",
+    difficulty: "latwe",
+    question: "W jakim sporcie używa się okularów pływackich i czepka?",
+    options: ["Pływanie", "Narciarstwo", "Kolarstwo", "Wspinaczka"],
+    correct: 0,
+    explanation: "Czepek chroni włosy i zmniejsza opór wody, a okularki pozwalają widzieć pod wodą i chronią oczy przed chlorem."
+  },
+  {
+    id: 280,
+    category: "ogolne",
+    difficulty: "latwe",
+    question: "Ile wynosi zalecana przez lekarzy i sportowców minimalna dzienna liczba kroków dla zdrowego stylu życia człowieka?",
+    options: ["Około 8 000 - 10 000 kroków", "Około 1 000 kroków", "Dokładnie 500 kroków", "Około 100 000 kroków"],
+    correct: 0,
+    explanation: "Wykonanie ok. 8-10 tysięcy kroków dziennie wspiera pracę serca, poprawia kondycję i pomaga zachować zdrowie."
+  }
+];
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = questions;
+  module.exports.kidsQuestions = kidsQuestions;
 }

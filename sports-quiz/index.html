@@ -24,7 +24,7 @@
         </svg>
         <h1>POLSKI QUIZ SPORTOWY</h1>
       </div>
-      <p class="header-subtitle">Wielka tablica 100 pytań. Wybierz pytanie, odpowiedz i zablokuj je dla innych!</p>
+      <p class="header-subtitle">Wielka tablica <span id="header-total-questions">100</span> pytań. Wybierz pytanie, odpowiedz i zablokuj je dla innych!</p>
     </header>
 
     <!-- Stats Dashboard -->
@@ -228,6 +228,17 @@
         <p>Wybierz tryb gry i przygotuj się do rywalizacji!</p>
       </div>
       
+      <!-- Wybór zestawu pytań -->
+      <div class="lobby-field-group" id="lobby-question-set-group" style="margin-bottom: 20px;">
+        <label for="question-set-select" class="lobby-field-label">Zestaw pytań:</label>
+        <div class="lobby-select-wrapper">
+          <select id="question-set-select" class="lobby-select">
+            <option value="standard" selected>Główny Quiz Sportowy (100 pytań z 150)</option>
+            <option value="kids">Dla Dzieci - Klasy 4-8 SP (80 prostych pytań)</option>
+          </select>
+        </div>
+      </div>
+
       <div class="lobby-tabs">
         <button id="tab-solo" class="lobby-tab-btn active">Gra Solo</button>
         <button id="tab-multi" class="lobby-tab-btn">Rywalizacja Drużyn</button>

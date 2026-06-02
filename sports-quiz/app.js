@@ -34,6 +34,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Aktywne wylosowane pytania (100 z 150)
   let activeQuestionIds = [];
+  let questionSet = 'standard'; // 'standard' lub 'kids'
+  let tempQuestionSet = 'standard';
 
   // Stan tymczasowy dla Lobby
   let tempGameMode = 'solo';
@@ -60,6 +62,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const noResultsEl = document.getElementById('no-results');
   const searchInput = document.getElementById('search-input');
   const timerSelect = document.getElementById('timer-select');
+  const questionSetSelect = document.getElementById('question-set-select');
+  const headerTotalQuestions = document.getElementById('header-total-questions');
+  const statTotal = document.querySelector('.stat-total');
   
   // Modale systemowe
   const questionModal = document.getElementById('question-modal');
@@ -208,6 +213,22 @@ document.addEventListener('DOMContentLoaded', () => {
       timerSelect.value = 30;
     }
 
+    // Wczytanie wybranego zestawu pytań
+    const savedQuestionSet = localStorage.getItem('sports_quiz_question_set');
+    if (savedQuestionSet) {
+      questionSet = savedQuestionSet;
+      tempQuestionSet = savedQuestionSet;
+      if (questionSetSelect) {
+        questionSetSelect.value = savedQuestionSet;
+      }
+    } else {
+      questionSet = 'standard';
+      tempQuestionSet = 'standard';
+      if (questionSetSelect) {
+        questionSetSelect.value = 'standard';
+      }
+    }
+
     // Wczytanie wylosowanych pytań
     const savedActiveIds = localStorage.getItem('sports_quiz_active_question_ids');
     if (savedActiveIds) {
@@ -217,21 +238,29 @@ document.addEventListener('DOMContentLoaded', () => {
         activeQuestionIds = [];
       }
     }
-    if (!activeQuestionIds || activeQuestionIds.length !== 100) {
+    
+    const expectedLength = questionSet === 'kids' ? 80 : 100;
+    if (!activeQuestionIds || activeQuestionIds.length !== expectedLength) {
       generateActiveQuestionIds();
     }
   }
 
-  // Funkcja generująca nową losową pulę 100 pytań z 150
+  function getActiveQuestionDatabase() {
+    return questionSet === 'kids' ? kidsQuestions : questions;
+  }
+
+  // Funkcja generująca nową losową pulę pytań
   function generateActiveQuestionIds() {
-    const allIds = questions.map(q => q.id);
+    const db = getActiveQuestionDatabase();
+    const allIds = db.map(q => q.id);
     for (let i = allIds.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       const temp = allIds[i];
       allIds[i] = allIds[j];
       allIds[j] = temp;
     }
-    activeQuestionIds = allIds.slice(0, 100);
+    const limit = questionSet === 'kids' ? 80 : 100;
+    activeQuestionIds = allIds.slice(0, limit);
     localStorage.setItem('sports_quiz_active_question_ids', JSON.stringify(activeQuestionIds));
   }
 
@@ -242,6 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('sports_quiz_game_mode', gameMode);
     localStorage.setItem('sports_quiz_teams', JSON.stringify(teams));
     localStorage.setItem('sports_quiz_active_team_index', activeTeamIndex);
+    localStorage.setItem('sports_quiz_question_set', questionSet);
 
     // Zapisz stany rundy
     localStorage.setItem('sports_quiz_questions_per_round', questionsPerRound);
@@ -280,6 +310,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalQuestions = activeQuestionIds.length;
     const answeredKeys = Object.keys(selectedQuestions);
     const answeredCount = answeredKeys.length;
+
+    // Dynamicznie zaktualizuj tekst / 100 lub / 80 w widoku Solo
+    if (statTotal) {
+      statTotal.textContent = `/ ${totalQuestions}`;
+    }
+    
+    // Dynamicznie zaktualizuj nagłówek i tytuł strony
+    if (headerTotalQuestions) {
+      headerTotalQuestions.textContent = totalQuestions;
+    }
+    document.title = `Polski Quiz Sportowy - ${totalQuestions} Pytań`;
+
+    // Dynamicznie zaktualizuj opis resetu w modalu
+    const resetConfirmP = document.querySelector('.reset-confirm-content p');
+    if (resetConfirmP) {
+      resetConfirmP.innerHTML = `Spowoduje to wyzerowanie wyników oraz odblokowanie wszystkich ${totalQuestions} pytań na tablicy. Tego kroku nie można cofnąć.`;
+    }
     
     if (gameMode === 'solo') {
       // Logika Solo
@@ -461,7 +508,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // Uruchomienie gry z Lobby
   btnStartGame.addEventListener('click', () => {
     gameMode = tempGameMode;
+    questionSet = tempQuestionSet;
     gameStarted = true;
+
+    // Wygeneruj nową pulę pytań dla wybranego zestawu
+    generateActiveQuestionIds();
     
     if (gameMode === 'multi') {
       teams = tempTeams.map((team, idx) => {
@@ -496,7 +547,8 @@ document.addEventListener('DOMContentLoaded', () => {
     gridContainer.innerHTML = '';
     
     // Zmapuj wylosowane ID pytań na pełne obiekty pytań, zachowując kolejność wylosowaną w activeQuestionIds
-    const activeQuestions = activeQuestionIds.map(id => questions.find(q => q.id === id)).filter(q => q !== undefined);
+    const db = getActiveQuestionDatabase();
+    const activeQuestions = activeQuestionIds.map(id => db.find(q => q.id === id)).filter(q => q !== undefined);
     
     const filteredQuestions = activeQuestions.filter(q => {
       // 1. Filtrowanie wyszukiwarki
@@ -564,7 +616,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // OBSŁUGA MODALU ODPOWIEDZI
   // ==========================================
   function openQuestionModal(id) {
-    const q = questions.find(item => item.id === id);
+    const db = getActiveQuestionDatabase();
+    const q = db.find(item => item.id === id);
     if (!q) return;
 
     currentQuestionId = id;
@@ -976,6 +1029,12 @@ document.addEventListener('DOMContentLoaded', () => {
     roundScores = 0;
     gameStarted = false;
     
+    // Zsynchronizuj select w Lobby z aktualnym questionSet
+    if (questionSetSelect) {
+      questionSetSelect.value = questionSet;
+    }
+    tempQuestionSet = questionSet;
+
     activeQuestionIds = [];
     generateActiveQuestionIds();
     
@@ -1009,6 +1068,12 @@ document.addEventListener('DOMContentLoaded', () => {
     timerLimit = parseInt(e.target.value, 10);
     localStorage.setItem('sports_quiz_timer_limit', timerLimit);
   });
+
+  if (questionSetSelect) {
+    questionSetSelect.addEventListener('change', (e) => {
+      tempQuestionSet = e.target.value;
+    });
+  }
 
   document.getElementById('category-filters').addEventListener('click', (e) => {
     if (e.target.classList.contains('filter-btn')) {
