@@ -932,6 +932,474 @@ const questions = [
     options: ["Puchar Davisa (Davis Cup)", "Puchar Hopmana", "Laver Cup", "Puchar Billie Jean King"],
     correct: 0,
     explanation: "Puchar Davisa to najważniejsze międzynarodowe drużynowe trofeum w męskim tenisie. Wśród kobiet odpowiednikiem jest Puchar Billie Jean King."
+  },
+  // ==========================================
+  // NOWE PYTANIA (101-150)
+  // ==========================================
+  {
+    id: 101,
+    category: "historia",
+    difficulty: "srednie",
+    question: "Który polski piłkarz zdobył 4 bramki w jednym meczu na Mistrzostwach Świata w 1938 roku przeciwko Brazylii?",
+    options: ["Ernest Wilimowski", "Gerard Cieślik", "Włodzimierz Lubański", "Teodor Peterek"],
+    correct: 0,
+    explanation: "Ernest Wilimowski strzelił 4 gole w legendarnym meczu z Brazylią (5:6 po dogrywce) w Strasburgu w 1938 roku."
+  },
+  {
+    id: 102,
+    category: "historia",
+    difficulty: "srednie",
+    question: "Kto strzelił dwie bramki dla Polski w meczu z ZSRR na Stadionie Śląskim w 1957 roku (2:1), który stał się symbolem narodowym?",
+    options: ["Gerard Cieślik", "Lucjan Brychczy", "Ernest Pol", "Edward Szymkowiak"],
+    correct: 0,
+    explanation: "Gerard Cieślik zdobył obie bramki głową w wygranym 2:1 meczu z ZSRR w Chorzowie w 1957 roku."
+  },
+  {
+    id: 103,
+    category: "historia",
+    difficulty: "trudne",
+    question: "Który polski ciężarowiec zdobył dwa złote medale olimpijskie (Tokio 1964, Meksyk 1968) i pobił 24 rekordy świata?",
+    options: ["Waldemar Baszanowski", "Ireneusz Paliński", "Marian Zieliński", "Mieczysław Nowak"],
+    correct: 0,
+    explanation: "Waldemar Baszanowski to legenda światowych ciężarów, mistrz olimpijski i pięciokrotny mistrz świata."
+  },
+  {
+    id: 104,
+    category: "historia",
+    difficulty: "latwe",
+    question: "W którym roku polskie koszykarki odniosły swój największy sukces, zdobywając złoty medal Mistrzostw Europy?",
+    options: ["1991", "1995", "1999", "2003"],
+    correct: 2,
+    explanation: "Reprezentacja Polski koszykarek wywalczyła złoto na Mistrzostwach Europy w Katowicach w 1999 roku."
+  },
+  {
+    id: 105,
+    category: "historia",
+    difficulty: "srednie",
+    question: "Kto był pierwszym Polakiem grającym w lidze angielskiej w barwach klubu Manchester City w latach 1978–1981?",
+    options: ["Kazimierz Deyna", "Grzegorz Lato", "Zbigniew Boniek", "Andrzej Szarmach"],
+    correct: 0,
+    explanation: "Kazimierz Deyna przeniósł się z Legii Warszawa do Manchesteru City w 1978 roku, stając się pionierem polskich transferów do Anglii."
+  },
+  {
+    id: 106,
+    category: "historia",
+    difficulty: "trudne",
+    question: "Która polska panczenistka zdobyła pierwszy medal zimowych igrzysk olimpijskich dla Polski w konkurencjach kobiecych (Squaw Valley 1960)?",
+    options: ["Elwira Seroczyńska", "Helena Pilejczyk", "Erwina Ryś-Ferens", "Luiza Złotkowska"],
+    correct: 0,
+    explanation: "Elwira Seroczyńska zdobyła srebrny medal w biegu na 1500 m w 1960 r. Brąz w tym samym wyścigu zdobyła Helena Pilejczyk."
+  },
+  {
+    id: 107,
+    category: "historia",
+    difficulty: "srednie",
+    question: "Jak nazywa się słynny polski kierowca rajdowy, 3-krotny mistrz Europy, który w latach 60. i 70. prowadził legendarne auta marki Fiat?",
+    options: ["Sobiesław Zasada", "Krzysztof Hołowczyc", "Marian Bublewicz", "Janusz Kulig"],
+    correct: 0,
+    explanation: "Sobiesław Zasada to najbardziej utytułowany polski kierowca rajdowy, mistrz Europy z lat 1966, 1967 i 1971."
+  },
+  {
+    id: 108,
+    category: "historia",
+    difficulty: "trudne",
+    question: "Która polska oszczepniczka zdobyła brązowy medal olimpijski w Berlinie w 1936 roku i wsławiła się odważną ripostą wobec Adolfa Hitlera?",
+    options: ["Maria Kwaśniewska", "Halina Konopacka", "Jadwiga Wajsówna", "Stanisława Walasiewicz"],
+    correct: 0,
+    explanation: "Maria Kwaśniewska na gratulacje Hitlera, że 'gratuluje małej Polce', odpowiedziała: 'Pan też nie jest zbyt wysoki'. Uratowała też wielu ludzi podczas wojny."
+  },
+  {
+    id: 109,
+    category: "historia",
+    difficulty: "srednie",
+    question: "Który polski klub piłkarski jako pierwszy i jedyny w historii awansował do półfinału Pucharu Europy (poprzednika Ligi Mistrzów) w 1970 roku?",
+    options: ["Legia Warszawa", "Górnik Zabrze", "Ruch Chorzów", "Widzew Łódź"],
+    correct: 0,
+    explanation: "Legia Warszawa dotarła do półfinału Pucharu Europy w sezonie 1969/1970, gdzie odpadła z Feyenoordem Rotterdam."
+  },
+  {
+    id: 110,
+    category: "historia",
+    difficulty: "trudne",
+    question: "W którym roku reprezentacja Polski w piłce nożnej rozegrała swój pierwszy oficjalny mecz międzypaństwowy (przegrany 0:1 z Węgrami)?",
+    options: ["1919", "1920", "1921", "1922"],
+    correct: 2,
+    explanation: "Pierwszy oficjalny mecz reprezentacji Polski odbył się 18 grudnia 1921 roku w Budapeszcie przeciwko Węgrom."
+  },
+  {
+    id: 111,
+    category: "przepisy",
+    difficulty: "latwe",
+    question: "Jakie są standardowe wymiary boiska do piłki ręcznej (handball)?",
+    options: ["40 x 20 m", "30 x 15 m", "50 x 25 m", "44 x 22 m"],
+    correct: 0,
+    explanation: "Boisko do piłki ręcznej ma kształt prostokąta o wymiarach 40 metrów długości i 20 metrów szerokości."
+  },
+  {
+    id: 112,
+    category: "przepisy",
+    difficulty: "srednie",
+    question: "W koszykówce, w ciągu ilu sekund drużyna musi wyprowadzić piłkę z własnej połowy boiska na połowę przeciwnika?",
+    options: ["5 sekund", "8 sekund", "10 sekund", "12 sekund"],
+    correct: 1,
+    explanation: "Zgodnie z przepisami FIBA i NBA, drużyna ma 8 sekund na przeprowadzenie piłki przez linię środkową boiska."
+  },
+  {
+    id: 113,
+    category: "przepisy",
+    difficulty: "srednie",
+    question: "Ilu zawodników jednej drużyny znajduje się jednocześnie na boisku w grze polo na koniach?",
+    options: ["3", "4", "5", "6"],
+    correct: 1,
+    explanation: "W tradycyjnym polo na otwartym trawiastym boisku każda drużyna składa się z 4 zawodników."
+  },
+  {
+    id: 114,
+    category: "przepisy",
+    difficulty: "srednie",
+    question: "Ile punktów w meczu rugby (Rugby Union) otrzymuje drużyna za celne kopnięcie piłki z rzutu karnego?",
+    options: ["1 punkt", "2 punkty", "3 punkty", "5 punktów"],
+    correct: 2,
+    explanation: "Rzut karny (penalty kick) trafiony w światło bramki nad poprzeczką daje drużynie 3 punkty. Przyłożenie daje 5 punktów."
+  },
+  {
+    id: 115,
+    category: "przepisy",
+    difficulty: "latwe",
+    question: "Co w tenisie stołowym oznacza pojęcie 'let' (net)?",
+    options: [
+      "Punkt zdobyty bezpośrednio z zagrywki",
+      "Konieczność powtórzenia serwisu, ponieważ piłka dotknęła siatki i spadła na pole odbiorcy",
+      "Przekroczenie limitu czasu na zagranie",
+      "Uszkodzenie rakietki przez zawodnika"
+    ],
+    correct: 1,
+    explanation: "Jeśli piłka przy serwisie dotknie siatki, a potem spadnie poprawnie na pole rywala, sędzia ogłasza 'let' i serwis jest powtarzany bez straty punktu."
+  },
+  {
+    id: 116,
+    category: "przepisy",
+    difficulty: "srednie",
+    question: "Z jakiej odległości (linii) wykonuje się rzuty karne w piłce ręcznej?",
+    options: ["6 metrów", "7 metrów", "9 metrów", "10 metrów"],
+    correct: 1,
+    explanation: "Rzuty karne w piłce ręcznej są wykonywane z linii rzutów karnych oddalonej o 7 metrów od bramki."
+  },
+  {
+    id: 117,
+    category: "przepisy",
+    difficulty: "trudne",
+    question: "Ilu sędziów na boisku (nie licząc technicznych i VAR) sędziuje oficjalny mecz futbolu amerykańskiego w lidze NFL?",
+    options: ["3 sędziów", "5 sędziów", "7 sędziów", "9 sędziów"],
+    correct: 2,
+    explanation: "Oficjalny mecz NFL jest sędziowany przez 7 sędziów boiskowych, z których każdy odpowiada za inne strefy i aspekty gry."
+  },
+  {
+    id: 118,
+    category: "przepisy",
+    difficulty: "srednie",
+    question: "Ile setów musi wygrać zawodnik, aby wygrać mecz w siatkówce plażowej?",
+    options: ["2 sety", "3 sety", "5 setów", "1 set"],
+    correct: 0,
+    explanation: "Mecz siatkówki plażowej gra się do 2 wygranych setów (best of 3). Pierwsze dwa sety gra się do 21 punktów, ewentualny tie-break do 15."
+  },
+  {
+    id: 119,
+    category: "przepisy",
+    difficulty: "trudne",
+    question: "W baseballu, ile autów (outs) musi zaliczyć drużyna broniąca w jednej połowie inningu, aby nastąpiła zmiana stron?",
+    options: ["2 auty", "3 auty", "4 auty", "6 autów"],
+    correct: 1,
+    explanation: "Aby zakończyć połowę inningu, drużyna broniąca musi wyautować 3 zawodników drużyny atakującej."
+  },
+  {
+    id: 120,
+    category: "przepisy",
+    difficulty: "trudne",
+    question: "Jakie wymiary (długość i szerokość) ma oficjalny stół do gry w snookera (wymiar 12-stopowy)?",
+    options: ["3,57 x 1,78 m", "3,82 x 1,91 m", "3,20 x 1,60 m", "3,00 x 1,50 m"],
+    correct: 0,
+    explanation: "Standardowy stół snookerowy o rozmiarze 12 stóp ma pole gry o wymiarach dokładnie 3569 mm długości na 1778 mm szerokości."
+  },
+  {
+    id: 121,
+    category: "wyniki",
+    difficulty: "latwe",
+    question: "Jaki rekord bramek w jednym sezonie niemiecznej Bundesligi ustanowił Robert Lewandowski w sezonie 2020/2021?",
+    options: ["38 bramek", "40 bramek", "41 bramek", "42 bramki"],
+    correct: 2,
+    explanation: "Robert Lewandowski zdobył 41 bramek w sezonie 2020/2021, bijąc 49-letni rekord Gerda Müllera (40 bramek)."
+  },
+  {
+    id: 122,
+    category: "wyniki",
+    difficulty: "trudne",
+    question: "Jaki jest aktualny rekord świata kobiet w skoku o tyczce na otwartym stadionie, należący do Jeleny Isinbajewej od 2009 roku?",
+    options: ["5,00 m", "5,06 m", "5,12 m", "5,15 m"],
+    correct: 1,
+    explanation: "Rosjanka Jelena Isinbajewa skoczyła 5,06 m podczas mityngu w Zurychu w 2009 roku. Rekord halted pozostaje niepobity."
+  },
+  {
+    id: 123,
+    category: "wyniki",
+    difficulty: "trudne",
+    question: "Który maratończyk jako jedyny w oficjalnym biegu (ale nie w warunkach otwartego rekordu) złamał barierę 2 godzin w Wiedniu w 2019 roku (czas 1:59:40)?",
+    options: ["Eliud Kipchoge", "Kelvin Kiptum", "Kenenisa Bekele", "Haile Gebrselassie"],
+    correct: 0,
+    explanation: "Kenijczyk Eliud Kipchoge przebiegł dystans maratonu w 1:59:40 w ramach projektu INEOS 1:59 Challenge, jednak wynik nie został uznany za oficjalny rekord świata ze względu na brak otwartej rywalizacji i rotacyjnych pacemakerów."
+  },
+  {
+    id: 124,
+    category: "wyniki",
+    difficulty: "srednie",
+    question: "Ile złotych medali olimpijskich zdobył amerykański pływak Michael Phelps podczas igrzysk w Pekinie w 2008 roku, bijąc rekord Marka Spitza?",
+    options: ["6 złotych medali", "7 złotych medali", "8 złotych medali", "9 złotych medali"],
+    correct: 2,
+    explanation: "Michael Phelps zdobył w Pekinie historyczne 8 złotych medali, wygrywając wszystkie konkurencje, w których startował."
+  },
+  {
+    id: 125,
+    category: "wyniki",
+    difficulty: "srednie",
+    question: "Jaki jest oficjalny rekord pod względem liczby występów w reprezentacji Polski w piłce nożnej mężczyzn (należący do Roberta Lewandowskiego)?",
+    options: ["110 meczów", "125 meczów", "ponad 140 meczów", "102 mecze"],
+    correct: 2,
+    explanation: "Robert Lewandowski rozegrał ponad 140 meczów w barwach narodowych, znacznie wyprzedzając drugiego Jakuba Błaszczykowskiego (109 meczów)."
+  },
+  {
+    id: 126,
+    category: "wyniki",
+    difficulty: "trudne",
+    question: "Polska sztafeta 4x400 m mężczyzn odniosła historyczny sukces na halowych mistrzostwach świata w Maebashi w 1999 r., zdobywając złoto. Kto biegł na ostatniej zmianie?",
+    options: ["Robert Maćkowiak", "Piotr Rysiukiewicz", "Tomasz Czubak", "Jacek Bocian"],
+    correct: 0,
+    explanation: "Robert Maćkowiak przyprowadził polską sztafetę na 1. miejscu, pokonując na finiszu sztafetę USA."
+  },
+  {
+    id: 127,
+    category: "wyniki",
+    difficulty: "latwe",
+    question: "Kto strzelił najwięcej bramek w historii finałów Mistrzostw Świata w piłce nożnej ogółem (16 goli)?",
+    options: ["Miroslav Klose", "Ronaldo (Brazylijczyk)", "Pele", "Just Fontaine"],
+    correct: 0,
+    explanation: "Miroslav Klose strzelił 16 bramek w czterech turniejach (2002-2014), wyprzedzając Brazylijczyka Ronaldo (15 bramek)."
+  },
+  {
+    id: 128,
+    category: "wyniki",
+    difficulty: "srednie",
+    question: "Jakim wynikiem zakończył się słynny mecz 'na wodzie' pomiędzy Polską a RFN we Frankfurcie podczas mundialu w 1974 roku?",
+    options: ["0:0", "1:0 dla RFN", "2:1 dla Polski", "2:0 dla RFN"],
+    correct: 1,
+    explanation: "Niemcy wygrali 1:0 po bramce Gerda Müllera w 76. minucie na zalanym wodą boisku, co zablokowało Polsce awans do finału."
+  },
+  {
+    id: 129,
+    category: "wyniki",
+    difficulty: "trudne",
+    question: "Który kolarz szosowy jako jedyny oficjalnie wygrał wyścig Tour de France 5 razy z rzędu w latach 1991–1995?",
+    options: ["Miguel Indurain", "Eddy Merckx", "Bernard Hinault", "Lance Armstrong"],
+    correct: 0,
+    explanation: "Hiszpan Miguel Indurain zdominował Tour de France, wygrywając go 5 razy z rzędu. Lance Armstrong został wykreślony z tabel z powodu dopingu."
+  },
+  {
+    id: 130,
+    category: "wyniki",
+    difficulty: "trudne",
+    question: "Ile wynosi oficjalny rekord świata w skoku wzwyż mężczyzn (2.45 m), należący do Kubańczyka Javiera Sotomayora od 1993 roku?",
+    options: ["2,40 m", "2,43 m", "2,45 m", "2,48 m"],
+    correct: 2,
+    explanation: "Javier Sotomayor skoczył 2,45 m w hiszpańskiej Salamance w lipcu 1993 roku, co do dziś pozostaje rekordem świata."
+  },
+  {
+    id: 131,
+    category: "olimpijczycy",
+    difficulty: "srednie",
+    question: "W jakiej dyscyplinie sportowej złoty medal olimpijski w Atlancie (1996) wywalczyła Renata Mauer-Różańska?",
+    options: ["Strzelectwo (karabin pneumatyczny)", "Łucznictwo", "Szermierka (floret)", "Gimnastyka"],
+    correct: 0,
+    explanation: "Renata Mauer-Różańska zdobyła złoto w karabinie pneumatycznym oraz brąz w karabinie w trzech postawach w Atlancie."
+  },
+  {
+    id: 132,
+    category: "olimpijczycy",
+    difficulty: "srednie",
+    question: "Który polski skoczek wzwyż zdobył trzy medale olimpijskie (srebro w Moskwie 1980 i Atlancie 1996, brąz w Seulu 1988)?",
+    options: ["Artur Partyka", "Jacek Wszoła", "Edward Sarul", "Robert Wolski"],
+    correct: 0,
+    explanation: "Artur Partyka to jeden z najwybitniejszych polskich lekkoatletów, wielokrotny medalista IO i mistrzostw świata."
+  },
+  {
+    id: 133,
+    category: "olimpijczycy",
+    difficulty: "srednie",
+    question: "Szymon Kołecki zdobył dwa medale olimpijskie w podnoszeniu ciężarów (srebro w Sydney 2000, złoto w Pekinie 2008). W jakiej kategorii wagowej startował?",
+    options: ["do 94 kg", "do 85 kg", "do 105 kg", "ponad 105 kg"],
+    correct: 0,
+    explanation: "Szymon Kołecki odnosił sukcesy w kategorii lekkociężkiej do 94 kg."
+  },
+  {
+    id: 134,
+    category: "olimpijczycy",
+    difficulty: "srednie",
+    question: "Który polski panczenista zdobył złoty medal olimpijski na dystansie 1500 m podczas ZIO w Soczi w 2014 roku, wygrywając o 0.003 sekundy?",
+    options: ["Zbibiew Bródka", "Konrad Niedźwiedzki", "Jan Szymański", "Sebastian Kłosiński"],
+    correct: 0,
+    explanation: "Zbigniew Bródka, zawodowy strażak, wygrał z Holendrem Koenem Verweijem o minimalne 3 tysięczne sekundy."
+  },
+  {
+    id: 135,
+    category: "olimpijczycy",
+    difficulty: "srednie",
+    question: "Jak nazywają się polskie wioślarki, które wywalczyły złoty medal w dwójce podwójnej podczas igrzysk w Rio de Janeiro w 2016 roku?",
+    options: [
+      "Magdalena Fularczyk-Kozłowska i Natalia Madaj",
+      "Agnieszka Kobus-Zawojska i Maria Sajdak",
+      "Marta Wieliczko i Katarzyna Zillmann",
+      "Joanna Hentka i Karolina Naja"
+    ],
+    correct: 0,
+    explanation: "Magdalena Fularczyk-Kozłowska oraz Natalia Madaj popłynęły po złoty medal olimpijski na torze w Rio."
+  },
+  {
+    id: 136,
+    category: "olimpijczycy",
+    difficulty: "latwe",
+    question: "Który polski młociarz zdobył złoty medal olimpijski w Tokio w 2021 roku z wynikiem 82.52 m?",
+    options: ["Wojciech Nowicki", "Paweł Fajdek", "Szymon Ziółkowski", "Piotr Małachowski"],
+    correct: 0,
+    explanation: "Wojciech Nowicki zdominował konkurs olimpijski w Tokio, zdobywając upragniony złoty medal (Paweł Fajdek zdobył brąz)."
+  },
+  {
+    id: 137,
+    category: "olimpijczycy",
+    difficulty: "trudne",
+    question: "Jak nazywa się polski gimnastyk sportowy, mistrz olimpijski z Pekinu (2008) w skoku?",
+    options: ["Leszek Blanik", "Piotr Sawicki", "Roman Kulesza", "krajowy mistrz gimnastyki"],
+    correct: 0,
+    explanation: "Leszek Blanik zdobył złoty medal olimpijski w skoku w Pekinie w 2008 roku (oraz brąz w Sydney w 2000 r.)."
+  },
+  {
+    id: 138,
+    category: "olimpijczycy",
+    difficulty: "srednie",
+    question: "W jakiej dyscyplinie sportowej brązowy medal olimpijski w Londynie (2012) wywalczyła Zofia Klepacka?",
+    options: ["Windsurfing (klasa RS:X)", "Żeglarstwo (klasa Laser)", "Kajakarstwo", "Pływanie długodystansowe"],
+    correct: 0,
+    explanation: "Zofia Noceti-Klepacka zdobyła brązowy medal w klasie windsurfingowej RS:X na igrzyskach w Londynie."
+  },
+  {
+    id: 139,
+    category: "olimpijczycy",
+    difficulty: "trudne",
+    question: "Który lekkoatleta jako jedyny Polak obronił tytuł mistrza olimpijskiego w trójskoku, zdobywając złoto w Rzymie (1960) i Tokio (1964)?",
+    options: ["Józef Szmidt", "Zdzisław Krzyszkowiak", "Edward Sarul", "Michał Joachimowski"],
+    correct: 0,
+    explanation: "Józef Szmidt, zwany 'śląskim kangurem', był dwukrotnym mistrzem olimpijskim i pierwszym człowiekiem, który skoczył ponad 17 metrów."
+  },
+  {
+    id: 140,
+    category: "olimpijczycy",
+    difficulty: "latwe",
+    question: "Która polska lekkoatletka zdobyła złoty medal w rzucie młotem podczas igrzysk w Sydney, Rio oraz Tokio (trzy złota olimpijskie)?",
+    options: ["Anita Włodarczyk", "Kamila Skolimowska", "Malwina Kopron", "Maria Andrejczyk"],
+    correct: 0,
+    explanation: "Anita Włodarczyk jest trzykrotną mistrzynią olimpijską, zdobywając złote medale w Londynie (2012), Rio (2016) i Tokio (2020)."
+  },
+  {
+    id: 141,
+    category: "ogolne",
+    difficulty: "latwe",
+    question: "Jak nazywa się międzynarodowa organizacja powołana do walki z dopingiem w sporcie (założona w 1999 roku)?",
+    options: ["WADA", "FIFA", "IOC", "IAAF"],
+    correct: 0,
+    explanation: "WADA (World Anti-Doping Agency) to Światowa Agencja Antydopingowa odpowiedzialna za kontrole i kodeks antydopingowy."
+  },
+  {
+    id: 142,
+    category: "ogolne",
+    difficulty: "latwe",
+    question: "Jaka jest standardowa długość jednego okrążenia na lekkoatletycznym stadionie olimpijskim?",
+    options: ["300 metrów", "400 metrów", "500 metrów", "600 metrów"],
+    correct: 1,
+    explanation: "Standardowa bieżnia stadionu lekkoatletycznego ma długość dokładnie 400 metrów."
+  },
+  {
+    id: 143,
+    category: "ogolne",
+    difficulty: "srednie",
+    question: "W którym kraju narodziła się sztuka walki judo (stworzona przez Jigoro Kano pod koniec XIX wieku)?",
+    options: ["Chiny", "Japonia", "Korea", "Tajlandia"],
+    correct: 1,
+    explanation: "Judo wywodzi się bezpośrednio z Japonii i opiera na chwytach, rzutach i dźwigniach."
+  },
+  {
+    id: 144,
+    category: "ogolne",
+    difficulty: "latwe",
+    question: "Ilu zawodników jednej drużyny przebywa na boisku podczas meczu siatkówki plażowej?",
+    options: ["2 zawodników", "4 zawodników", "6 zawodników", "8 zawodników"],
+    correct: 0,
+    explanation: "W siatkówce plażowej każda drużyna składa się z dokładnie 2 zawodników i na boisku nie ma graczy rezerwowych."
+  },
+  {
+    id: 145,
+    category: "ogolne",
+    difficulty: "latwe",
+    question: "Co oznacza skrót NBA w odniesieniu do amerykańskich rozgrywek koszykarskich?",
+    options: [
+      "National Basketball Association",
+      "New Basketball Alliance",
+      "National Ball Association",
+      "North Basketball Association"
+    ],
+    correct: 0,
+    explanation: "NBA to skrót od National Basketball Association (Krajowe Stowarzyszenie Koszykówki), założonego w USA w 1946 roku."
+  },
+  {
+    id: 146,
+    category: "ogolne",
+    difficulty: "srednie",
+    question: "Który sport walki uprawia się z użyciem broni zwanej floret, szpada lub szabla?",
+    options: ["Kendo", "Szermierka", "Boks tajski", "Zapasy"],
+    correct: 1,
+    explanation: "Szermierka olimpijska obejmuje walki trzema rodzajami broni białej: floretem, szpadą oraz szablą."
+  },
+  {
+    id: 147,
+    category: "ogolne",
+    difficulty: "srednie",
+    question: "Jak nazywa się nagroda przyznawana corocznie najlepszemu strzelcowi hiszpańskiej ligi piłkarskiej (La Liga)?",
+    options: ["Złoty But", "Trofeo Pichichi", "Trofeo Zamora", "Złota Piłka"],
+    correct: 1,
+    explanation: "Trofeo Pichichi to nagroda hiszpańskiego dziennika 'Marca' dla króla strzelców Primera División."
+  },
+  {
+    id: 148,
+    category: "ogolne",
+    difficulty: "trudne",
+    question: "Jaka jest średnica tarczy strzeleckiej (czarnego krążka) w biathlonie w pozycji leżącej?",
+    options: ["45 mm", "110 mm", "115 mm", "50 mm"],
+    correct: 0,
+    explanation: "Średnica celu w biathlonie wynosi 45 mm dla pozycji leżącej oraz 115 mm dla pozycji stojącej."
+  },
+  {
+    id: 149,
+    category: "ogolne",
+    difficulty: "latwe",
+    question: "Z ilu graczy składa się drużyna na boisku w hokeju na trawie?",
+    options: ["6", "9", "11", "15"],
+    correct: 2,
+    explanation: "Podobnie jak w piłce nożnej, w hokeju na trawie na boisku występuje po 11 zawodników w każdej drużynie."
+  },
+  {
+    id: 150,
+    category: "ogolne",
+    difficulty: "srednie",
+    question: "Które państwo wygrało najwięcej klasyfikacji medalowych w historii letnich igrzysk olimpijskich?",
+    options: ["USA", "ZSRR", "Niemcy", "Wielka Brytania"],
+    correct: 0,
+    explanation: "Stany Zjednoczone zdobyły najwięcej medali i najczęściej wygrywały klasyfikację medalową letnich igrzysk olimpijskich."
   }
 ];
 

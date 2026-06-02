@@ -32,6 +32,9 @@ document.addEventListener('DOMContentLoaded', () => {
   let roundScores = 0;
   let pendingTeamIndex = null; // Dla ręcznej zmiany tury
 
+  // Aktywne wylosowane pytania (100 z 150)
+  let activeQuestionIds = [];
+
   // Stan tymczasowy dla Lobby
   let tempGameMode = 'solo';
   let tempTeams = [
@@ -204,6 +207,32 @@ document.addEventListener('DOMContentLoaded', () => {
       timerLimit = 30; // Domyślnie 30s
       timerSelect.value = 30;
     }
+
+    // Wczytanie wylosowanych pytań
+    const savedActiveIds = localStorage.getItem('sports_quiz_active_question_ids');
+    if (savedActiveIds) {
+      try {
+        activeQuestionIds = JSON.parse(savedActiveIds);
+      } catch (e) {
+        activeQuestionIds = [];
+      }
+    }
+    if (!activeQuestionIds || activeQuestionIds.length !== 100) {
+      generateActiveQuestionIds();
+    }
+  }
+
+  // Funkcja generująca nową losową pulę 100 pytań z 150
+  function generateActiveQuestionIds() {
+    const allIds = questions.map(q => q.id);
+    for (let i = allIds.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const temp = allIds[i];
+      allIds[i] = allIds[j];
+      allIds[j] = temp;
+    }
+    activeQuestionIds = allIds.slice(0, 100);
+    localStorage.setItem('sports_quiz_active_question_ids', JSON.stringify(activeQuestionIds));
   }
 
   // Zapisywanie stanu do localStorage
@@ -218,6 +247,9 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('sports_quiz_questions_per_round', questionsPerRound);
     localStorage.setItem('sports_quiz_round_questions_answered', roundQuestionsAnswered);
     localStorage.setItem('sports_quiz_round_scores', roundScores);
+
+    // Zapisz pulę aktywnych pytań
+    localStorage.setItem('sports_quiz_active_question_ids', JSON.stringify(activeQuestionIds));
   }
 
   // Ustawienie odpowiednich kontenerów w zależności od trybu gry
@@ -245,7 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Aktualizacja panelu statystyk (Solo / Multiplayer)
   function updateStats() {
-    const totalQuestions = questions.length;
+    const totalQuestions = activeQuestionIds.length;
     const answeredKeys = Object.keys(selectedQuestions);
     const answeredCount = answeredKeys.length;
     
@@ -463,7 +495,10 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderGrid() {
     gridContainer.innerHTML = '';
     
-    const filteredQuestions = questions.filter(q => {
+    // Zmapuj wylosowane ID pytań na pełne obiekty pytań, zachowując kolejność wylosowaną w activeQuestionIds
+    const activeQuestions = activeQuestionIds.map(id => questions.find(q => q.id === id)).filter(q => q !== undefined);
+    
+    const filteredQuestions = activeQuestions.filter(q => {
       // 1. Filtrowanie wyszukiwarki
       const normalizedQuery = searchQuery.toLowerCase().trim();
       const matchesSearch = normalizedQuery === '' || 
@@ -507,9 +542,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
 
-      // Numer na środku, kropka kategorii na dole (trudność ukryta)
+      // Numer na kafelku to jego pozycja w tablicy activeQuestionIds + 1 (zawsze 1-100)
+      const displayIndex = activeQuestionIds.indexOf(q.id) + 1;
+
       card.innerHTML = `
-        <span class="q-number">${q.id}</span>
+        <span class="q-number">${displayIndex}</span>
         <span class="q-category-dot" title="Kategoria: ${CATEGORY_NAMES[q.category]}"></span>
       `;
 
@@ -929,6 +966,7 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.removeItem('sports_quiz_questions_per_round');
     localStorage.removeItem('sports_quiz_round_questions_answered');
     localStorage.removeItem('sports_quiz_round_scores');
+    localStorage.removeItem('sports_quiz_active_question_ids');
     
     selectedQuestions = {};
     teams = [];
@@ -937,6 +975,9 @@ document.addEventListener('DOMContentLoaded', () => {
     roundQuestionsAnswered = 0;
     roundScores = 0;
     gameStarted = false;
+    
+    activeQuestionIds = [];
+    generateActiveQuestionIds();
     
     resultsModal.classList.add('hidden');
     lobbyModal.classList.remove('hidden');
@@ -1045,6 +1086,7 @@ document.addEventListener('DOMContentLoaded', () => {
       roundQuestionsAnswered = 0;
       roundScores = 0;
     }
+    generateActiveQuestionIds();
     saveGameState();
     updateStats();
     renderGrid();
