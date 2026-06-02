@@ -29,33 +29,51 @@
 
     <!-- Stats Dashboard -->
     <section class="dashboard-stats glass-panel">
-      <div class="stat-card">
-        <span class="stat-label">Rozegrano</span>
-        <div class="stat-value-group">
-          <span id="stat-answered" class="stat-number">0</span>
-          <span class="stat-total">/ 100</span>
+      <!-- Solo Stats (Wrappers) -->
+      <div id="stats-solo-container" class="stats-solo-grid">
+        <div class="stat-card">
+          <span class="stat-label">Rozegrano</span>
+          <div class="stat-value-group">
+            <span id="stat-answered" class="stat-number">0</span>
+            <span class="stat-total">/ 100</span>
+          </div>
+          <div class="progress-bar-container">
+            <div id="progress-fill" class="progress-bar-fill" style="width: 0%"></div>
+          </div>
         </div>
-        <div class="progress-bar-container">
-          <div id="progress-fill" class="progress-bar-fill" style="width: 0%"></div>
+        
+        <div class="stat-card">
+          <span class="stat-label">Poprawne</span>
+          <span id="stat-correct" class="stat-number text-success">0</span>
         </div>
-      </div>
-      
-      <div class="stat-card">
-        <span class="stat-label">Poprawne</span>
-        <span id="stat-correct" class="stat-number text-success">0</span>
+
+        <div class="stat-card">
+          <span class="stat-label">Błędne</span>
+          <span id="stat-incorrect" class="stat-number text-danger">0</span>
+        </div>
+
+        <div class="stat-card">
+          <span class="stat-label">Skuteczność</span>
+          <span id="stat-ratio" class="stat-number text-cyan">0%</span>
+        </div>
       </div>
 
-      <div class="stat-card">
-        <span class="stat-label">Błędne</span>
-        <span id="stat-incorrect" class="stat-number text-danger">0</span>
-      </div>
-
-      <div class="stat-card">
-        <span class="stat-label">Skuteczność</span>
-        <span id="stat-ratio" class="stat-number text-cyan">0%</span>
+      <!-- Multiplayer Team Stats Container -->
+      <div id="stats-teams-container" class="stats-teams-grid hidden">
+        <!-- Will be dynamically filled with team cards -->
       </div>
 
       <div class="stat-actions">
+        <button id="btn-end-game" class="btn btn-primary hidden" title="Zakończ grę i pokaż podium">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+            <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+            <path d="M4 22h16"></path>
+            <path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34"></path>
+            <path d="M12 2a5 5 0 0 0-5 5v5a5 5 0 0 0 10 0V7a5 5 0 0 0-5-5z"></path>
+          </svg>
+          Podsumowanie
+        </button>
         <button id="btn-reset" class="btn btn-secondary" title="Resetuj stan gry">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
@@ -154,6 +172,9 @@
         </button>
       </div>
       <div class="modal-body">
+        <div id="modal-active-team-row" class="modal-active-team-row hidden">
+          Tura drużyny: <span id="modal-active-team-name" class="active-team-name-span">Nazwa</span>
+        </div>
         <div class="modal-question-number">Pytanie <span id="modal-question-id">1</span></div>
         <h2 id="modal-question-text" class="modal-question-title">Treść pytania sportowego...</h2>
         
@@ -185,6 +206,93 @@
       <div class="reset-confirm-actions">
         <button id="btn-reset-cancel" class="btn btn-secondary">Anuluj</button>
         <button id="btn-reset-confirm" class="btn btn-danger">Tak, resetuj wszystko</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lobby / Setup Modal -->
+  <div id="lobby-modal" class="modal-overlay">
+    <div class="modal-content glass-panel lobby-content animate-zoom">
+      <div class="lobby-header">
+        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+          <path d="M2 12h20"></path>
+        </svg>
+        <h2>POLSKI QUIZ SPORTOWY</h2>
+        <p>Wybierz tryb gry i przygotuj się do rywalizacji!</p>
+      </div>
+      
+      <div class="lobby-tabs">
+        <button id="tab-solo" class="lobby-tab-btn active">Gra Solo</button>
+        <button id="tab-multi" class="lobby-tab-btn">Rywalizacja Drużyn</button>
+      </div>
+
+      <!-- Solo Mode Setup -->
+      <div id="lobby-setup-solo" class="lobby-setup-section">
+        <p class="lobby-description">Grasz samodzielnie, starając się poprawnie odpowiedzieć na jak największą liczbę ze 100 pytań na tablicy. Twoje punkty i skuteczność będą zliczane na bieżąco.</p>
+      </div>
+
+      <!-- Multiplayer Mode Setup -->
+      <div id="lobby-setup-multi" class="lobby-setup-section hidden">
+        <p class="lobby-description">Rywalizacja turowa dla 2 do 10 drużyn/graczy. Wpisz nazwy drużyn, które wezmą udział w grze:</p>
+        
+        <div class="teams-setup-list" id="teams-setup-list">
+          <!-- Dynamically filled with team inputs -->
+        </div>
+        
+        <button id="btn-add-team" class="btn btn-secondary">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Dodaj Drużynę
+        </button>
+      </div>
+
+      <div class="lobby-footer">
+        <button id="btn-start-game" class="btn btn-primary">Rozpocznij Grę</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results / Podium Modal -->
+  <div id="results-modal" class="modal-overlay hidden">
+    <div class="modal-content glass-panel results-content animate-zoom">
+      <div class="results-header">
+        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="var(--warning)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+          <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+          <path d="M4 22h16"></path>
+          <path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34"></path>
+          <path d="M12 2a5 5 0 0 0-5 5v5a5 5 0 0 0 10 0V7a5 5 0 0 0-5-5z"></path>
+        </svg>
+        <h2>Klasyfikacja Końcowa</h2>
+        <p>Oto wyniki zaciętej rywalizacji sportowej!</p>
+      </div>
+      
+      <div class="podium-container" id="results-podium">
+        <!-- Dynamically generated 3D Podium -->
+      </div>
+      
+      <div class="results-table-container">
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th>Poz.</th>
+              <th>Drużyna</th>
+              <th>Punkty</th>
+              <th>Odpowiedzi</th>
+            </tr>
+          </thead>
+          <tbody id="results-table-body">
+            <!-- Dynamically filled -->
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="results-footer">
+        <button id="btn-results-restart" class="btn btn-primary">Zagraj Ponownie / Nowa Gra</button>
       </div>
     </div>
   </div>
