@@ -1159,6 +1159,15 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.style.overflow = '';
   });
 
+  const btnGoToLobby = document.getElementById('btn-go-to-lobby');
+  if (btnGoToLobby) {
+    btnGoToLobby.addEventListener('click', () => {
+      if (confirm('Czy na pewno chcesz zakończyć tę rozgrywkę i powrócić do menu głównego (Lobby)? Bieżący postęp zostanie utracony.')) {
+        restartGameFromResults();
+      }
+    });
+  }
+
   // ==========================================
   // INICJALIZACJA GRY
   // ==========================================
