@@ -1059,10 +1059,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   // FILTROWANIE - LISTENERY
   // ==========================================
-  searchInput.addEventListener('input', (e) => {
-    searchQuery = e.target.value;
-    renderGrid();
-  });
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      renderGrid();
+    });
+  }
 
   timerSelect.addEventListener('change', (e) => {
     timerLimit = parseInt(e.target.value, 10);
