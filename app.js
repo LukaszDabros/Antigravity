@@ -1,6 +1,6 @@
 /**
  * Polski Quiz Sportowy - Logika Aplikacji
- * Obsługa trybu Solo oraz Rywalizacji Drużynowej
+ * Obsługa trybu Solo oraz Rywalizacji Drużynowej z systemem rundowym
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -25,6 +25,12 @@ document.addEventListener('DOMContentLoaded', () => {
   let gameMode = 'solo'; // 'solo' lub 'multi'
   let teams = []; // Tablica obiektów: { id, name, score, answeredCount, color }
   let activeTeamIndex = 0;
+
+  // System rundowy
+  let questionsPerRound = 10;
+  let roundQuestionsAnswered = 0;
+  let roundScores = 0;
+  let pendingTeamIndex = null; // Dla ręcznej zmiany tury
 
   // Stan tymczasowy dla Lobby
   let tempGameMode = 'solo';
@@ -66,8 +72,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const progressFill = document.getElementById('progress-fill');
 
   // Elementy Statystyk Multiplayer
+  const statsTeamsWrapper = document.getElementById('stats-teams-wrapper');
   const statsTeamsContainer = document.getElementById('stats-teams-container');
   const btnEndGame = document.getElementById('btn-end-game');
+
+  // Wskaźnik postępu rundy na pulpicie
+  const roundActiveTeam = document.getElementById('round-active-team');
+  const roundCurrentQuestion = document.getElementById('round-current-question');
+  const roundTotalQuestions = document.getElementById('round-total-questions');
 
   // Elementy Modalu Pytania
   const modalCategory = document.getElementById('modal-category');
@@ -95,6 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const tabMulti = document.getElementById('tab-multi');
   const lobbySetupSolo = document.getElementById('lobby-setup-solo');
   const lobbySetupMulti = document.getElementById('lobby-setup-multi');
+  const roundQuestionsSelect = document.getElementById('round-questions-select');
   const teamsSetupList = document.getElementById('teams-setup-list');
   const btnAddTeam = document.getElementById('btn-add-team');
   const btnStartGame = document.getElementById('btn-start-game');
@@ -103,6 +116,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const resultsPodium = document.getElementById('results-podium');
   const resultsTableBody = document.getElementById('results-table-body');
   const btnResultsRestart = document.getElementById('btn-results-restart');
+
+  // Modale Rundowe (Nowe)
+  const roundSummaryModal = document.getElementById('round-summary-modal');
+  const summaryTeamName = document.getElementById('summary-team-name');
+  const summaryRoundScore = document.getElementById('summary-round-score');
+  const summaryRoundRatio = document.getElementById('summary-round-ratio');
+  const summaryTotalScore = document.getElementById('summary-total-score');
+  const btnRoundSummaryNext = document.getElementById('btn-round-summary-next');
+
+  const teamSelectModal = document.getElementById('team-select-modal');
+  const teamSelectGrid = document.getElementById('team-select-grid');
+
+  const confirmTeamSwitchModal = document.getElementById('confirm-team-switch-modal');
+  const confirmSwitchTeamName = document.getElementById('confirm-switch-team-name');
+  const btnConfirmSwitchCancel = document.getElementById('btn-confirm-switch-cancel');
+  const btnConfirmSwitchOk = document.getElementById('btn-confirm-switch-ok');
 
   // ==========================================
   // FUNKCJE POMOCNICZE / TRANSLACJE
@@ -141,6 +170,20 @@ document.addEventListener('DOMContentLoaded', () => {
       activeTeamIndex = parseInt(savedActiveIndex, 10);
     }
 
+    // Odczyt stanów rundowych
+    const savedQuestionsPerRound = localStorage.getItem('sports_quiz_questions_per_round');
+    if (savedQuestionsPerRound !== null) {
+      questionsPerRound = parseInt(savedQuestionsPerRound, 10);
+    }
+    const savedRoundQuestionsAnswered = localStorage.getItem('sports_quiz_round_questions_answered');
+    if (savedRoundQuestionsAnswered !== null) {
+      roundQuestionsAnswered = parseInt(savedRoundQuestionsAnswered, 10);
+    }
+    const savedRoundScores = localStorage.getItem('sports_quiz_round_scores');
+    if (savedRoundScores !== null) {
+      roundScores = parseInt(savedRoundScores, 10);
+    }
+
     const savedState = localStorage.getItem('sports_quiz_selected');
     if (savedState) {
       try {
@@ -170,6 +213,11 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('sports_quiz_game_mode', gameMode);
     localStorage.setItem('sports_quiz_teams', JSON.stringify(teams));
     localStorage.setItem('sports_quiz_active_team_index', activeTeamIndex);
+
+    // Zapisz stany rundy
+    localStorage.setItem('sports_quiz_questions_per_round', questionsPerRound);
+    localStorage.setItem('sports_quiz_round_questions_answered', roundQuestionsAnswered);
+    localStorage.setItem('sports_quiz_round_scores', roundScores);
   }
 
   // Ustawienie odpowiednich kontenerów w zależności od trybu gry
@@ -186,11 +234,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (gameMode === 'solo') {
       statsSoloContainer.classList.remove('hidden');
-      statsTeamsContainer.classList.add('hidden');
+      statsTeamsWrapper.classList.add('hidden');
       btnEndGame.classList.add('hidden');
     } else {
       statsSoloContainer.classList.add('hidden');
-      statsTeamsContainer.classList.remove('hidden');
+      statsTeamsWrapper.classList.remove('hidden');
       btnEndGame.classList.remove('hidden');
     }
   }
@@ -224,7 +272,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const progressPercent = Math.min(100, (answeredCount / totalQuestions) * 100);
       progressFill.style.width = `${progressPercent}%`;
     } else {
-      // Logika Multiplayer - renderowanie kart drużyn
+      // Logika Rywalizacji Drużynowej
+      
+      // 1. Wskaźnik rundy na pulpicie
+      if (teams.length > 0) {
+        const activeTeam = teams[activeTeamIndex];
+        roundActiveTeam.textContent = activeTeam.name;
+        roundActiveTeam.style.backgroundColor = activeTeam.color;
+        roundCurrentQuestion.textContent = roundQuestionsAnswered;
+        roundTotalQuestions.textContent = questionsPerRound;
+      }
+
+      // 2. Renderowanie kart drużyn
       statsTeamsContainer.innerHTML = '';
       
       teams.forEach((team, idx) => {
@@ -232,15 +291,19 @@ document.addEventListener('DOMContentLoaded', () => {
         card.className = 'team-score-card';
         card.setAttribute('data-index', idx);
         
-        // Dynamiczne kolorowanie obramowania w zależności od przypisanego koloru
         card.style.borderColor = team.color;
         
         const isActive = idx === activeTeamIndex;
         if (isActive) {
           card.classList.add('active-team');
-          card.style.boxShadow = `0 0 14px ${team.color}80`; // 50% opacity dla glowu
+          card.style.boxShadow = `0 0 14px ${team.color}80`;
         } else {
           card.style.boxShadow = '';
+          
+          // Umożliwienie ręcznej zmiany drużyny po kliknięciu na jej kartę
+          card.addEventListener('click', () => {
+            triggerManualTeamSwitch(idx);
+          });
         }
 
         const accuracy = team.answeredCount > 0 ? Math.round((team.score / team.answeredCount) * 100) : 0;
@@ -265,6 +328,32 @@ document.addEventListener('DOMContentLoaded', () => {
       showResults();
     }
   }
+
+  // Obsługa ręcznej zmiany tury
+  function triggerManualTeamSwitch(index) {
+    pendingTeamIndex = index;
+    confirmSwitchTeamName.textContent = teams[index].name;
+    confirmSwitchTeamName.style.color = teams[index].color;
+    confirmTeamSwitchModal.classList.remove('hidden');
+  }
+
+  btnConfirmSwitchCancel.addEventListener('click', () => {
+    confirmTeamSwitchModal.classList.add('hidden');
+    pendingTeamIndex = null;
+  });
+
+  btnConfirmSwitchOk.addEventListener('click', () => {
+    if (pendingTeamIndex !== null) {
+      activeTeamIndex = pendingTeamIndex;
+      roundQuestionsAnswered = 0;
+      roundScores = 0;
+      saveGameState();
+      confirmTeamSwitchModal.classList.add('hidden');
+      pendingTeamIndex = null;
+      updateStats();
+      renderGrid();
+    }
+  });
 
   // ==========================================
   // RENDEROWANIE LOBBY
@@ -331,7 +420,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tempTeams.length < 10) {
       tempTeams.push({ name: `Drużyna ${String.fromCharCode(65 + tempTeams.length)}` }); // Drużyna C, D...
       renderLobbyTeams();
-      // Scroll to bottom of setup list
       setTimeout(() => {
         teamsSetupList.scrollTop = teamsSetupList.scrollHeight;
       }, 50);
@@ -355,6 +443,9 @@ document.addEventListener('DOMContentLoaded', () => {
         };
       });
       activeTeamIndex = 0;
+      questionsPerRound = parseInt(roundQuestionsSelect.value, 10);
+      roundQuestionsAnswered = 0;
+      roundScores = 0;
     } else {
       teams = [];
       activeTeamIndex = 0;
@@ -382,7 +473,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // 2. Filtrowanie kategorii
       const matchesCategory = activeFilters.category === 'all' || q.category === activeFilters.category;
 
-      // 3. Filtrowanie trudności (zawsze true - usunięte z UI)
+      // 3. Filtrowanie trudności (usunięte z UI)
       const matchesDifficulty = true;
 
       // 4. Filtrowanie statusu
@@ -449,15 +540,13 @@ document.addEventListener('DOMContentLoaded', () => {
     modalCategory.className = 'category-badge'; 
     modalCategory.classList.add(`badge-${q.category}`);
 
-    // Obsługa wskaźnika aktywnej tury
+    // Obsługa wskaźnika aktywnej tury w oknie pytania
     if (gameMode === 'multi' && teams.length > 0) {
       modalActiveTeamRow.classList.remove('hidden');
       const activeTeam = teams[activeTeamIndex];
       modalActiveTeamName.textContent = activeTeam.name;
       modalActiveTeamName.style.backgroundColor = activeTeam.color;
       modalActiveTeamName.style.boxShadow = `0 0 10px ${activeTeam.color}`;
-      
-      // Zapewnienie czytelności tekstu (czarna czcionka na jasnych tłach)
       modalActiveTeamName.style.color = '#020617';
     } else {
       modalActiveTeamRow.classList.add('hidden');
@@ -554,9 +643,10 @@ document.addEventListener('DOMContentLoaded', () => {
       timeout: true
     };
 
-    // Zapis punktów drużynowych
+    // Obsługa rywalizacji
     if (gameMode === 'multi') {
       teams[activeTeamIndex].answeredCount++;
+      roundQuestionsAnswered++;
     }
     saveGameState();
 
@@ -609,8 +699,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Obsługa rywalizacji multiplayer
     if (gameMode === 'multi') {
       teams[activeTeamIndex].answeredCount++;
+      roundQuestionsAnswered++;
       if (isCorrect) {
         teams[activeTeamIndex].score++;
+        roundScores++;
       }
     }
     saveGameState();
@@ -667,16 +759,79 @@ document.addEventListener('DOMContentLoaded', () => {
     questionModal.classList.add('hidden');
     document.body.style.overflow = '';
     
-    // Zmiana tury w trybie multiplayer
+    // Sprawdzenie czy to tryb drużynowy i czy tura/runda została ukończona
     if (gameMode === 'multi' && gameStarted && currentQuestionId !== null) {
-      // Zmieniamy turę tylko jeśli gracz odpowiedział (albo był timeout)
       if (selectedQuestions[currentQuestionId]) {
-        activeTeamIndex = (activeTeamIndex + 1) % teams.length;
-        saveGameState();
+        // Pytanie zostało odpowiedziane w tej turze
+        if (roundQuestionsAnswered >= questionsPerRound) {
+          // Koniec serii pytań dla drużyny -> Pokaż Podsumowanie Rundy!
+          showRoundSummary();
+          currentQuestionId = null;
+          return;
+        }
       }
     }
 
     currentQuestionId = null;
+    saveGameState();
+    updateStats();
+    renderGrid();
+  }
+
+  // ==========================================
+  // PODSUMOWANIE RUNDY & WYBÓR RĘCZNY DRUŻYNY
+  // ==========================================
+  function showRoundSummary() {
+    const activeTeam = teams[activeTeamIndex];
+    summaryTeamName.textContent = activeTeam.name;
+    summaryTeamName.style.color = activeTeam.color;
+    
+    summaryRoundScore.textContent = `${roundScores} / ${questionsPerRound}`;
+    const roundRatio = Math.round((roundScores / questionsPerRound) * 100);
+    summaryRoundRatio.textContent = `${roundRatio}%`;
+    summaryTotalScore.textContent = `${activeTeam.score} pkt`;
+
+    roundSummaryModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+
+  btnRoundSummaryNext.addEventListener('click', () => {
+    roundSummaryModal.classList.add('hidden');
+    openTeamSelector();
+  });
+
+  // Otwarcie okna ręcznego wyboru drużyny do kolejnej rundy
+  function openTeamSelector() {
+    teamSelectGrid.innerHTML = '';
+    
+    teams.forEach((team, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'team-select-btn';
+      btn.innerHTML = `
+        <span class="team-select-btn-dot" style="color: ${team.color}; background-color: ${team.color}"></span>
+        <span>${team.name} (Suma: ${team.score} pkt)</span>
+      `;
+      
+      btn.addEventListener('click', () => {
+        selectTeamForNextRound(idx);
+      });
+
+      teamSelectGrid.appendChild(btn);
+    });
+
+    teamSelectModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function selectTeamForNextRound(idx) {
+    activeTeamIndex = idx;
+    roundQuestionsAnswered = 0;
+    roundScores = 0;
+    saveGameState();
+
+    teamSelectModal.classList.add('hidden');
+    document.body.style.overflow = '';
+    
     updateStats();
     renderGrid();
   }
@@ -687,23 +842,22 @@ document.addEventListener('DOMContentLoaded', () => {
   function showResults() {
     clearInterval(timerInterval);
     questionModal.classList.add('hidden');
+    roundSummaryModal.classList.add('hidden');
+    teamSelectModal.classList.add('hidden');
     resultsModal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 
-    // Sortowanie drużyn (tryb rywalizacji) lub generowanie wyniku Solo
     let sortedRankings = [];
     if (gameMode === 'multi') {
       sortedRankings = [...teams].sort((a, b) => {
         if (b.score !== a.score) {
-          return b.score - a.score; // sortowanie po punktach
+          return b.score - a.score;
         }
-        // w przypadku remisu, sortuj po skuteczności
         const accA = a.answeredCount > 0 ? a.score / a.answeredCount : 0;
         const accB = b.answeredCount > 0 ? b.score / b.answeredCount : 0;
         return accB - accA;
       });
     } else {
-      // Tryb Solo symulowany jako "Gracz Solo" do tabeli wyników
       let correctCount = 0;
       Object.keys(selectedQuestions).forEach(key => {
         if (selectedQuestions[key].correct) correctCount++;
@@ -720,11 +874,10 @@ document.addEventListener('DOMContentLoaded', () => {
     resultsPodium.innerHTML = '';
     
     const podiumOrder = []; // [2nd, 1st, 3rd]
-    if (sortedRankings.length >= 2) podiumOrder.push({ team: sortedRankings[1], rank: '2nd' }); // 2. miejsce
-    if (sortedRankings.length >= 1) podiumOrder.push({ team: sortedRankings[0], rank: '1st' }); // 1. miejsce
-    if (sortedRankings.length >= 3) podiumOrder.push({ team: sortedRankings[2], rank: '3rd' }); // 3. miejsce
+    if (sortedRankings.length >= 2) podiumOrder.push({ team: sortedRankings[1], rank: '2nd' });
+    if (sortedRankings.length >= 1) podiumOrder.push({ team: sortedRankings[0], rank: '1st' });
+    if (sortedRankings.length >= 3) podiumOrder.push({ team: sortedRankings[2], rank: '3rd' });
 
-    // Jeśli gra Solo, renderujemy tylko 1 kolumnę (1st)
     if (gameMode === 'solo') {
       podiumOrder.length = 0;
       podiumOrder.push({ team: sortedRankings[0], rank: '1st' });
@@ -747,7 +900,7 @@ document.addEventListener('DOMContentLoaded', () => {
       resultsPodium.appendChild(col);
     });
 
-    // 2. Renderowanie tabeli szczegółowej
+    // 2. Tabela klasyfikacji
     resultsTableBody.innerHTML = '';
     sortedRankings.forEach((team, idx) => {
       const row = document.createElement('tr');
@@ -767,23 +920,29 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function restartGameFromResults() {
-    // Pełen reset stanu
+    // Reset gry
     localStorage.removeItem('sports_quiz_selected');
     localStorage.removeItem('sports_quiz_game_started');
     localStorage.removeItem('sports_quiz_game_mode');
     localStorage.removeItem('sports_quiz_teams');
     localStorage.removeItem('sports_quiz_active_team_index');
+    localStorage.removeItem('sports_quiz_questions_per_round');
+    localStorage.removeItem('sports_quiz_round_questions_answered');
+    localStorage.removeItem('sports_quiz_round_scores');
     
     selectedQuestions = {};
     teams = [];
     activeTeamIndex = 0;
+    questionsPerRound = 10;
+    roundQuestionsAnswered = 0;
+    roundScores = 0;
     gameStarted = false;
     
     resultsModal.classList.add('hidden');
     lobbyModal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 
-    // Przywrócenie domyślnych wartości w Lobby
+    // Reset Lobby UI
     tempGameMode = 'solo';
     tabSolo.classList.add('active');
     tabMulti.classList.remove('active');
@@ -844,7 +1003,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // End Game Button
+  // End Game
   btnEndGame.addEventListener('click', () => {
     showResults();
   });
@@ -883,6 +1042,8 @@ document.addEventListener('DOMContentLoaded', () => {
         team.answeredCount = 0;
       });
       activeTeamIndex = 0;
+      roundQuestionsAnswered = 0;
+      roundScores = 0;
     }
     saveGameState();
     updateStats();

@@ -59,8 +59,13 @@
       </div>
 
       <!-- Multiplayer Team Stats Container -->
-      <div id="stats-teams-container" class="stats-teams-grid hidden">
-        <!-- Will be dynamically filled with team cards -->
+      <div id="stats-teams-wrapper" class="stats-teams-wrapper hidden">
+        <div id="round-info-bar" class="round-info-bar">
+          Runda drużyny: <span id="round-active-team" class="round-active-team-span">Nazwa</span> — Pytanie <span id="round-current-question">0</span> z <span id="round-total-questions">10</span>
+        </div>
+        <div id="stats-teams-container" class="stats-teams-grid">
+          <!-- Will be dynamically filled with team cards -->
+        </div>
       </div>
 
       <div class="stat-actions">
@@ -235,7 +240,19 @@
 
       <!-- Multiplayer Mode Setup -->
       <div id="lobby-setup-multi" class="lobby-setup-section hidden">
-        <p class="lobby-description">Rywalizacja turowa dla 2 do 10 drużyn/graczy. Wpisz nazwy drużyn, które wezmą udział w grze:</p>
+        <div class="lobby-field-group">
+          <label for="round-questions-select" class="lobby-field-label">Pytania w rundzie na drużynę:</label>
+          <div class="lobby-select-wrapper">
+            <select id="round-questions-select" class="lobby-select">
+              <option value="5">5 pytań</option>
+              <option value="10" selected>10 pytań</option>
+              <option value="15">15 pytań</option>
+              <option value="20">20 pytań</option>
+            </select>
+          </div>
+        </div>
+
+        <p class="lobby-description" style="margin-top: 15px; text-align: left;">Wpisz nazwy drużyn, które wezmą udział w grze:</p>
         
         <div class="teams-setup-list" id="teams-setup-list">
           <!-- Dynamically filled with team inputs -->
@@ -293,6 +310,69 @@
       
       <div class="results-footer">
         <button id="btn-results-restart" class="btn btn-primary">Zagraj Ponownie / Nowa Gra</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Round Summary Modal -->
+  <div id="round-summary-modal" class="modal-overlay hidden">
+    <div class="modal-content glass-panel round-summary-content animate-zoom">
+      <div class="round-summary-header">
+        <span class="summary-crown">🏁</span>
+        <h2>Podsumowanie Rundy!</h2>
+        <p>Drużyna <span id="summary-team-name" class="highlight-text">Nazwa</span> zakończyła swoją serię pytań.</p>
+      </div>
+      
+      <div class="round-stats-display">
+        <div class="round-stat-item">
+          <span class="round-stat-label">Wynik tej rundy</span>
+          <span id="summary-round-score" class="round-stat-val text-cyan">0 / 10</span>
+        </div>
+        <div class="round-stat-item">
+          <span class="round-stat-label">Skuteczność rundy</span>
+          <span id="summary-round-ratio" class="round-stat-val text-success">0%</span>
+        </div>
+        <div class="round-stat-item">
+          <span class="round-stat-label">Łączny wynik gry</span>
+          <span id="summary-total-score" class="round-stat-val text-purple">0 pkt</span>
+        </div>
+      </div>
+
+      <div class="round-summary-footer">
+        <button id="btn-round-summary-next" class="btn btn-primary">Wybierz kolejną drużynę</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Manual Team Selection Modal -->
+  <div id="team-select-modal" class="modal-overlay hidden">
+    <div class="modal-content glass-panel team-select-content animate-zoom">
+      <div class="team-select-header">
+        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        <h2>Kto gra następny?</h2>
+        <p>Wybierz ręcznie drużynę, która rozpocznie kolejną rundę:</p>
+      </div>
+      
+      <div class="team-select-grid" id="team-select-grid">
+        <!-- Dynamically generated team selection buttons -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Team Switch Modal -->
+  <div id="confirm-team-switch-modal" class="modal-overlay hidden">
+    <div class="modal-content glass-panel animate-zoom confirm-switch-content">
+      <h2>Zmień aktywną drużynę</h2>
+      <p>Czy chcesz przerwać obecną rundę i ręcznie przełączyć turę na drużynę <span id="confirm-switch-team-name" class="highlight-text">Nazwa</span>?</p>
+      <p class="alert-subtext">Postęp rundy obecnej drużyny zostanie zresetowany do 0 pytań.</p>
+      <div class="confirm-switch-actions">
+        <button id="btn-confirm-switch-cancel" class="btn btn-secondary">Anuluj</button>
+        <button id="btn-confirm-switch-ok" class="btn btn-danger">Tak, zmień drużynę</button>
       </div>
     </div>
   </div>
