@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSO Royal Dispatcher Unified</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script type="text/javascript" src="/eel.js"></script>
+</head>
+<body>
+    <div class="main-window">
+        <!-- FRAME -->
+        <div class="frame-top"></div>
+        <div class="frame-bottom"></div>
+        <div class="frame-left"></div>
+        <div class="frame-right"></div>
+        
+        <!-- CONTENT -->
+        <div class="parchment">
+            <header>
+                <h1>🏰 Królewski Zarządca v3.0</h1>
+                <div class="status-bar" id="statusLine">Przygotuj Menu Gwiazdy (Ekipa)</div>
+            </header>
+
+            <nav class="tab-nav">
+                <button id="tabExplorer" class="tab-btn active">🧭 ODKRYWCY</button>
+                <button id="tabGeologist" class="tab-btn">💎 GEOLODZY</button>
+            </nav>
+
+            <div class="bulk-actions">
+                <select id="bulkTaskSelect" class="btn-royal">
+                    <!-- Options injected by JS based on tab -->
+                </select>
+                <button id="btnSetAllTasks" class="btn-royal small">USTAW WSZYSTKIM</button>
+                <button id="btnSelectAll" class="btn-royal small">ZAZNACZ WSZYSTKICH</button>
+                <label class="turbo-toggle btn-royal small">
+                    <input type="checkbox" id="chkTurbo">
+                    <span>TURBO ⚡</span>
+                </label>
+            </div>
+
+            <main>
+                <div class="explorer-grid" id="unitGrid">
+                    <!-- Cards will be injected by JS -->
+                </div>
+
+                <div class="controls-panel">
+                    <button id="btnStart" class="btn-royal green">START & MINIMIZE</button>
+                    <button id="btnStop" class="btn-royal red" disabled>STOP</button>
+                    <div class="shortcut-hint">Awaryjne zatrzymanie: ESC</div>
+                </div>
+
+                <div class="calibration-section">
+                    <button id="toggleCalib" class="btn-royal gold-trimmed">
+                        ⚙️ Ustawienia Zaawansowane (Opóźnienie)
+                    </button>
+                    
+                    <div id="calibContent" class="calibration-panel collapsed">
+                        <div class="slider-group">
+                            <div class="slider-row">
+                                <span>Czas oczekiwania (lag): <strong id="valLag">0.5</strong>s</span>
+                                <input type="range" id="lagBuffer" min="0.5" max="10.0" step="0.5" value="0.5">
+                                <p class="hint">Czas przerwy przed kolejnym wysłaniem (bufor na lag serwera).</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- SETTINGS MODAL -->
+    <div id="settingsModal" class="modal" style="display:none;">
+        <div class="modal-parchment">
+             <h2 id="modalTitle">⚙️ Ustawienia Misji</h2>
+             <p>Wybierz co ma robić ten specjalista:</p>
+             <select id="taskSelect">
+                 <!-- Injected by JS -->
+             </select>
+             <button id="saveTask" class="btn-royal">ZAPISZ</button>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

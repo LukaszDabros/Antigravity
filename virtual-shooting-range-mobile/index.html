@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Laser Range Mobile</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    
+    <!-- PWA / Mobile Meta -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#00f3ff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body>
+    <div id="app">
+        <!-- Wideo + canvas w tle -->
+        <div class="video-container">
+            <video id="camera-feed" autoplay playsinline muted></video>
+            <canvas id="detection-canvas"></canvas>
+            <canvas id="ui-canvas"></canvas>
+        </div>
+
+        <!-- ==================== HUD ==================== -->
+        <div id="hud">
+
+            <!-- GÓRA: Rząd graczy + ikona ustawień -->
+            <div id="players-row">
+                <div id="players-list">
+                    <button class="player-btn active" data-id="0">1. G</button>
+                    <button class="player-btn" data-id="1">2. G</button>
+                    <button class="player-btn" data-id="2">3. G</button>
+                    <button class="player-btn" data-id="3">4. G</button>
+                    <button class="player-btn" data-id="4">5. G</button>
+                </div>
+                <button id="settings-open-btn" class="icon-btn" title="Ustawienia">⚙</button>
+            </div>
+
+            <!-- Statystyki -->
+            <div id="stats-row">
+                <div class="stat-box" id="mode-display-box">
+                    <span class="stat-label">TRYB</span>
+                    <span id="mode-val" class="stat-value">FREE</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">PUNKTY</span>
+                    <span id="score-val" class="stat-value">0</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">OSTATNI</span>
+                    <span id="last-val" class="stat-value">—</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">ŚREDNIA</span>
+                    <span id="avg-val" class="stat-value">0.0</span>
+                </div>
+            </div>
+
+            <!-- Nowy rząd postępu session -->
+            <div id="progress-row">
+                <div class="progress-item" id="series-progress-box">
+                    <span class="stat-label">SERIA</span>
+                    <span id="series-val" class="stat-value">1 / 5</span>
+                </div>
+                <div class="progress-item">
+                    <span class="stat-label">STRZAŁ</span>
+                    <span id="shot-count-val" class="stat-value">0 / 10</span>
+                </div>
+            </div>
+
+            <!-- Stoper na górze dla trybu Speed -->
+            <div id="speed-timer-display" style="display:none; text-align:center; width:100%; margin-top:15px; font-size:4rem; font-family:'JetBrains Mono', monospace; font-weight:900; color:var(--military-khaki); text-shadow:0 0 15px rgba(138,154,91,0.5); pointer-events:none;">
+                30.0
+            </div>
+
+        </div><!-- /#hud -->
+
+        <!-- BOK: Pionowy Zoom (oddzielnie od HUD, absolute) -->
+        <div id="side-controls">
+            <button id="zoom-in" class="zoom-btn">+</button>
+            <span class="zoom-label">ZOOM</span>
+            <button id="zoom-out" class="zoom-btn">−</button>
+        </div>
+
+        <!-- DÓŁ: Przyciski akcji (absolute, bottom) -->
+        <div id="bottom-bar">
+            <button id="reset-session-btn" class="action-btn danger">↺ RESET</button>
+            <button id="finish-series-btn" class="action-btn secondary">🎯 ZAKOŃCZ SERIĘ</button>
+            <button id="start-session-btn" class="action-btn primary">▶ START SESJA</button>
+        </div>
+
+        <!-- ==================== PANELE ==================== -->
+
+        <!-- Panel Ustawień -->
+        <div id="settings-modal" class="overlay">
+            <div class="overlay-content settings-card">
+                <button id="settings-close-btn" class="close-btn">✕</button>
+                <h2>⚙ USTAWIENIA</h2>
+
+                <div class="settings-group">
+                    <label>SESJA I RANKING</label>
+                    <div style="display:flex; align-items:center; gap:10px; margin-top:5px;">
+                        <span style="font-size:0.8rem;opacity:0.7">Serie na sesję:</span>
+                        <input type="number" id="target-series-input" value="5" min="1" max="20" style="width:60px; padding:8px; background:rgba(255,255,255,0.08); border:1px solid var(--neon-blue); color:white; border-radius:5px; text-align:center; font-family:'JetBrains Mono',monospace;">
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <label>RODZAJ SESJI (SOLO/MULTI)</label>
+                    <div class="mode-toggle-row">
+                        <button id="solo-mode-btn" class="toggle-btn">SOLO</button>
+                        <button id="multi-mode-btn" class="toggle-btn active">GRUPA</button>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <label>TRYB TRENINGU</label>
+                    <div class="mode-toggle-row" style="margin-bottom:8px">
+                        <button id="set-mode-free" class="toggle-btn active">FREE</button>
+                        <button id="set-mode-prec" class="toggle-btn">PRECISION</button>
+                        <button id="set-mode-speed" class="toggle-btn">SPEED</button>
+                    </div>
+                    <div id="speed-settings" style="display:none; align-items:center; gap:10px; margin-top:5px;">
+                        <span style="font-size:0.8rem;opacity:0.7">Czas (sekundy):</span>
+                        <input type="number" id="speed-time-input" value="30" min="5" max="300" style="width:70px; padding:8px; background:rgba(255,255,255,0.08); border:1px solid var(--military-sand); color:white; border-radius:5px; text-align:center; font-family:'JetBrains Mono',monospace;">
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <label>NAZWY ZAWODNIKÓW</label>
+                    <div id="names-inputs">
+                        <input type="text" data-id="0" class="name-input" placeholder="Gracz 1">
+                        <input type="text" data-id="1" class="name-input" placeholder="Gracz 2">
+                        <input type="text" data-id="2" class="name-input" placeholder="Gracz 3">
+                        <input type="text" data-id="3" class="name-input" placeholder="Gracz 4">
+                        <input type="text" data-id="4" class="name-input" placeholder="Gracz 5">
+                    </div>
+                    <button id="apply-players-btn" class="action-btn primary" style="width:100%; margin-top:10px; padding:10px;">✓ ZATWIERDŹ GRACZY</button>
+                </div>
+
+                <div class="settings-group">
+                    <label>KALIBRACJA TARCZY</label>
+                    <button id="auto-calib-btn" class="action-btn primary" style="width:100%;margin-bottom:8px">🤖 AUTO KALIBRACJA</button>
+                    <button id="calibrate-btn" class="action-btn" style="width:100%;margin-bottom:12px">✏️ RĘCZNA (4 rogi)</button>
+                    
+                    <label>CZUŁOŚĆ LASERA (JASNOŚĆ)</label>
+                    <div style="display:flex; align-items:center; gap:10px; margin-top:5px;">
+                        <input type="range" id="sensitivity-slider" min="100" max="255" value="230" style="flex:1">
+                        <span id="sensitivity-val" style="width:40px; text-align:right; font-family:'JetBrains Mono',monospace;">230</span>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <label>RESET</label>
+                    <button id="full-reset-btn" class="action-btn danger" style="width:100%">⚠️ RESET WSZYSTKIEGO</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Odliczanie -->
+        <div id="session-countdown" class="overlay">
+            <div class="huge-text">READY?</div>
+        </div>
+
+        <!-- Wyniki -->
+        <div id="result-modal" class="overlay">
+            <div class="overlay-content result-card">
+                <h2>WYNIKI</h2>
+                <div class="result-stats" id="res-list"></div>
+                <button id="close-result" class="action-btn primary" style="width:100%;margin-top:15px">DALEJ →</button>
+            </div>
+        </div>
+
+        <!-- Zmiana gracza (kolejna seria) popup -->
+        <div id="next-player-modal" class="overlay">
+            <div class="overlay-content result-card" style="text-align:center">
+                <h2 id="next-player-title" style="color:var(--military-sand); font-size:1.6rem; margin-bottom: 5px;">KOLEJ GRACZA X</h2>
+                <p id="next-player-desc" style="font-size:1.1rem; opacity: 0.8; margin-bottom: 25px;">Seria Y</p>
+                <div style="font-size:3.5rem; margin-bottom:20px;">👉</div>
+                <button id="start-next-player-btn" class="action-btn primary" style="width:100%; font-size:1.1rem; padding: 14px">▶ ODKLIKNIJ ABY ZACZĄĆ</button>
+            </div>
+        </div>
+
+        <!-- Kalibracja -->
+        <div id="calibration-overlay" class="overlay">
+            <div class="overlay-content">
+                <h1>📐 KALIBRACJA</h1>
+                <p>Stuknij 4 rogi tarczy:<br>LG → PG → PD → LD</p>
+                <div class="progress-dots">
+                    <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Auto-Kalibracja overlay (podgląd z możliwością korekty) -->
+        <div id="auto-calib-overlay" class="overlay">
+            <!-- Uchwyty rógów (renderowane przez JS) -->
+            <div id="corner-handles"></div>
+
+            <!-- Panel statusu na dole -->
+            <div id="auto-calib-panel">
+                <p id="auto-calib-status">&#x1F50D; Szukam tarczy&#x2026;</p>
+                <div class="auto-calib-row">
+                    <button id="auto-calib-retry" class="action-btn">&#x1F504; PONOWNIE</button>
+                    <button id="auto-calib-confirm" class="action-btn primary">&#x2713; ZATWIERDŻ</button>
+                </div>
+                <button id="auto-calib-manual" class="action-btn" style="width:100%;margin-top:8px;font-size:0.8rem">&#x270F;&#xFE0F; Przełącz na ręczną</button>
+            </div>
+        </div>
+        
+        <!-- Magnifier w czasie kalibracji -->
+        <div id="magnifier">
+            <canvas id="magnifier-canvas"></canvas>
+            <div class="magnifier-cross"></div>
+        </div>
+
+        <!-- Audio -->
+        <audio id="shot-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-gunshot-731.mp3" preload="auto"></audio>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

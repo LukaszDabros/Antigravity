@@ -1,3 +1,10 @@
+node_modules/
+.env
+__pycache__/
+*.pyc
+.DS_Store
+encrypt.js
+encrypt.py
 .system_generated/
 implementation_plan.md
 task.md

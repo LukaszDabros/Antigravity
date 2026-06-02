@@ -1,0 +1,64 @@
+<?php
+// add_presentation.php
+require 'config.php';
+
+header('Content-Type: application/json');
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+// Handle both JSON and multipart/form-data
+$password = $_POST['password'] ?? null;
+$title = $_POST['title'] ?? null;
+$url = $_POST['url'] ?? null;
+$category = $_POST['category'] ?? null;
+$thumbnail_url = $_POST['thumbnail_url'] ?? null;
+
+if (!$password) {
+    $json = json_decode(file_get_contents('php://input'), true);
+    $password = $json['password'] ?? null;
+    $title = $json['title'] ?? null;
+    $url = $json['url'] ?? null;
+    $category = $json['category'] ?? null;
+    $thumbnail_url = $json['thumbnail_url'] ?? null;
+}
+
+if ($password !== $admin_password) {
+    http_response_code(401);
+    echo json_encode(['error' => 'Unauthorized']);
+    exit();
+}
+
+if (!$title || !$url || !$category) {
+    http_response_code(400);
+    echo json_encode(['error' => 'Missing fields']);
+    exit();
+}
+
+// Handle Thumbnail Upload
+if (isset($_FILES['thumbnail_file']) && $_FILES['thumbnail_file']['error'] === UPLOAD_ERR_OK) {
+    $upload_dir = 'uploads/thumbnails/';
+    if (!is_dir($upload_dir))
+        mkdir($upload_dir, 0777, true);
+
+    $file_ext = pathinfo($_FILES['thumbnail_file']['name'], PATHINFO_EXTENSION);
+    $file_name = uniqid('thumb_') . '.' . $file_ext;
+    $target_path = $upload_dir . $file_name;
+
+    if (move_uploaded_file($_FILES['thumbnail_file']['tmp_name'], $target_path)) {
+        $thumbnail_url = 'api/' . $target_path;
+    }
+}
+
+try {
+    $stmt = $pdo->prepare("INSERT INTO presentations (title, url, thumbnail_url, category) VALUES (?, ?, ?, ?)");
+    $stmt->execute([$title, $url, $thumbnail_url, $category]);
+    echo json_encode(['success' => true, 'id' => $pdo->lastInsertId()]);
+}
+catch (PDOException $e) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
+}
+?>

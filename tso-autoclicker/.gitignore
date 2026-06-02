@@ -1,0 +1,18 @@
+# Ignoruj wirtualne środowisko Pythona
+venv/
+env/
+.env
+
+# Ignoruj pliki pamięci podręcznej i pliki pośrednie
+__pycache__/
+*.pyc
+
+# Ignoruj pliki logów (jeśli zostaną dodane)
+*.log
+debug_log.txt
+
+# Ignoruj tymczasowe skrypty testowe i katalog scratch
+debug_x.py
+test_close_x.py
+scratch/
+

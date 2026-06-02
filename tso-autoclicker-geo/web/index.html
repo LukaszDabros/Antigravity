@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSO Royal Auto-Geologist</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script type="text/javascript" src="/eel.js"></script>
+</head>
+<body>
+    <div class="main-window">
+        <!-- FRAME -->
+        <div class="frame-top"></div>
+        <div class="frame-bottom"></div>
+        <div class="frame-left"></div>
+        <div class="frame-right"></div>
+        
+        <!-- CONTENT -->
+        <div class="parchment">
+            <header>
+                <h1>💎 Królewski Geolog v2.0</h1>
+                <div class="status-bar" id="statusLine">Przygotuj Menu Gwiazdy (zakładka Ekipa)</div>
+            </header>
+
+            <div class="bulk-actions">
+                <select id="bulkTaskSelect" class="btn-royal">
+                    <option value="stone">Kamień</option>
+                    <option value="copper">Miedź</option>
+                    <option value="marble">Marmur</option>
+                    <option value="iron">Żelazo</option>
+                    <option value="coal">Węgiel</option>
+                    <option value="gold">Złoto</option>
+                    <option value="titanium">Tytan</option>
+                    <option value="saltpeter">Saletra</option>
+                    <option value="granite">Granit</option>
+                </select>
+                <button id="btnSetAllTasks" class="btn-royal small">USTAW WSZYSTKIM</button>
+                <button id="btnSelectAll" class="btn-royal small">ZAZNACZ WSZYSTKICH</button>
+                <label class="turbo-toggle btn-royal small">
+                    <input type="checkbox" id="chkTurbo">
+                    <span>TURBO ⚡</span>
+                </label>
+            </div>
+
+            <main>
+                <div class="explorer-grid" id="explorerGrid">
+                    <!-- Cards will be injected by JS -->
+                </div>
+
+                <div class="controls-panel">
+                    <button id="btnStart" class="btn-royal green">START & MINIMIZE</button>
+                    <button id="btnStop" class="btn-royal red" disabled>STOP</button>
+                    <div class="shortcut-hint">Awaryjne zatrzymanie: ESC</div>
+                </div>
+
+                <div class="calibration-section">
+                    <button id="toggleCalib" class="btn-royal gold-trimmed">
+                        ⚙️ Ustawienia Zaawansowane (Opóźnienie)
+                    </button>
+                    
+                    <div id="calibContent" class="calibration-panel collapsed">
+                        <div class="slider-group">
+                            <div class="slider-row">
+                                <span>Czas oczekiwania: <strong id="valLag">4.0</strong>s</span>
+                                <input type="range" id="lagBuffer" min="1.0" max="10.0" step="0.5" value="4.0">
+                                <p class="hint">Czas przerwy przed wysłaniem kolejnego geologa (lag serwera).</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- SETTINGS MODAL -->
+    <div id="settingsModal" class="modal" style="display:none;">
+        <div class="modal-parchment">
+             <h2>⚙️ Ustawienia Geologa</h2>
+             <p>Wybierz surowiec:</p>
+             <select id="taskSelect">
+                 <option value="stone">Kamień</option>
+                 <option value="copper">Miedź</option>
+                 <option value="marble">Marmur</option>
+                 <option value="iron">Żelazo</option>
+                 <option value="coal">Węgiel</option>
+                 <option value="gold">Złoto</option>
+                 <option value="titanium">Tytan</option>
+                 <option value="saltpeter">Saletra</option>
+                 <option value="granite">Granit</option>
+             </select>
+             <button id="saveTask" class="btn-royal">ZAPISZ</button>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
