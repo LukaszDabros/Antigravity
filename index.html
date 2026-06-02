@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Polski Quiz Sportowy - 100 Pytań</title>
+  <!-- Google Fonts: Outfit for titles, Inter for body -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <div class="app-container">
+    <header class="app-header">
+      <div class="header-logo">
+        <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+          <path d="M2 12h20"></path>
+        </svg>
+        <h1>POLSKI QUIZ SPORTOWY</h1>
+      </div>
+      <p class="header-subtitle">Wielka tablica 100 pytań. Wybierz pytanie, odpowiedz i zablokuj je dla innych!</p>
+    </header>
+
+    <!-- Stats Dashboard -->
+    <section class="dashboard-stats glass-panel">
+      <div class="stat-card">
+        <span class="stat-label">Rozegrano</span>
+        <div class="stat-value-group">
+          <span id="stat-answered" class="stat-number">0</span>
+          <span class="stat-total">/ 100</span>
+        </div>
+        <div class="progress-bar-container">
+          <div id="progress-fill" class="progress-bar-fill" style="width: 0%"></div>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <span class="stat-label">Poprawne</span>
+        <span id="stat-correct" class="stat-number text-success">0</span>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">Błędne</span>
+        <span id="stat-incorrect" class="stat-number text-danger">0</span>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">Skuteczność</span>
+        <span id="stat-ratio" class="stat-number text-cyan">0%</span>
+      </div>
+
+      <div class="stat-actions">
+        <button id="btn-reset" class="btn btn-secondary" title="Resetuj stan gry">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+          </svg>
+          Resetuj Quiz
+        </button>
+      </div>
+    </section>
+
+    <!-- Filters and Search -->
+    <section class="filters-panel glass-panel">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="search-input" placeholder="Wyszukaj pytanie (np. Małysz, piłka, spalony)...">
+      </div>
+
+      <div class="filter-groups">
+        <div class="filter-group">
+          <label>Kategoria:</label>
+          <div class="filter-options" id="category-filters">
+            <button class="filter-btn active" data-category="all">Wszystkie</button>
+            <button class="filter-btn" data-category="historia">Historia</button>
+            <button class="filter-btn" data-category="przepisy">Przepisy</button>
+            <button class="filter-btn" data-category="wyniki">Wyniki</button>
+            <button class="filter-btn" data-category="olimpijczycy">Olimpijczycy</button>
+            <button class="filter-btn" data-category="ogolne">Ogólne</button>
+          </div>
+        </div>
+
+
+        <div class="filter-group">
+          <label>Status:</label>
+          <div class="filter-options" id="status-filters">
+            <button class="filter-btn active" data-status="all">Wszystkie</button>
+            <button class="filter-btn" data-status="available">Dostępne</button>
+            <button class="filter-btn" data-status="disabled">Zablokowane</button>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label for="timer-select">Limit na pytanie:</label>
+          <div class="timer-select-wrapper">
+            <select id="timer-select" class="timer-select">
+              <option value="0">Brak limitu</option>
+              <option value="10">10 sekund</option>
+              <option value="15">15 sekund</option>
+              <option value="30" selected>30 sekund</option>
+              <option value="45">45 sekund</option>
+              <option value="60">60 sekund</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Questions Grid -->
+    <main class="grid-container">
+      <div id="questions-grid" class="questions-grid">
+        <!-- Cards will be dynamically generated by JS -->
+      </div>
+      <div id="no-results" class="no-results hidden">
+        <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <p>Brak pytań spełniających wybrane kryteria wyszukiwania i filtrów.</p>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer-info">
+      <p>&copy; 2026 Polski Quiz Sportowy. Wykonano w oparciu o Vanilla HTML/CSS/JS.</p>
+    </footer>
+  </div>
+
+  <!-- Answer Question Modal -->
+  <div id="question-modal" class="modal-overlay hidden">
+    <div class="modal-content glass-panel animate-zoom">
+      <div id="modal-timer-container" class="modal-timer-container hidden">
+        <div id="modal-timer-bar" class="modal-timer-bar"></div>
+      </div>
+      <div class="modal-header">
+        <div class="modal-meta">
+          <span id="modal-category" class="category-badge">Kategoria</span>
+          <span id="modal-timer-text" class="timer-text-badge hidden">30s</span>
+        </div>
+        <button id="modal-close-x" class="modal-close-btn" aria-label="Zamknij">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-question-number">Pytanie <span id="modal-question-id">1</span></div>
+        <h2 id="modal-question-text" class="modal-question-title">Treść pytania sportowego...</h2>
+        
+        <div id="options-container" class="options-grid">
+          <!-- Options will be generated here -->
+        </div>
+
+        <div id="explanation-container" class="explanation-box hidden">
+          <div class="explanation-title-row">
+            <svg id="explanation-icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <!-- Dynamically changed -->
+            </svg>
+            <h3 id="explanation-status-text">Status odpowiedzi</h3>
+          </div>
+          <p id="explanation-text">Wyjaśnienie odpowiedzi...</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-modal-close" class="btn btn-primary hidden">Dalej (Zablokuj Pytanie)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reset Confirmation Modal -->
+  <div id="reset-modal" class="modal-overlay hidden">
+    <div class="modal-content glass-panel animate-zoom reset-confirm-content">
+      <h2>Czy na pewno chcesz zresetować quiz?</h2>
+      <p>Spowoduje to wyzerowanie wyników oraz odblokowanie wszystkich 100 pytań na tablicy. Tego kroku nie można cofnąć.</p>
+      <div class="reset-confirm-actions">
+        <button id="btn-reset-cancel" class="btn btn-secondary">Anuluj</button>
+        <button id="btn-reset-confirm" class="btn btn-danger">Tak, resetuj wszystko</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sound assets or effects can be simulated or handled in JS -->
+  <script src="questions.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
