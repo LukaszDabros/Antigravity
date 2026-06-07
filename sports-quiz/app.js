@@ -642,8 +642,10 @@ document.addEventListener('DOMContentLoaded', () => {
       modalActiveTeamRow.classList.add('hidden');
     }
 
-    explanationContainer.classList.add('hidden');
-    explanationContainer.className = 'explanation-box';
+    explanationContainer.className = 'explanation-box hidden';
+    explanationStatusText.textContent = '';
+    explanationText.textContent = '';
+    explanationIcon.innerHTML = '';
     btnModalClose.classList.add('hidden');
 
     optionsContainer.innerHTML = '';
