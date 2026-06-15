@@ -1,87 +1,266 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dzień Sportu - Harmonogram rozgrywek</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dzień Sportu 2025 - Harmonogram Rozgrywek</title>
+  <meta name="description" content="Interaktywny harmonogram rozgrywek sportowych na Dzień Sportu Liceum Ogólnokształcącego Sióstr Prezentek 2025. Śledź mecze siatkówki, koszykówki i piłki nożnej.">
+  
+  <!-- Google Fonts: Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome for Premium Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-    <div class="background-effect"></div>
-    <div class="container">
-        <header>
-            <div class="badge">Wydarzenie Szkolne</div>
-            <h1>🏆 Dzień Sportu 2026</h1>
-            <p>Oficjalny harmonogram dzisiejszych rozgrywek i konkurencji. Bądź na czas!</p>
-        </header>
+<body class="dark-theme">
+  <!-- Dynamic Gradient Background Circles -->
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+  <div class="bg-glow bg-glow-3"></div>
 
-        <main class="timeline">
-            <!-- Wydarzenie 1 -->
-            <div class="event-card">
-                <div class="time-block">
-                    <span class="time">09:00</span>
-                    <span class="duration">45 min</span>
-                </div>
-                <div class="event-info">
-                    <h3>Ceremonia Otwarcia i Rozgrzewka</h3>
-                    <p>Zbiórka wszystkich uczestników na głównym boisku. Wspólna rozgrzewka prowadzona przez trenerów.</p>
-                    <span class="tag">Wszyscy</span>
-                </div>
-            </div>
-
-            <!-- Wydarzenie 2 -->
-            <div class="event-card">
-                <div class="time-block">
-                    <span class="time">10:00</span>
-                    <span class="duration">2 godz</span>
-                </div>
-                <div class="event-info">
-                    <h3>Turniej Piłki Nożnej (Faza Grupowa)</h3>
-                    <p>Rozgrywki międzyklasowe na boiskach orlik nr 1 i 2.</p>
-                    <span class="tag tag-soccer">⚽ Piłka nożna</span>
-                </div>
-            </div>
-
-            <!-- Wydarzenie 3 -->
-            <div class="event-card">
-                <div class="time-block">
-                    <span class="time">12:30</span>
-                    <span class="duration">1 godz</span>
-                </div>
-                <div class="event-info">
-                    <h3>Przerwa na Regenerację</h3>
-                    <p>Woda, owoce i przekąski dostępne w strefie gastronomicznej przy trybunach.</p>
-                    <span class="tag tag-break">🍎 Przerwa</span>
-                </div>
-            </div>
-
-            <!-- Wydarzenie 4 -->
-            <div class="event-card">
-                <div class="time-block">
-                    <span class="time">13:30</span>
-                    <span class="duration">1.5 godz</span>
-                </div>
-                <div class="event-info">
-                    <h3>Siatkówka Plażowa - Finały</h3>
-                    <p>Mecze finałowe na piaszczystym boisku za szkołą. Emocje gwarantowane!</p>
-                    <span class="tag tag-volleyball">🏐 Siatkówka</span>
-                </div>
-            </div>
-
-            <!-- Wydarzenie 5 -->
-            <div class="event-card">
-                <div class="time-block">
-                    <span class="time">15:30</span>
-                    <span class="duration">30 min</span>
-                </div>
-                <div class="event-info">
-                    <h3>Rozdanie Nagród i Zakończenie</h3>
-                    <p>Wręczenie pucharów, medali oraz dyplomów dla najlepszych zawodników i drużyn.</p>
-                    <span class="tag">Wszyscy</span>
-                </div>
-            </div>
-        </main>
+  <!-- Header Section -->
+  <header class="app-header">
+    <div class="container header-container">
+      <div class="logo-wrapper">
+        <div class="logo-icon">
+          <i class="fa-solid fa-trophy"></i>
+        </div>
+        <div class="logo-text">
+          <h1>Dzień Sportu</h1>
+          <p class="subtitle">Liceum Sióstr Prezentek 2025</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="theme-toggle-btn" class="icon-btn" title="Przełącz motyw" aria-label="Przełącz motyw">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        <button id="referee-login-btn" class="icon-btn text-btn" title="Panel sędziego (zablokowany)" aria-label="Panel sędziego">
+          <i class="fa-solid fa-lock"></i> <span id="referee-btn-text">Sędzia</span>
+        </button>
+        <button id="reset-data-btn" class="icon-btn text-btn" title="Resetuj wyniki" aria-label="Resetuj wyniki">
+          <i class="fa-solid fa-rotate-left"></i> <span>Resetuj</span>
+        </button>
+      </div>
     </div>
+  </header>
+
+  <!-- Quick Stats / Next Up Banner -->
+  <section class="banner-section container">
+    <div class="live-banner glass-card">
+      <div class="banner-status">
+        <span class="pulse-dot"></span>
+        <span class="status-label">NA ŻYWO / NASTĘPNE</span>
+      </div>
+      <div id="next-up-container" class="banner-match-scroll">
+        <!-- Next match preview injected here -->
+        Ładowanie meczów...
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Navigation Tabs -->
+  <nav class="main-nav container" aria-label="Główne menu">
+    <ul class="nav-tabs" role="tablist">
+      <li role="presentation">
+        <button id="tab-timeline" class="nav-tab-btn active" role="tab" aria-selected="true" aria-controls="panel-timeline">
+          <i class="fa-solid fa-clock"></i>
+          <span>Harmonogram</span>
+        </button>
+      </li>
+      <li role="presentation">
+        <button id="tab-sports" class="nav-tab-btn" role="tab" aria-selected="false" aria-controls="panel-sports">
+          <i class="fa-solid fa-circle-play"></i>
+          <span>Dyscypliny</span>
+        </button>
+      </li>
+      <li role="presentation">
+        <button id="tab-class" class="nav-tab-btn" role="tab" aria-selected="false" aria-controls="panel-class">
+          <i class="fa-solid fa-users"></i>
+          <span>Moja Klasa</span>
+        </button>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Main Content Panels -->
+  <main class="container main-content">
+    
+    <!-- PANEL 1: TIMELINE -->
+    <section id="panel-timeline" class="tab-panel active" role="tabpanel" aria-labelledby="tab-timeline">
+      <div class="panel-header">
+        <h2>Oś Czasu Wydarzeń</h2>
+        <p class="panel-desc">Przeglądaj wszystkie mecze i wydarzenia chronologicznie.</p>
+        
+        <!-- Sport Filter Badges -->
+        <div class="filter-badges-wrapper">
+          <button class="sport-filter-badge active" data-filter="all">Wszystko</button>
+          <button class="sport-filter-badge" data-filter="volleyball"><span class="badge-dot volleyball"></span>Siatkówka</button>
+          <button class="sport-filter-badge" data-filter="basketball"><span class="badge-dot basketball"></span>Koszykówka</button>
+          <button class="sport-filter-badge" data-filter="soccer"><span class="badge-dot soccer"></span>Piłka nożna</button>
+          <button class="sport-filter-badge" data-filter="general"><span class="badge-dot general"></span>Inne</button>
+        </div>
+      </div>
+
+      <!-- Chronological Timeline Stream -->
+      <div id="timeline-stream" class="timeline-stream">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- PANEL 2: SPORTS -->
+    <section id="panel-sports" class="tab-panel" role="tabpanel" aria-labelledby="tab-sports">
+      <div class="panel-header">
+        <h2>Rozgrywki Według Dyscyplin</h2>
+        <p class="panel-desc">Wybierz dyscyplinę, aby zobaczyć tabele grupowe, zasady i wyniki finałów.</p>
+      </div>
+
+      <!-- Sport Sub-Tabs -->
+      <div class="sport-sub-tabs-wrapper">
+        <button id="subtab-volleyball" class="sport-sub-tab active" data-sport="volleyball">
+          <i class="fa-solid fa-volleyball"></i> Piłka siatkowa
+        </button>
+        <button id="subtab-basketball" class="sport-sub-tab" data-sport="basketball">
+          <i class="fa-solid fa-basketball"></i> Piłka koszykowa
+        </button>
+        <button id="subtab-soccer" class="sport-sub-tab" data-sport="soccer">
+          <i class="fa-solid fa-futbol"></i> Piłka nożna
+        </button>
+      </div>
+
+      <!-- Active Sport View Container -->
+      <div id="sport-details-container" class="sport-details-container">
+        <!-- Injected dynamically via JS -->
+      </div>
+    </section>
+
+    <!-- PANEL 3: MY CLASS -->
+    <section id="panel-class" class="tab-panel" role="tabpanel" aria-labelledby="tab-class">
+      <div class="panel-header">
+        <h2>Filtruj Według Klasy</h2>
+        <p class="panel-desc">Wybierz swoją klasę, aby zobaczyć spersonalizowany harmonogram i statystyki.</p>
+      </div>
+
+      <!-- Class Selection Grid -->
+      <div class="class-selector-grid">
+        <button class="class-btn" data-class="1A">1A</button>
+        <button class="class-btn" data-class="1B">1B</button>
+        <button class="class-btn" data-class="2A">2A</button>
+        <button class="class-btn" data-class="2B">2B</button>
+        <button class="class-btn" data-class="2C">2C</button>
+        <button class="class-btn" data-class="3A">3A</button>
+        <button class="class-btn" data-class="3B">3B</button>
+        <button class="class-btn" data-class="3C">3C</button>
+      </div>
+
+      <!-- Selected Class Dashboard -->
+      <div id="class-dashboard" class="class-dashboard hidden">
+        <div class="class-stats-grid">
+          <div class="glass-card stat-card">
+            <span class="stat-num" id="class-stat-total">0</span>
+            <span class="stat-label">Rozegranych meczów</span>
+          </div>
+          <div class="glass-card stat-card">
+            <span class="stat-num" id="class-stat-wins">0</span>
+            <span class="stat-label">Zwycięstw</span>
+          </div>
+          <div class="glass-card stat-card">
+            <span class="stat-num" id="class-stat-points">0</span>
+            <span class="stat-label">Punkty (Siła grupy)</span>
+          </div>
+        </div>
+
+        <div class="class-schedule-section">
+          <h3>Mecze Twojej Klasy: <span id="selected-class-label" class="text-highlight">1A</span></h3>
+          <div id="class-matches-list" class="timeline-stream">
+            <!-- Filtered matches rendered dynamically -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Interactive Score Modal (Dialog) -->
+  <div id="score-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-content glass-card animate-scale-up">
+      <button id="modal-close-btn" class="modal-close" aria-label="Zamknij">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      
+      <div class="modal-header">
+        <h3 id="modal-title">Wprowadź wynik meczu</h3>
+        <p id="modal-subtitle" class="text-muted">Piłka siatkowa • Boisko 1 • 08:50</p>
+      </div>
+
+      <form id="score-form" class="score-form">
+        <!-- Team Inputs Row -->
+        <div class="match-inputs-row">
+          <div class="team-input-group">
+            <label for="score-team1" id="label-team1">Drużyna 1</label>
+            <input type="number" id="score-team1" min="0" max="99" required placeholder="0">
+          </div>
+          
+          <div class="vs-divider">vs</div>
+          
+          <div class="team-input-group">
+            <label for="score-team2" id="label-team2">Drużyna 2</label>
+            <input type="number" id="score-team2" min="0" max="99" required placeholder="0">
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" id="btn-cancel-score" class="btn btn-secondary">Anuluj</button>
+          <button type="submit" class="btn btn-primary">Zapisz wynik</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Referee Password Modal -->
+  <div id="referee-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="referee-modal-title">
+    <div class="modal-content glass-card animate-scale-up">
+      <button id="referee-modal-close" class="modal-close" aria-label="Zamknij">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      
+      <div class="modal-header">
+        <h3 id="referee-modal-title">Panel Sędziego</h3>
+        <p class="text-muted">Podaj hasło autoryzacyjne, aby odblokować edycję wyników.</p>
+      </div>
+
+      <form id="referee-form">
+        <div class="team-input-group" style="width: 100%; margin-bottom: 24px; align-items: stretch;">
+          <label for="referee-password" style="margin-bottom: 8px; text-align: left;">Hasło dostępu</label>
+          <input type="password" id="referee-password" required placeholder="••••••••">
+        </div>
+
+        <div class="form-actions">
+          <button type="button" id="btn-cancel-referee" class="btn btn-secondary">Anuluj</button>
+          <button type="submit" class="btn btn-primary">Odblokuj</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="toast hidden" role="status" aria-live="polite">
+    Wyniki zaktualizowane!
+  </div>
+
+  <footer class="app-footer">
+    <div class="container footer-content">
+      <p>&copy; 2026 Liceum Ogólnokształcące Sióstr Prezentek. Wszelkie prawa zastrzeżone.</p>
+      <p class="credit">Stworzono z pasją na Dzień Sportu 🏆</p>
+    </div>
+  </footer>
+
+  <!-- App Data and Scripts -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
