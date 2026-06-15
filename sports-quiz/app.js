@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Aktywne wylosowane pytania (100 z 150)
   let activeQuestionIds = [];
-  let questionSet = 'standard'; // 'standard' lub 'kids'
+  let questionSet = 'standard'; // 'standard', 'kids' lub 'juniors'
   let tempQuestionSet = 'standard';
 
   // Stan tymczasowy dla Lobby
@@ -239,14 +239,16 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
     
-    const expectedLength = questionSet === 'kids' ? 80 : 100;
+    const expectedLength = questionSet === 'juniors' ? 50 : (questionSet === 'kids' ? 80 : 100);
     if (!activeQuestionIds || activeQuestionIds.length !== expectedLength) {
       generateActiveQuestionIds();
     }
   }
 
   function getActiveQuestionDatabase() {
-    return questionSet === 'kids' ? kidsQuestions : questions;
+    if (questionSet === 'kids') return kidsQuestions;
+    if (questionSet === 'juniors') return juniorsQuestions;
+    return questions;
   }
 
   // Funkcja generująca nową losową pulę pytań
@@ -259,7 +261,7 @@ document.addEventListener('DOMContentLoaded', () => {
       allIds[i] = allIds[j];
       allIds[j] = temp;
     }
-    const limit = questionSet === 'kids' ? 80 : 100;
+    const limit = questionSet === 'juniors' ? 50 : (questionSet === 'kids' ? 80 : 100);
     activeQuestionIds = allIds.slice(0, limit);
     localStorage.setItem('sports_quiz_active_question_ids', JSON.stringify(activeQuestionIds));
   }

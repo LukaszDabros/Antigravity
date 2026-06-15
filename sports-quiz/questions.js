@@ -2145,7 +2145,480 @@ const kidsQuestions = [
   }
 ];
 
+const juniorsQuestions = [
+  // ==========================================
+  // OGÓLNA WIEDZA SPORTOWA (301-310)
+  // ==========================================
+  {
+    id: 301,
+    category: "ogolne",
+    difficulty: "latwe",
+    question: "W jakim sporcie jeździ się na rowerze?",
+    options: ["W kolarstwie", "W bieganiu", "W pływaniu", "W skokach narciarskich"],
+    correct: 0,
+    explanation: "Jazda na rowerze to kolarstwo. Możemy jeździć na rowerze szosowym, górskim lub miejskim."
+  },
+  {
+    id: 302,
+    category: "ogolne",
+    difficulty: "latwe",
+    question: "Co zakładamy na głowę podczas jazdy na rowerze lub hulajnodze, aby być bezpiecznym?",
+    options: ["Czapkę z daszkiem", "Kask", "Kapelusz", "Opaskę"],
+    correct: 1,
+    explanation: "Kask chroni naszą głowę przed uderzeniem, gdybyśmy przypadkowo spadli z roweru lub hulajnogi."
+  },
+  {
+    id: 303,
+    category: "ogolne",
+    difficulty: "latwe",
+    question: "Na czym zjeżdża się zimą ze śnieżnej górki dla zabawy?",
+    options: ["Na sankach", "Na rowerze", "Na wrotkach", "Na deskorolce"],
+    correct: 0,
+    explanation: "Sanki mają płozy, które świetnie ślizgają się po śniegu, dając dzieciom mnóstwo radości zimą."
+  },
+  {
+    id: 304,
+    category: "ogolne",
+    difficulty: "latwe",
+    question: "Co jest potrzebne do gry w tenisa lub badmintona, aby móc odbić piłeczkę lub lotkę?",
+    options: ["Rakieta", "Kij baseballowy", "Wiosło", "Tarcza"],
+    correct: 0,
+    explanation: "Rakietą tenisową lub rakietką do badmintona odbijamy piłkę lub lotkę nad siatką na stronę przeciwnika."
+  },
+  {
+    id: 305,
+    category: "ogolne",
+    difficulty: "latwe",
+    question: "Ile kółek ma klasyczna hulajnoga dla starszych dzieci?",
+    options: ["Dwa", "Trzy", "Cztery", "Pięć"],
+    correct: 0,
+    explanation: "Klasyczna hulajnoga ma dwa kółka – jedno z przodu, a drugie z tyłu, i wymaga utrzymania równowagi."
+  },
+  {
+    id: 306,
+    category: "ogolne",
+    difficulty: "latwe",
+    question: "W co rzucamy dużą pomarańczową piłką, aby zdobyć punkty w koszykówce?",
+    options: ["Do metalowego kosza z siatką", "Do bramki", "W kręgle", "W tarczę na ziemi"],
+    correct: 0,
+    explanation: "W koszykówce punkty zdobywa się przez wrzucenie piłki do kosza zawieszonego wysoko na tablicy."
+  },
+  {
+    id: 307,
+    category: "ogolne",
+    difficulty: "latwe",
+    question: "Na jakich specjalnych butach jeździ się zimą po lodowisku?",
+    options: ["Na łyżwach", "Na rolkach", "Na nartach", "W kaloszach"],
+    correct: 0,
+    explanation: "Łyżwy mają pod podeszwą metalowe płozy, które pozwalają nam ślizgać się i wykonywać akrobacje na lodzie."
+  },
+  {
+    id: 308,
+    category: "ogolne",
+    difficulty: "latwe",
+    question: "Gdzie możemy bezpiecznie pływać zimą, gdy woda w jeziorach i morzu jest zamarznięta?",
+    options: ["Na krytym basenie", "W wannie", "W rzece pod lodem", "W kałuży"],
+    correct: 0,
+    explanation: "Kryte baseny mają ciepłą wodę i dach, dzięki czemu możemy uczyć się pływać przez cały rok."
+  },
+  {
+    id: 309,
+    category: "ogolne",
+    difficulty: "latwe",
+    question: "Jak nazywa się duża, sprężysta siatka rozpięta na metalowej ramie, na której można skakać wysoko w górę?",
+    options: ["Trampolina", "Materac", "Huśtawka", "Zjeżdżalnia"],
+    correct: 0,
+    explanation: "Skakanie na trampolinie to świetna zabawa i dobre ćwiczenie na wzmocnienie mięśni nóg."
+  },
+  {
+    id: 310,
+    category: "ogolne",
+    difficulty: "latwe",
+    question: "Jak nazywają się buty z przymocowanymi kółkami w jednym rzędzie, na których jeździmy po asfalcie?",
+    options: ["Rolki", "Łyżwy", "Trampki", "Kalosze"],
+    correct: 0,
+    explanation: "Rolki mają kółka w linii prostej. Podobne do nich wrotki mają kółka rozmieszczone po bokach."
+  },
+
+  // ==========================================
+  // PRZEPISY GRY I REGUŁY (311-320)
+  // ==========================================
+  {
+    id: 311,
+    category: "przepisy",
+    difficulty: "latwe",
+    question: "Czym NIE wolno dotykać piłki w grze w piłkę nożną (oprócz bramkarza)?",
+    options: ["Głową", "Rękami", "Klatką piersiową", "Nogami"],
+    correct: 1,
+    explanation: "W piłce nożnej zawodnicy z pola mogą odbijać piłkę każdą częścią ciała oprócz rąk i dłoni."
+  },
+  {
+    id: 312,
+    category: "przepisy",
+    difficulty: "latwe",
+    question: "Jakiego koloru kartkę pokazuje sędzia piłkarzowi, gdy ten musi za karę natychmiast opuścić boisko?",
+    options: ["Żółtą", "Zieloną", "Niebieską", "Czerwoną"],
+    correct: 3,
+    explanation: "Czerwona kartka oznacza wykluczenie zawodnika z meczu. Jego drużyna musi wtedy grać w osłabieniu."
+  },
+  {
+    id: 313,
+    category: "przepisy",
+    difficulty: "latwe",
+    question: "Ile osób gra ze sobą na boisku podczas pojedynczego meczu tenisa ziemnego (singla)?",
+    options: ["Dwie osoby", "Cztery osoby", "Sześć osób", "Jedna osoba"],
+    correct: 0,
+    explanation: "W grze pojedynczej (singlu) po obu stronach siatki stoi po jednym zawodniku, czyli razem grają dwie osoby."
+  },
+  {
+    id: 314,
+    category: "przepisy",
+    difficulty: "latwe",
+    question: "Co dzieli boisko na dwie równe połowy w meczu siatkówki?",
+    options: ["Wysoka siatka", "Drewniany płot", "Czerwona linia na ziemi", "Rzeka"],
+    correct: 0,
+    explanation: "Siatka zawieszona na słupkach dzieli boisko do siatkówki. Piłkę należy przebić nad nią na stronę rywali."
+  },
+  {
+    id: 315,
+    category: "przepisy",
+    difficulty: "latwe",
+    question: "Jak nazywa się osoba na boisku, która pilnuje reguł gry i biega z gwizdkiem?",
+    options: ["Sędzia", "Trener", "Bramkarz", "Kibic"],
+    correct: 0,
+    explanation: "Sędzia dba o to, aby gra była uczciwa i bezpieczna, a w razie faulu przerywa grę gwizdkiem."
+  },
+  {
+    id: 316,
+    category: "przepisy",
+    difficulty: "latwe",
+    question: "Co musi robić koszykarz, kiedy idzie lub biega z piłką po boisku, aby nie popełnić błędu?",
+    options: ["Musi ją kozłować (odbijać od podłogi)", "Musi trzymać ją pod pachą", "Musi ją kopać", "Musi rzucić ją jak najdalej"],
+    correct: 0,
+    explanation: "W koszykówce nie wolno biegać z piłką w rękach bez odbijania. Ruch z piłką wymaga jej kozłowania."
+  },
+  {
+    id: 317,
+    category: "przepisy",
+    difficulty: "latwe",
+    question: "Gdzie hokeiści muszą wbić krążek za pomocą kijów, aby zdobyć punkt?",
+    options: ["Do bramki przeciwnika", "Do kosza", "Za linię boczną boiska", "Do dziury w lodzie"],
+    correct: 0,
+    explanation: "W hokeju na lodzie celem jest wbicie krążka do bramki bronionej przez bramkarza drużyny przeciwnej."
+  },
+  {
+    id: 318,
+    category: "przepisy",
+    difficulty: "latwe",
+    question: "W jakim sporcie zawodnicy na macie próbują przewrócić rywala na plecy, używając specjalnych chwytów, bez bicia i kopania?",
+    options: ["W zapasach / judo", "W boksie", "W karate", "W biegach"],
+    correct: 0,
+    explanation: "Zapasy i judo to sporty walki oparte na chwytach i rzutach, w których uderzenia i kopnięcia są zabronione."
+  },
+  {
+    id: 319,
+    category: "przepisy",
+    difficulty: "latwe",
+    question: "Co oznacza długi gwizdek sędziego na boisku piłkarskim po upływie 90 minut gry?",
+    options: ["Koniec meczu", "Przerwę na picie wody", "Początek meczu", "Faul w polu karnym"],
+    correct: 0,
+    explanation: "Ostatni, długi gwizdek sędziego kończy spotkanie i oznacza, że czas gry dobiegł końca."
+  },
+  {
+    id: 320,
+    category: "przepisy",
+    difficulty: "latwe",
+    question: "Jak zaczyna się każdy mecz piłki nożnej na początku pierwszej połowy?",
+    options: ["Kopnięciem piłki ze środkowego punktu boiska", "Rzutem piłki z autu", "Rzutem karnym", "Wrzuceniem piłki przez sędziego z góry"],
+    correct: 0,
+    explanation: "Mecz piłki nożnej zaczyna się od tzw. rozpoczęcia gry ze środka boiska przez jedną z drużyn."
+  },
+
+  // ==========================================
+  // HISTORIA POLSKIEGO I ŚWIATOWEGO SPORTU (321-330)
+  // ==========================================
+  {
+    id: 321,
+    category: "historia",
+    difficulty: "latwe",
+    question: "W jakim starożytnym kraju narodziły się pierwsze igrzyska olimpijskie?",
+    options: ["W starożytnej Grecji", "W Chinach", "W Egipcie", "W Polsce"],
+    correct: 0,
+    explanation: "Pierwsze igrzyska olimpijskie zorganizowano w Olimpii w Grecji ponad 2700 lat temu."
+  },
+  {
+    id: 322,
+    category: "historia",
+    difficulty: "latwe",
+    question: "Kto jest najsłynniejszym polskim napastnikiem z numerem 9, który grał w Bayernie Monachium i FC Barcelonie?",
+    options: ["Robert Lewandowski", "Arkadiusz Milik", "Kamil Glik", "Wojciech Szczęsny"],
+    correct: 0,
+    explanation: "Robert Lewandowski to jeden z najlepszych napastników na świecie, kapitan naszej reprezentacji narodowej."
+  },
+  {
+    id: 323,
+    category: "historia",
+    difficulty: "latwe",
+    question: "Jaki polski skoczek narciarski z charakterystycznym wąsem wygrywał konkursy i zdobył 4 Kryształowe Kule na początku XXI wieku?",
+    options: ["Adam Małysz", "Kamil Stoch", "Dawid Kubacki", "Piotr Żyła"],
+    correct: 0,
+    explanation: "Adam Małysz wywołał w Polsce 'małyszomanię' swoimi wspaniałymi skokami i sukcesami na całym świecie."
+  },
+  {
+    id: 324,
+    category: "historia",
+    difficulty: "latwe",
+    question: "Co przedstawia flaga olimpijska, która jest symbolem przyjaźni wszystkich sportowców świata?",
+    options: ["Pięć kolorowych, połączonych kół", "Złoty puchar", "Białego orła", "Trzy kolorowe paski"],
+    correct: 0,
+    explanation: "Pięć kół na fladze olimpijskiej symbolizuje pięć zamieszkanych kontynentów połączonych duchem sportu."
+  },
+  {
+    id: 325,
+    category: "historia",
+    difficulty: "latwe",
+    question: "Kim z zawodu był przedwojenny polski bohater Janusz Kusociński, na którego cześć organizuje się znane zawody lekkoatletyczne?",
+    options: ["Biegaczem długodystansowym", "Bramkarzem", "Skoczkiem wzwyż", "Kolarzem"],
+    correct: 0,
+    explanation: "Janusz Kusociński zdobył złoty medal olimpijski w biegu na 10 000 m w 1932 roku w Los Angeles."
+  },
+  {
+    id: 326,
+    category: "historia",
+    difficulty: "latwe",
+    question: "Jaki dawny sport walki rycerzy na miecze i szable przetrwał do dziś jako dyscyplina olimpijska z maskami i białymi strojami?",
+    options: ["Szermierka", "Boks", "Karate", "Zapasy"],
+    correct: 0,
+    explanation: "Szermierka to nowoczesny sport olimpijski wywodzący się z dawnych pojedynków na broń białą."
+  },
+  {
+    id: 327,
+    category: "historia",
+    difficulty: "latwe",
+    question: "W jakim sąsiednim kraju odbywały się mecze Mistrzostw Europy w piłce nożnej Euro 2012 wspólnie z Polską?",
+    options: ["Na Ukrainie", "W Niemczech", "W Czechach", "Na Słowacji"],
+    correct: 0,
+    explanation: "Euro 2012 było zorganizowane wspólnie przez Polskę i Ukrainę. Finał turnieju odbył się w Kijowie."
+  },
+  {
+    id: 328,
+    category: "historia",
+    difficulty: "latwe",
+    question: "Z jakiego naturalnego materiału robiono pierwsze piłki do gry w piłkę nożną, zanim zaczęto produkować je z nowoczesnych tworzyw sztucznych?",
+    options: ["Ze skóry zwierzęcej", "Z drewna", "Z żelaza", "Ze szkła"],
+    correct: 0,
+    explanation: "Dawniej piłki szyto ze skóry, a w środku znajdował się napompowany pęcherz zwierzęcy."
+  },
+  {
+    id: 329,
+    category: "historia",
+    difficulty: "latwe",
+    question: "Skąd wzięła się nazwa bardzo długiego biegu sportowego zwanego 'Maratonem'?",
+    options: ["Od nazwy miejscowości w Grecji", "Od imienia pierwszego biegacza", "Od rzymskiego słowa oznaczającego zmęczenie", "Od nazwy greckiego boga"],
+    correct: 0,
+    explanation: "Nazwa pochodzi od greckiej miejscowości Maraton, skąd posłaniec pobiegł do Aten, by ogłosić zwycięstwo w bitwie."
+  },
+  {
+    id: 330,
+    category: "historia",
+    difficulty: "latwe",
+    question: "How nazywa się jedyny polski kierowca, który startował w niesamowicie szybkich wyścigach Formuły 1?",
+    options: ["Robert Kubica", "Krzysztof Hołowczyc", "Kajetan Kajetanowicz", "Tomasz Gollob"],
+    correct: 0,
+    explanation: "Robert Kubica to wybitny polski kierowca wyścigowy, który wygrał wyścig Formuły 1 w Kanadzie w 2008 roku."
+  },
+
+  // ==========================================
+  // OLIMPIJCZYCY I SŁAWNI SPORTOWCY (331-340)
+  // ==========================================
+  {
+    id: 331,
+    category: "olimpijczycy",
+    difficulty: "latwe",
+    question: "W jaką dyscyplinę sportową gra nasza mistrzyni Iga Świątek, która używa rakiety na korcie?",
+    options: ["W tenisa ziemnego", "W koszykówkę", "W siatkówkę", "W badmintona"],
+    correct: 0,
+    explanation: "Iga Świątek to jedna z najlepszych tenisistek na świecie, wielokrotna zwyciężczyni turniejów wielkoszlemowych."
+  },
+  {
+    id: 332,
+    category: "olimpijczycy",
+    difficulty: "latwe",
+    question: "W jakiej zimowej dyscyplinie sportowej Kamil Stoch zdobył aż trzy złote medale olimpijskie dla Polski?",
+    options: ["W skokach narciarskich", "W biegach narciarskich", "W jeździe na łyżwach", "W hokeju na lodzie"],
+    correct: 0,
+    explanation: "Kamil Stoch to jeden z najbardziej utytułowanych skoczków w historii, mistrz z Soczi i Pjongczangu."
+  },
+  {
+    id: 333,
+    category: "olimpijczycy",
+    difficulty: "latwe",
+    question: "Jaki medal otrzymuje sportowiec, który zajmie drugie miejsce w finale na Igrzyskach Olimpijskich?",
+    options: ["Srebrny", "Złoty", "Brązowy", "Platynowy"],
+    correct: 0,
+    explanation: "Za 1. miejsce przyznaje się medal złoty, za 2. miejsce medal srebrny, a za 3. miejsce medal brązowy."
+  },
+  {
+    id: 334,
+    category: "olimpijczycy",
+    difficulty: "latwe",
+    question: "W jakiej wodnej dyscyplinie Otylia Jędrzejczak zdobyła dla Polski złoty medal na Igrzyskach w Atenach?",
+    options: ["W pływaniu", "W kajakarstwie", "W wioślarstwie", "W żeglarstwie"],
+    correct: 0,
+    explanation: "Otylia Jędrzejczak specjalizowała się w pływaniu stylem motylkowym i zdobyła złoto na dystansie 200 metrów."
+  },
+  {
+    id: 335,
+    category: "olimpijczycy",
+    difficulty: "latwe",
+    question: "Bartosz Zmarzlik to polski mistrz świata, który ściga się na motocyklach bez hamulców na sypkim torze. Jaki to sport?",
+    options: ["Żużel", "Motocross", "Kolarstwo torowe", "Formuła 1"],
+    correct: 0,
+    explanation: "Żużel (speedway) to wyścigi motocyklowe na owalnym torze ziemnym. Bartosz Zmarzlik to wielokrotny mistrz świata w tej dyscyplinie."
+  },
+  {
+    id: 336,
+    category: "olimpijczycy",
+    difficulty: "latwe",
+    question: "Jaki kruszec (metal) symbolizuje zwycięstwo i wykonany jest z niego medal za 1. miejsce?",
+    options: ["Złoto", "Srebro", "Brąz", "Miedź"],
+    correct: 0,
+    explanation: "Złoty medal to najwyższe trofeum olimpijskie, przyznawane zwycięzcy danej konkurencji."
+  },
+  {
+    id: 337,
+    category: "olimpijczycy",
+    difficulty: "latwe",
+    question: "Co nakłada się na głowę mistrzom w niektórych dyscyplinach na podium (np. w dawnych czasach w Grecji) oprócz wręczenia medalu?",
+    options: ["Wieniec laurowy (z liści)", "Czapkę z pomponem", "Kask", "Klucz do bram miasta"],
+    correct: 0,
+    explanation: "W starożytnej Grecji zwycięzcy igrzysk otrzymywali gałązkę oliwną lub wieniec laurowy jako symbol chwały."
+  },
+  {
+    id: 338,
+    category: "olimpijczycy",
+    difficulty: "latwe",
+    question: "Jak nazywają się największe i najważniejsze zawody sportowe na świecie, organizowane raz na 4 lata?",
+    options: ["Igrzyska Olimpijskie", "Mistrzostwa Szkoły", "Puchar Świata", "Bieg Konstytucji"],
+    correct: 0,
+    explanation: "Igrzyska Olimpijskie dzielą się na Letnie i Zimowe i gromadzą najlepszych sportowców ze wszystkich państw świata."
+  },
+  {
+    id: 339,
+    category: "olimpijczycy",
+    difficulty: "latwe",
+    question: "Co niesie sztafeta biegaczy przez wiele krajów, aby na stadionie uroczyście rozpocząć igrzyska olimpijskie?",
+    options: ["Ogień olimpijski (pochodnię)", "Złoty puchar", "Flagę państwa gospodarza", "Wielką piłkę"],
+    correct: 0,
+    explanation: "Ogień olimpijski zapala się w grecznej Olimpii od promieni słonecznych, a potem w sztafecie wędruje na stadion igrzysk."
+  },
+  {
+    id: 340,
+    category: "olimpijczycy",
+    difficulty: "latwe",
+    question: "Nasza mistrzyni Anita Włodarczyk rzuca bardzo daleko ciężką metalową kulą zawieszoną na stalowej lince. Co to za konkurencja?",
+    options: ["Rzut młotem", "Pchnięcie kulą", "Rzut oszczepem", "Skok o tyczce"],
+    correct: 0,
+    explanation: "Rzut młotem to konkurencja lekkoatletyczna. Anita Włodarczyk jest trzykrotną mistrzynią olimpijską w tej dyscyplinie."
+  },
+
+  // ==========================================
+  // WYNIKI I PUNKTY (341-350)
+  // ==========================================
+  {
+    id: 341,
+    category: "wyniki",
+    difficulty: "latwe",
+    question: "Ile punktów (bramek) dopisuje się drużynie za strzelenie jednego gola w meczu piłki nożnej?",
+    options: ["Jeden punkt", "Dwa punkty", "Trzy punkty", "Pięć punktów"],
+    correct: 0,
+    explanation: "Każdy celny strzał do bramki przeciwnika daje drużynie dokładnie 1 gol (punkt)."
+  },
+  {
+    id: 342,
+    category: "wyniki",
+    difficulty: "latwe",
+    question: "Jaki jest wynik meczu piłki nożnej, w którym żadna z drużyn nie strzeliła ani jednego gola?",
+    options: ["0:0 (zero do zera)", "1:1", "Wygrana gospodarzy", "Przegrana obu drużyn"],
+    correct: 0,
+    explanation: "Wynik 0:0 oznacza, że mecz zakończył się bezbramkowym remisem."
+  },
+  {
+    id: 343,
+    category: "wyniki",
+    difficulty: "latwe",
+    question: "Z jakiego kraju pochodzi Usain Bolt – najszybszy biegacz w historii świata?",
+    options: ["Z Jamajki", "Z Polski", "Z Chin", "Z Brazylii"],
+    correct: 0,
+    explanation: "Usain Bolt pochodzi z Jamajki i ustanowił niesamowity rekord świata w biegu na 100 metrów wynoszący 9,58 sekundy."
+  },
+  {
+    id: 344,
+    category: "wyniki",
+    difficulty: "latwe",
+    question: "Ile punktów w tabeli ligowej otrzymuje drużyna piłkarska za wygranie meczu?",
+    options: ["3 punkty", "1 punkt", "0 punktów", "5 punktów"],
+    correct: 0,
+    explanation: "Za zwycięstwo drużyna dostaje 3 punkty w tabeli, za remis 1 punkt, a za przegraną 0 punktów."
+  },
+  {
+    id: 345,
+    category: "wyniki",
+    difficulty: "latwe",
+    question: "Jak nazywa się wynik sportowy, w którym obie drużyny zdobyły dokładnie tyle samo punktów lub bramek?",
+    options: ["Remis", "Dogrywka", "Zwycięstwo", "Porażka"],
+    correct: 0,
+    explanation: "Remis następuje wtedy, gdy żadna z drużyn nie ma przewagi punktowej po regulaminowym czasie gry."
+  },
+  {
+    id: 346,
+    category: "wyniki",
+    difficulty: "latwe",
+    question: "Co oznacza skrót PZPN, który zarządza polską piłką nożną?",
+    options: ["Polski Związek Piłki Nożnej", "Polska Zabawa Piłkarzy Narodowych", "Polskie Zawody Piłkarskie Nowe", "Puchar Zwycięzców Piłki Narodowej"],
+    correct: 0,
+    explanation: "PZPN to oficjalna organizacja dbająca o reprezentację Polski i rozgrywki piłkarskie w naszym kraju."
+  },
+  {
+    id: 347,
+    category: "wyniki",
+    difficulty: "latwe",
+    question: "Ile bramek w jednym meczu musi strzelić ten sam piłkarz, aby zdobyć tak zwanego 'hat-tricka'?",
+    options: ["Trzy bramki", "Dwie bramki", "Cztery bramki", "Pięć bramek"],
+    correct: 0,
+    explanation: "Strzelenie trzech bramek w jednym meczu przez tego samego zawodnika nazywa się tradycyjnie 'hat-trickiem'."
+  },
+  {
+    id: 348,
+    category: "wyniki",
+    difficulty: "latwe",
+    question: "Jaki kolor kruszcu (metalu) ma medal przyznawany sportowcowi za zajęcie 3. miejsca na podium?",
+    options: ["Brązowy", "Złoty", "Srebrny", "Czerwony"],
+    correct: 0,
+    explanation: "Brązowy medal otrzymuje zawodnik lub drużyna, która ukończy zawody na trzeciej pozycji."
+  },
+  {
+    id: 349,
+    category: "wyniki",
+    difficulty: "latwe",
+    question: "Jak nazywa się uporządkowana lista drużyn pokazująca, ile punktów zdobyły w całym sezonie?",
+    options: ["Tabela ligowa (klasyfikacja)", "Lista zakupów", "Dziennik ocen", "Rozkład jazdy"],
+    correct: 0,
+    explanation: "W tabeli ligowej drużyny są uszeregowane od tej z największą liczbą punktów na samej górze, do tej z najmniejszą na dole."
+  },
+  {
+    id: 350,
+    category: "wyniki",
+    difficulty: "latwe",
+    question: "Ile punktów do tabeli dostaje drużyna piłkarska, która przegrała mecz?",
+    options: ["Zero punktów", "Jeden punkt", "Dwa punkty", "Minus trzy punkty"],
+    correct: 0,
+    explanation: "Przegrana drużyna nie powiększa swojego dorobku punktowego w tabeli i otrzymuje za ten mecz 0 punktów."
+  }
+];
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = questions;
   module.exports.kidsQuestions = kidsQuestions;
+  module.exports.juniorsQuestions = juniorsQuestions;
 }
