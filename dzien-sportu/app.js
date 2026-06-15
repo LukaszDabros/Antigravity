@@ -101,6 +101,9 @@ function loadState() {
       if (!tournamentState.sports || !tournamentState.sports.volleyball) {
         throw new Error("Invalid structure");
       }
+      if (tournamentState.resetTime === undefined) {
+        tournamentState.resetTime = 0;
+      }
     } catch (e) {
       console.error("Error parsing saved state, resetting:", e);
       resetToDefault();
@@ -124,6 +127,7 @@ function resetToDefault() {
     });
   });
   
+  tournamentState.resetTime = Date.now();
   saveState();
 }
 
@@ -1270,6 +1274,45 @@ function saveScoreForm(e) {
 // CLOUD SYNCHRONIZATION (Base64 + keyvalue.immanuel.co)
 // ==========================================================================
 
+const SPORT_MAP = {
+  'volleyball': 'v',
+  'basketball': 'b',
+  'soccer': 's'
+};
+const SPORT_MAP_REV = {
+  'v': 'volleyball',
+  'b': 'basketball',
+  's': 'soccer'
+};
+
+function compressResults(results) {
+  const compressed = {};
+  for (const [matchId, score] of Object.entries(results)) {
+    const parts = matchId.split('_match_');
+    if (parts.length === 2) {
+      const sportAbbr = SPORT_MAP[parts[0]] || parts[0];
+      compressed[`${sportAbbr}${parts[1]}`] = score;
+    } else {
+      compressed[matchId] = score;
+    }
+  }
+  return compressed;
+}
+
+function decompressResults(compressed) {
+  const decompressed = {};
+  for (const [key, score] of Object.entries(compressed)) {
+    const match = key.match(/^([vbs])(\d+)$/);
+    if (match) {
+      const sportId = SPORT_MAP_REV[match[1]];
+      decompressed[`${sportId}_match_${match[2]}`] = score;
+    } else {
+      decompressed[key] = score;
+    }
+  }
+  return decompressed;
+}
+
 function pushStateToCloud() {
   // Extract only scores of completed matches to minimize data size and URL path length
   const results = {};
@@ -1282,14 +1325,19 @@ function pushStateToCloud() {
   });
 
   try {
-    const jsonStr = JSON.stringify(results);
+    const payload = {
+      r: compressResults(results),
+      t: tournamentState.resetTime || 0
+    };
+    const jsonStr = JSON.stringify(payload);
     // URL-safe Base64 encoding
     const base64 = btoa(unescape(encodeURIComponent(jsonStr)))
       .replace(/\+/g, '-')
       .replace(/\//g, '_')
       .replace(/=/g, ''); // strip padding
 
-    const url = `${SYNC_URL}/UpdateValue/${APP_KEY}/results/${base64}`;
+    // Use query parameter to bypass IIS path segment length limit (260 characters)
+    const url = `${SYNC_URL}/UpdateValue/${APP_KEY}/results?value=${base64}`;
     
     fetch(url, { method: 'POST' })
       .then(response => {
@@ -1335,7 +1383,36 @@ function pullStateFromCloud(silent = false) {
 
       // Decode base64
       const jsonStr = decodeURIComponent(escape(atob(base64)));
-      const cloudResults = JSON.parse(jsonStr);
+      const cloudData = JSON.parse(jsonStr);
+
+      let cloudResults = {};
+      let cloudResetTime = 0;
+
+      if (cloudData && cloudData.r !== undefined) {
+        cloudResults = decompressResults(cloudData.r);
+        cloudResetTime = cloudData.t || 0;
+      } else {
+        // Fallback for old format
+        cloudResults = cloudData || {};
+        cloudResetTime = 0;
+      }
+
+      // Check for remote database reset
+      if (cloudResetTime > (tournamentState.resetTime || 0)) {
+        console.log("Remote database reset detected, resetting local state...");
+        // Do a clean reset to default template
+        tournamentState = JSON.parse(JSON.stringify(SCHEDULE_DATA));
+        Object.keys(tournamentState.sports).forEach(sportId => {
+          tournamentState.sports[sportId].matches.forEach((match, idx) => {
+            match.id = `${sportId}_match_${idx}`;
+            match.team1_score = null;
+            match.team2_score = null;
+            match.completed = false;
+          });
+        });
+        tournamentState.resetTime = cloudResetTime;
+        saveState();
+      }
 
       // Merge results back
       let hasChanges = false;
@@ -1352,17 +1429,13 @@ function pullStateFromCloud(silent = false) {
               match.completed = true;
               hasChanges = true;
             }
-          } else if (match.completed) {
-            // Match is marked completed locally but not in cloud, reset it (e.g. after cloud reset)
-            match.team1_score = null;
-            match.team2_score = null;
-            match.completed = false;
-            hasChanges = true;
           }
+          // Do NOT wipe local completed matches if they are not in the cloud results,
+          // since a local change may simply be ahead of the cloud push/pull sync.
         });
       });
 
-      if (hasChanges) {
+      if (hasChanges || cloudResetTime > (tournamentState.resetTime || 0)) {
         saveState();
         
         // Recompute standings
