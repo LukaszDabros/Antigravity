@@ -709,6 +709,88 @@ function renderSportView(sportId) {
         }).join('')}
       </div>
     </div>
+  `;  // Get final standings
+  const finalStandings = getFinalStandings(sportId);
+
+  const finalStandingsHtml = `
+    <div class="glass-card final-classification-card" style="padding: 24px;">
+      <h3 class="bracket-title"><i class="fa-solid fa-ranking-star text-highlight"></i> Klasyfikacja Końcowa</h3>
+      <div class="table-wrapper">
+        <table class="standings-table final-standings-table">
+          <thead>
+            <tr>
+              <th style="text-align:center; width: 60px;">M-ce</th>
+              <th>Klasa</th>
+              <th>Status / Etap</th>
+              <th>Mecze (Grupa)</th>
+              <th>Z</th>
+              ${sportId === 'soccer' ? '<th>R</th>' : ''}
+              <th>P</th>
+              <th>Bilans (Grupa)</th>
+              <th>Pkt (Grupa)</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${finalStandings.map(row => {
+              let medalIcon = '';
+              if (row.rank === 1 && row.status === 'Mistrz') {
+                medalIcon = '<i class="fa-solid fa-medal" style="color: #eab308; font-size: 18px; margin-right: 6px;"></i>';
+              } else if (row.rank === 2 && row.status === 'Wicemistrz') {
+                medalIcon = '<i class="fa-solid fa-medal" style="color: #cbd5e1; font-size: 18px; margin-right: 6px;"></i>';
+              } else if (row.rank === 3 && row.status === '3. miejsce') {
+                medalIcon = '<i class="fa-solid fa-medal" style="color: #cd7f32; font-size: 18px; margin-right: 6px;"></i>';
+              }
+              
+              let statusClass = 'muted';
+              let statusLabel = row.status;
+              if (row.status === 'Mistrz') {
+                statusClass = 'gold';
+                statusLabel = 'Mistrz 🏆';
+              } else if (row.status === 'Wicemistrz') {
+                statusClass = 'silver';
+                statusLabel = 'Wicemistrz 🥈';
+              } else if (row.status === '3. miejsce') {
+                statusClass = 'bronze';
+                statusLabel = '3. miejsce 🥉';
+              } else if (row.status === '4. miejsce') {
+                statusClass = 'gray';
+              } else if (row.status === 'Finał') {
+                statusClass = 'info';
+                statusLabel = 'Finał (w grze)';
+              } else if (row.status === 'Mecz o 3. miejsce') {
+                statusClass = 'info';
+                statusLabel = 'Mecz o 3. m-ce (w grze)';
+              } else if (row.status === 'Faza grupowa') {
+                statusClass = 'muted';
+                statusLabel = 'Faza grupowa';
+              }
+
+              const scoreDiff = row.scored - row.conceded;
+              const scoreDiffStr = scoreDiff > 0 ? `+${scoreDiff}` : scoreDiff;
+              const drawCol = sportId === 'soccer' ? `<td>${row.draws}</td>` : '';
+
+              return `
+                <tr>
+                  <td class="rank-col" style="text-align:center;">
+                    ${medalIcon ? medalIcon : row.rank}
+                  </td>
+                  <td class="team-col">${row.team}</td>
+                  <td>
+                    <span class="badge-status ${statusClass}">${statusLabel}</span>
+                  </td>
+                  <td>${row.played}</td>
+                  <td>${row.wins}</td>
+                  ${drawCol}
+                  <td>${row.losses}</td>
+                  <td>${row.scored}:${row.conceded} (${scoreDiffStr})</td>
+                  <td style="font-weight:700; color:var(--primary-color);">${row.points}</td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
   `;
 
   elements.sportDetails.innerHTML = `
@@ -722,7 +804,138 @@ function renderSportView(sportId) {
         ${matchesListHtml}
       </div>
     </div>
+    ${finalStandingsHtml}
   `;
+}
+
+// Helper to get overall final standings
+function getFinalStandings(sportId) {
+  const sport = tournamentState.sports[sportId];
+  if (!sport || !sport.standings) return [];
+
+  // Gather all group stage statistics
+  const allTeams = [];
+  Object.keys(sport.groups).forEach(groupName => {
+    const groupStandings = sport.standings[groupName] || [];
+    groupStandings.forEach(teamData => {
+      allTeams.push({
+        ...teamData,
+        group: groupName
+      });
+    });
+  });
+
+  // Sort initially by group stage statistics
+  allTeams.sort((a, b) => {
+    // 1. Points
+    if (b.points !== a.points) return b.points - a.points;
+    
+    // 2. Score Difference (scored - conceded)
+    const diffA = a.scored - a.conceded;
+    const diffB = b.scored - b.conceded;
+    if (diffB !== diffA) return diffB - diffA;
+    
+    // 3. Scored
+    if (b.scored !== a.scored) return b.scored - a.scored;
+    
+    // 4. Alphabetical
+    return a.team.localeCompare(b.team);
+  });
+
+  // Find finals matches
+  const finalMatch = sport.matches.find(m => m.group === 'Finały' && (m.stage.includes('Finał') || m.stage.includes('1-2') || m.stage.includes('m-ce 1')));
+  const thirdMatch = sport.matches.find(m => m.group === 'Finały' && (m.stage.includes('3. miejsce') || m.stage.includes('m-ce 3')));
+
+  let p1 = null, p2 = null, p3 = null, p4 = null;
+  const finalTeams = new Set();
+
+  const isRealTeam = (teamName) => teamName && allTeams.some(t => t.team === teamName);
+
+  // Check Final Match
+  if (finalMatch) {
+    const isT1Real = isRealTeam(finalMatch.team1);
+    const isT2Real = isRealTeam(finalMatch.team2);
+    if (finalMatch.completed) {
+      const s1 = Number(finalMatch.team1_score);
+      const s2 = Number(finalMatch.team2_score);
+      if (s1 > s2) {
+        p1 = finalMatch.team1;
+        p2 = finalMatch.team2;
+      } else {
+        p1 = finalMatch.team2;
+        p2 = finalMatch.team1;
+      }
+      finalTeams.add(finalMatch.team1);
+      finalTeams.add(finalMatch.team2);
+    } else if (isT1Real && isT2Real) {
+      const idx1 = allTeams.findIndex(t => t.team === finalMatch.team1);
+      const idx2 = allTeams.findIndex(t => t.team === finalMatch.team2);
+      if (idx1 < idx2) {
+        p1 = finalMatch.team1;
+        p2 = finalMatch.team2;
+      } else {
+        p1 = finalMatch.team2;
+        p2 = finalMatch.team1;
+      }
+      finalTeams.add(finalMatch.team1);
+      finalTeams.add(finalMatch.team2);
+    }
+  }
+
+  // Check 3rd Place Match
+  if (thirdMatch) {
+    const isT1Real = isRealTeam(thirdMatch.team1);
+    const isT2Real = isRealTeam(thirdMatch.team2);
+    if (thirdMatch.completed) {
+      const s1 = Number(thirdMatch.team1_score);
+      const s2 = Number(thirdMatch.team2_score);
+      if (s1 > s2) {
+        p3 = thirdMatch.team1;
+        p4 = thirdMatch.team2;
+      } else {
+        p3 = thirdMatch.team2;
+        p4 = thirdMatch.team1;
+      }
+      finalTeams.add(thirdMatch.team1);
+      finalTeams.add(thirdMatch.team2);
+    } else if (isT1Real && isT2Real) {
+      const idx1 = allTeams.findIndex(t => t.team === thirdMatch.team1);
+      const idx2 = allTeams.findIndex(t => t.team === thirdMatch.team2);
+      if (idx1 < idx2) {
+        p3 = thirdMatch.team1;
+        p4 = thirdMatch.team2;
+      } else {
+        p3 = thirdMatch.team2;
+        p4 = thirdMatch.team1;
+      }
+      finalTeams.add(thirdMatch.team1);
+      finalTeams.add(thirdMatch.team2);
+    }
+  }
+
+  // Get remaining teams in their group stage sort order
+  const remaining = allTeams.filter(t => !finalTeams.has(t.team));
+
+  const rankedList = [];
+  if (p1) rankedList.push({ team: p1, status: finalMatch.completed ? 'Mistrz' : 'Finał' });
+  if (p2) rankedList.push({ team: p2, status: finalMatch.completed ? 'Wicemistrz' : 'Finał' });
+  if (p3) rankedList.push({ team: p3, status: thirdMatch.completed ? '3. miejsce' : 'Mecz o 3. miejsce' });
+  if (p4) rankedList.push({ team: p4, status: thirdMatch.completed ? '4. miejsce' : 'Mecz o 3. miejsce' });
+
+  remaining.forEach(t => {
+    rankedList.push({ team: t.team, status: 'Faza grupowa' });
+  });
+
+  // Map each ranked team to their complete stats
+  return rankedList.map((item, idx) => {
+    const stats = allTeams.find(t => t.team === item.team);
+    return {
+      rank: idx + 1,
+      team: item.team,
+      status: item.status,
+      ...stats
+    };
+  });
 }
 
 // Helper to compute standings dynamically

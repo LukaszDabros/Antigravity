@@ -1226,3 +1226,76 @@ body.light-theme .app-header {
     margin-bottom: 40px !important;
   }
 }
+
+/* ==========================================================================
+   FINAL STANDINGS SECTION
+   ========================================================================== */
+.final-classification-card {
+  margin-top: 24px;
+}
+
+.final-standings-table th {
+  text-align: center;
+}
+
+.final-standings-table td {
+  text-align: center;
+}
+
+.final-standings-table td.team-col {
+  text-align: left;
+}
+
+.badge-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-status.gold {
+  background: rgba(234, 179, 8, 0.15);
+  color: #facc15;
+  border: 1px solid rgba(234, 179, 8, 0.3);
+}
+
+.badge-status.silver {
+  background: rgba(148, 163, 184, 0.15);
+  color: #cbd5e1;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+.badge-status.bronze {
+  background: rgba(205, 127, 50, 0.15);
+  color: #ed8936;
+  border: 1px solid rgba(205, 127, 50, 0.3);
+}
+
+.badge-status.gray {
+  background: rgba(100, 116, 139, 0.15);
+  color: #94a3b8;
+  border: 1px solid rgba(100, 116, 139, 0.3);
+}
+
+.badge-status.info {
+  background: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.badge-status.muted {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+}
+
+body.light-theme .badge-status.muted {
+  background: rgba(15, 23, 42, 0.03);
+  color: var(--text-secondary);
+}
