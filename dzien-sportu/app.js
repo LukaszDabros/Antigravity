@@ -1057,6 +1057,24 @@ function updateStandingsAndSeeding(sportId) {
         }
       }
     });
+  } else if (groupAStandings) {
+    const firstA = groupAStandings[0].team;
+    const secondA = groupAStandings.length > 1 ? groupAStandings[1].team : "???";
+    const thirdA = groupAStandings.length > 2 ? groupAStandings[2].team : "???";
+    const fourthA = groupAStandings.length > 3 ? groupAStandings[3].team : "???";
+
+    // Seeding final matches for single group
+    sport.matches.forEach(match => {
+      if (match.group === 'Finały' && !match.completed) {
+        if (match.stage.includes('3. miejsce') || match.stage.includes('m-ce 3')) {
+          match.team1 = thirdA;
+          match.team2 = fourthA;
+        } else if (match.stage.includes('Finał') || match.stage.includes('1-2') || match.stage.includes('m-ce 1')) {
+          match.team1 = firstA;
+          match.team2 = secondA;
+        }
+      }
+    });
   }
 }
 

@@ -1,381 +1,337 @@
 const SCHEDULE_DATA = {
-  "title": "Dzień Sportu Liceum Sióstr Prezentek 2025",
+  "title": "Dzień Sportu Liceum i Szkoły Podstawowej Sióstr Prezentek 2025",
   "sports": {
     "volleyball": {
       "name": "Piłka siatkowa",
-      "rules": "15pkt max 10'",
+      "rules": "15pkt max 15'",
+      "groups": {
+        "A": [
+          "1A LO",
+          "2A LO",
+          "3A LO"
+        ],
+        "B": [
+          "1B LO",
+          "2B LO",
+          "3B LO",
+          "3C LO"
+        ]
+      },
       "matches": [
         {
-          "time": "08:50",
+          "time": "09:00",
           "court": "Boisko 1",
-          "team1": "2C",
-          "team2": "3A",
-          "stage": "Faza grupowa",
-          "group": "A"
-        },
-        {
-          "time": "08:50",
-          "court": "Boisko 2",
-          "team1": "1B",
-          "team2": "2A",
+          "team1": "1B LO",
+          "team2": "2B LO",
           "stage": "Faza grupowa",
           "group": "B"
         },
         {
           "time": "09:00",
+          "court": "Boisko 2",
+          "team1": "3B LO",
+          "team2": "3C LO",
+          "stage": "Faza grupowa",
+          "group": "B"
+        },
+        {
+          "time": "09:10",
           "court": "Boisko 1",
-          "team1": "1A",
-          "team2": "2C",
+          "team1": "1A LO",
+          "team2": "3A LO",
           "stage": "Faza grupowa",
           "group": "A"
         },
         {
-          "time": "09:00",
-          "court": "Boisko 2",
-          "team1": "1B",
-          "team2": "2B",
+          "time": "09:20",
+          "court": "Boisko 1",
+          "team1": "2A LO",
+          "team2": "3A LO",
           "stage": "Faza grupowa",
-          "group": "B"
+          "group": "A"
         },
         {
           "time": "09:20",
           "court": "Boisko 2",
-          "team1": "2A",
-          "team2": "3B",
+          "team1": "1B LO",
+          "team2": "3B LO",
           "stage": "Faza grupowa",
           "group": "B"
         },
         {
           "time": "09:30",
           "court": "Boisko 1",
-          "team1": "3A",
-          "team2": "3C",
+          "team1": "7a SP",
+          "team2": "8a SP",
+          "stage": "Mecz SP",
+          "group": "SP"
+        },
+        {
+          "time": "09:40",
+          "court": "Boisko 1",
+          "team1": "1B LO",
+          "team2": "3C LO",
+          "stage": "Faza grupowa",
+          "group": "B"
+        },
+        {
+          "time": "09:40",
+          "court": "Boisko 2",
+          "team1": "2B LO",
+          "team2": "3B LO",
+          "stage": "Faza grupowa",
+          "group": "B"
+        },
+        {
+          "time": "09:50",
+          "court": "Boisko 1",
+          "team1": "1A LO",
+          "team2": "2A LO",
           "stage": "Faza grupowa",
           "group": "A"
+        },
+        {
+          "time": "10:30",
+          "court": "Boisko 1",
+          "team1": "2B LO",
+          "team2": "3C LO",
+          "stage": "Faza grupowa",
+          "group": "B"
+        },
+        {
+          "time": "10:40",
+          "court": "Boisko 1",
+          "team1": "I z gr A",
+          "team2": "I z gr B",
+          "stage": "Finał",
+          "group": "Finały",
+          "placeholder1": "I z gr A",
+          "placeholder2": "I z gr B"
+        },
+        {
+          "time": "10:50",
+          "court": "Boisko 1",
+          "team1": "II z gr A",
+          "team2": "II z gr B",
+          "stage": "Mecz o 3. miejsce",
+          "group": "Finały",
+          "placeholder1": "II z gr A",
+          "placeholder2": "II z gr B"
+        }
+      ]
+    },
+    "soccer": {
+      "name": "Piłka nożna",
+      "rules": "8'",
+      "groups": {
+        "A": [
+          "1A LO",
+          "2A LO",
+          "2B LO",
+          "3A LO",
+          "3C LO"
+        ]
+      },
+      "matches": [
+        {
+          "time": "09:10",
+          "court": "Boisko 2",
+          "team1": "7a SP",
+          "team2": "8a SP",
+          "stage": "Mecz SP",
+          "group": "SP"
         },
         {
           "time": "09:30",
           "court": "Boisko 2",
-          "team1": "2B",
-          "team2": "3B",
-          "stage": "Faza grupowa",
-          "group": "B"
-        },
-        {
-          "time": "09:50",
-          "court": "Boisko 1",
-          "team1": "1A",
-          "team2": "3A",
-          "stage": "Faza grupowa",
-          "group": "A"
-        },
-        {
-          "time": "09:50",
-          "court": "Boisko 2",
-          "team1": "2A",
-          "team2": "2B",
-          "stage": "Faza grupowa",
-          "group": "B"
-        },
-        {
-          "time": "10:00",
-          "court": "Boisko 1",
-          "team1": "2C",
-          "team2": "3C",
+          "team1": "2A LO",
+          "team2": "2B LO",
           "stage": "Faza grupowa",
           "group": "A"
         },
         {
           "time": "10:00",
-          "court": "Boisko 2",
-          "team1": "1B",
-          "team2": "3B",
+          "court": "Boisko 1",
+          "team1": "3A LO",
+          "team2": "3C LO",
           "stage": "Faza grupowa",
-          "group": "B"
+          "group": "A"
         },
         {
           "time": "10:10",
           "court": "Boisko 1",
-          "team1": "1A",
-          "team2": "3C",
+          "team1": "2B LO",
+          "team2": "3A LO",
+          "stage": "Faza grupowa",
+          "group": "A"
+        },
+        {
+          "time": "10:10",
+          "court": "Boisko 2",
+          "team1": "2A LO",
+          "team2": "3C LO",
+          "stage": "Faza grupowa",
+          "group": "A"
+        },
+        {
+          "time": "10:20",
+          "court": "Boisko 1",
+          "team1": "1A LO",
+          "team2": "2A LO",
+          "stage": "Faza grupowa",
+          "group": "A"
+        },
+        {
+          "time": "10:40",
+          "court": "Boisko 2",
+          "team1": "1A LO",
+          "team2": "3A LO",
+          "stage": "Faza grupowa",
+          "group": "A"
+        },
+        {
+          "time": "11:00",
+          "court": "Boisko 1",
+          "team1": "1A LO",
+          "team2": "3C LO",
+          "stage": "Faza grupowa",
+          "group": "A"
+        },
+        {
+          "time": "11:10",
+          "court": "Boisko 1",
+          "team1": "1A LO",
+          "team2": "2B LO",
+          "stage": "Faza grupowa",
+          "group": "A"
+        },
+        {
+          "time": "11:10",
+          "court": "Boisko 2",
+          "team1": "2A LO",
+          "team2": "3A LO",
           "stage": "Faza grupowa",
           "group": "A"
         },
         {
           "time": "11:20",
           "court": "Boisko 1",
-          "team1": "3C",
-          "team2": "1B",
-          "placeholder1": "II z gr A",
-          "placeholder2": "II z gr B",
-          "stage": "Mecz o 3. miejsce",
-          "group": "Finały"
+          "team1": "2B LO",
+          "team2": "3C LO",
+          "stage": "Faza grupowa",
+          "group": "A"
         },
         {
-          "time": "11:20",
+          "time": "11:30",
           "court": "Boisko 1",
-          "team1": "3A",
-          "team2": "3B",
-          "placeholder1": "I z gr A",
-          "placeholder2": "I z gr B",
+          "team1": "I z gr A",
+          "team2": "II z gr A",
           "stage": "Finał",
-          "group": "Finały"
+          "group": "Finały",
+          "placeholder1": "I z gr A",
+          "placeholder2": "II z gr A"
+        },
+        {
+          "time": "11:30",
+          "court": "Boisko 2",
+          "team1": "III z gr A",
+          "team2": "IV z gr A",
+          "stage": "Mecz o 3. miejsce",
+          "group": "Finały",
+          "placeholder1": "III z gr A",
+          "placeholder2": "IV z gr A"
         }
-      ],
-      "groups": {
-        "A": [
-          "1A",
-          "2C",
-          "3A",
-          "3C"
-        ],
-        "B": [
-          "1B",
-          "2A",
-          "2B",
-          "3B"
-        ]
-      }
+      ]
     },
     "basketball": {
       "name": "Piłka koszykowa",
       "rules": "8'",
+      "groups": {
+        "A": [
+          "1A LO",
+          "2A LO",
+          "2B LO",
+          "3C LO"
+        ]
+      },
       "matches": [
-        {
-          "time": "08:50",
-          "court": "Boisko",
-          "team1": "1A",
-          "team2": "3B",
-          "stage": "Faza grupowa",
-          "group": "A"
-        },
         {
           "time": "09:00",
           "court": "Boisko",
-          "team1": "2A",
-          "team2": "3B",
+          "team1": "1A LO",
+          "team2": "2A LO",
           "stage": "Faza grupowa",
           "group": "A"
         },
         {
           "time": "09:10",
           "court": "Boisko",
-          "team1": "1B",
-          "team2": "2B",
+          "team1": "2B LO",
+          "team2": "3C LO",
           "stage": "Faza grupowa",
-          "group": "B"
-        },
-        {
-          "time": "09:20",
-          "court": "Boisko",
-          "team1": "2C",
-          "team2": "3A",
-          "stage": "Faza grupowa",
-          "group": "B"
+          "group": "A"
         },
         {
           "time": "09:30",
           "court": "Boisko",
-          "team1": "1B",
-          "team2": "2C",
+          "team1": "1A LO",
+          "team2": "3C LO",
           "stage": "Faza grupowa",
-          "group": "B"
+          "group": "A"
+        },
+        {
+          "time": "09:40",
+          "court": "Boisko",
+          "team1": "7a SP",
+          "team2": "8a SP",
+          "stage": "Mecz SP",
+          "group": "SP"
         },
         {
           "time": "10:00",
           "court": "Boisko",
-          "team1": "2B",
-          "team2": "3A",
+          "team1": "1A LO",
+          "team2": "2B LO",
           "stage": "Faza grupowa",
-          "group": "B"
-        },
-        {
-          "time": "10:20",
-          "court": "Boisko",
-          "team1": "2B",
-          "team2": "2C",
-          "stage": "Faza grupowa",
-          "group": "B"
-        },
-        {
-          "time": "10:30",
-          "court": "Boisko",
-          "team1": "1B",
-          "team2": "3A",
-          "stage": "Faza grupowa",
-          "group": "B"
+          "group": "A"
         },
         {
           "time": "10:40",
           "court": "Boisko",
-          "team1": "1A",
-          "team2": "2B",
+          "team1": "2A LO",
+          "team2": "3C LO",
+          "stage": "Faza grupowa",
+          "group": "A"
+        },
+        {
+          "time": "10:50",
+          "court": "Boisko",
+          "team1": "2A LO",
+          "team2": "2B LO",
           "stage": "Faza grupowa",
           "group": "A"
         },
         {
           "time": "11:00",
           "court": "Boisko",
-          "team1": "II z gr A",
-          "team2": "II z gr B",
-          "stage": "Mecz o 3. miejsce",
-          "group": "Finały"
+          "team1": "I z gr A",
+          "team2": "II z gr A",
+          "stage": "Finał",
+          "group": "Finały",
+          "placeholder1": "I z gr A",
+          "placeholder2": "II z gr A"
         },
         {
           "time": "11:10",
           "court": "Boisko",
-          "team1": "I z gr A",
-          "team2": "I z gr B",
-          "stage": "Finał",
-          "group": "Finały"
-        }
-      ],
-      "groups": {
-        "A": [
-          "1A",
-          "2A",
-          "3B",
-          "3C"
-        ],
-        "B": [
-          "1B",
-          "2B",
-          "2C",
-          "3A"
-        ]
-      }
-    },
-    "soccer": {
-      "name": "Piłka nożna",
-      "rules": "8'",
-      "matches": [
-        {
-          "time": "08:50",
-          "court": "Boisko 2",
-          "team1": "2B",
-          "team2": "3C",
-          "stage": "Faza grupowa",
-          "group": "A"
-        },
-        {
-          "time": "09:10",
-          "court": "Boisko 1",
-          "team1": "2A",
-          "team2": "3A",
-          "stage": "Faza grupowa",
-          "group": "B"
-        },
-        {
-          "time": "09:10",
-          "court": "Boisko 2",
-          "team1": "2C",
-          "team2": "3C",
-          "stage": "Faza grupowa",
-          "group": "A"
-        },
-        {
-          "time": "09:20",
-          "court": "Boisko 2",
-          "team1": "1A",
-          "team2": "3C",
-          "stage": "Faza grupowa",
-          "group": "A"
-        },
-        {
-          "time": "09:40",
-          "court": "Boisko 1",
-          "team1": "3A",
-          "team2": "3B",
-          "stage": "Faza grupowa",
-          "group": "B"
-        },
-        {
-          "time": "09:40",
-          "court": "Boisko 2",
-          "team1": "1A",
-          "team2": "2B",
-          "stage": "Faza grupowa",
-          "group": "A"
-        },
-        {
-          "time": "09:50",
-          "court": "Boisko 1",
-          "team1": "1B",
-          "team2": "3B",
-          "stage": "Faza grupowa",
-          "group": "B"
-        },
-        {
-          "time": "10:10",
-          "court": "Boisko 1",
-          "team1": "1B",
-          "team2": "2A",
-          "stage": "Faza grupowa",
-          "group": "B"
-        },
-        {
-          "time": "10:10",
-          "court": "Boisko 2",
-          "team1": "2B",
-          "team2": "2C",
-          "stage": "Faza grupowa",
-          "group": "A"
-        },
-        {
-          "time": "10:20",
-          "court": "Boisko 1",
-          "team1": "1B",
-          "team2": "3A",
-          "stage": "Faza grupowa",
-          "group": "B"
-        },
-        {
-          "time": "10:30",
-          "court": "Boisko 1",
-          "team1": "2A",
-          "team2": "3B",
-          "stage": "Faza grupowa",
-          "group": "B"
-        },
-        {
-          "time": "10:30",
-          "court": "Boisko 2",
-          "team1": "1A",
-          "team2": "2C",
-          "stage": "Faza grupowa",
-          "group": "A"
-        },
-        {
-          "time": "10:50",
-          "court": "Boisko 2",
-          "team1": "II z gr A",
-          "team2": "II z gr B",
+          "team1": "III z gr A",
+          "team2": "IV z gr A",
           "stage": "Mecz o 3. miejsce",
-          "group": "Finały"
-        },
-        {
-          "time": "10:50",
-          "court": "Boisko 2",
-          "team1": "I z gr A",
-          "team2": "I z gr B",
-          "stage": "Finał",
-          "group": "Finały"
+          "group": "Finały",
+          "placeholder1": "III z gr A",
+          "placeholder2": "IV z gr A"
         }
-      ],
-      "groups": {
-        "A": [
-          "1A",
-          "2B",
-          "2C",
-          "3C"
-        ],
-        "B": [
-          "1B",
-          "2A",
-          "3A",
-          "3B"
-        ]
-      }
+      ]
     }
   },
   "other_events": [
