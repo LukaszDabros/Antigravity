@@ -19,7 +19,7 @@ const SCHEDULE_DATA = {
       },
       "matches": [
         {
-          "time": "09:00",
+          "time": "09:15",
           "court": "Boisko 1",
           "team1": "1B LO",
           "team2": "3C LO",
@@ -27,7 +27,7 @@ const SCHEDULE_DATA = {
           "group": "B"
         },
         {
-          "time": "09:00",
+          "time": "09:15",
           "court": "Boisko 2",
           "team1": "2A LO",
           "team2": "3A LO",
@@ -35,7 +35,7 @@ const SCHEDULE_DATA = {
           "group": "A"
         },
         {
-          "time": "09:15",
+          "time": "09:30",
           "court": "Boisko 2",
           "team1": "1B LO",
           "team2": "3B LO",
@@ -43,7 +43,7 @@ const SCHEDULE_DATA = {
           "group": "B"
         },
         {
-          "time": "09:30",
+          "time": "09:45",
           "court": "Boisko 1",
           "team1": "1A LO",
           "team2": "3A LO",
@@ -51,7 +51,7 @@ const SCHEDULE_DATA = {
           "group": "A"
         },
         {
-          "time": "09:30",
+          "time": "09:45",
           "court": "Boisko 2",
           "team1": "1B LO",
           "team2": "2B LO",
@@ -59,7 +59,7 @@ const SCHEDULE_DATA = {
           "group": "B"
         },
         {
-          "time": "09:45",
+          "time": "10:00",
           "court": "Boisko 1",
           "team1": "7a SP",
           "team2": "8a SP",
@@ -67,7 +67,7 @@ const SCHEDULE_DATA = {
           "group": "SP"
         },
         {
-          "time": "09:45",
+          "time": "10:00",
           "court": "Boisko 2",
           "team1": "3B LO",
           "team2": "3C LO",
@@ -75,7 +75,7 @@ const SCHEDULE_DATA = {
           "group": "B"
         },
         {
-          "time": "10:00",
+          "time": "10:15",
           "court": "Boisko 2",
           "team1": "2B LO",
           "team2": "3B LO",
@@ -83,7 +83,7 @@ const SCHEDULE_DATA = {
           "group": "B"
         },
         {
-          "time": "10:15",
+          "time": "10:30",
           "court": "Boisko 2",
           "team1": "1A LO",
           "team2": "2A LO",
@@ -91,7 +91,7 @@ const SCHEDULE_DATA = {
           "group": "A"
         },
         {
-          "time": "10:45",
+          "time": "11:00",
           "court": "Boisko 1",
           "team1": "2B LO",
           "team2": "3C LO",
@@ -99,7 +99,7 @@ const SCHEDULE_DATA = {
           "group": "B"
         },
         {
-          "time": "11:00",
+          "time": "11:15",
           "court": "Boisko 1",
           "team1": "I z gr A",
           "team2": "I z gr B",
@@ -109,7 +109,7 @@ const SCHEDULE_DATA = {
           "placeholder2": "I z gr B"
         },
         {
-          "time": "11:00",
+          "time": "11:15",
           "court": "Boisko 2",
           "team1": "II z gr A",
           "team2": "II z gr B",
@@ -134,7 +134,7 @@ const SCHEDULE_DATA = {
       },
       "matches": [
         {
-          "time": "09:00",
+          "time": "09:15",
           "court": "Boisko 1",
           "team1": "1A LO",
           "team2": "2B LO",
@@ -142,7 +142,7 @@ const SCHEDULE_DATA = {
           "group": "A"
         },
         {
-          "time": "09:15",
+          "time": "09:30",
           "court": "Boisko 1",
           "team1": "3A LO",
           "team2": "3C LO",
@@ -150,7 +150,7 @@ const SCHEDULE_DATA = {
           "group": "A"
         },
         {
-          "time": "09:15",
+          "time": "09:30",
           "court": "Boisko 2",
           "team1": "7a SP",
           "team2": "8a SP",
@@ -158,17 +158,9 @@ const SCHEDULE_DATA = {
           "group": "SP"
         },
         {
-          "time": "09:45",
-          "court": "Boisko 1",
-          "team1": "2B LO",
-          "team2": "3A LO",
-          "stage": "Faza grupowa",
-          "group": "A"
-        },
-        {
           "time": "10:00",
           "court": "Boisko 1",
-          "team1": "2A LO",
+          "team1": "2B LO",
           "team2": "3A LO",
           "stage": "Faza grupowa",
           "group": "A"
@@ -176,15 +168,15 @@ const SCHEDULE_DATA = {
         {
           "time": "10:15",
           "court": "Boisko 1",
-          "team1": "2B LO",
-          "team2": "3C LO",
+          "team1": "2A LO",
+          "team2": "3A LO",
           "stage": "Faza grupowa",
           "group": "A"
         },
         {
           "time": "10:30",
-          "court": "Boisko 2",
-          "team1": "2A LO",
+          "court": "Boisko 1",
+          "team1": "2B LO",
           "team2": "3C LO",
           "stage": "Faza grupowa",
           "group": "A"
@@ -192,13 +184,21 @@ const SCHEDULE_DATA = {
         {
           "time": "10:45",
           "court": "Boisko 2",
+          "team1": "2A LO",
+          "team2": "3C LO",
+          "stage": "Faza grupowa",
+          "group": "A"
+        },
+        {
+          "time": "11:00",
+          "court": "Boisko 2",
           "team1": "1A LO",
           "team2": "3A LO",
           "stage": "Faza grupowa",
           "group": "A"
         },
         {
-          "time": "11:00",
+          "time": "11:15",
           "court": "Boisko 1",
           "team1": "1A LO",
           "team2": "2A LO",
@@ -206,7 +206,7 @@ const SCHEDULE_DATA = {
           "group": "A"
         },
         {
-          "time": "11:15",
+          "time": "11:30",
           "court": "Boisko 1",
           "team1": "2A LO",
           "team2": "2B LO",
@@ -214,7 +214,7 @@ const SCHEDULE_DATA = {
           "group": "A"
         },
         {
-          "time": "11:15",
+          "time": "11:30",
           "court": "Boisko 2",
           "team1": "1A LO",
           "team2": "3C LO",
@@ -222,7 +222,7 @@ const SCHEDULE_DATA = {
           "group": "A"
         },
         {
-          "time": "11:30",
+          "time": "11:45",
           "court": "Boisko 1",
           "team1": "III z gr A",
           "team2": "IV z gr A",
@@ -232,7 +232,7 @@ const SCHEDULE_DATA = {
           "placeholder2": "IV z gr A"
         },
         {
-          "time": "11:30",
+          "time": "11:45",
           "court": "Boisko 2",
           "team1": "I z gr A",
           "team2": "II z gr A",
@@ -256,7 +256,7 @@ const SCHEDULE_DATA = {
       },
       "matches": [
         {
-          "time": "09:00",
+          "time": "09:15",
           "court": "Boisko",
           "team1": "7a SP",
           "team2": "8a SP",
@@ -264,7 +264,7 @@ const SCHEDULE_DATA = {
           "group": "SP"
         },
         {
-          "time": "09:15",
+          "time": "09:30",
           "court": "Boisko",
           "team1": "2A LO",
           "team2": "2B LO",
@@ -272,18 +272,10 @@ const SCHEDULE_DATA = {
           "group": "A"
         },
         {
-          "time": "09:30",
+          "time": "09:45",
           "court": "Boisko",
           "team1": "2A LO",
           "team2": "3C LO",
-          "stage": "Faza grupowa",
-          "group": "A"
-        },
-        {
-          "time": "09:45",
-          "court": "Boisko",
-          "team1": "1A LO",
-          "team2": "2A LO",
           "stage": "Faza grupowa",
           "group": "A"
         },
@@ -291,12 +283,20 @@ const SCHEDULE_DATA = {
           "time": "10:00",
           "court": "Boisko",
           "team1": "1A LO",
+          "team2": "2A LO",
+          "stage": "Faza grupowa",
+          "group": "A"
+        },
+        {
+          "time": "10:15",
+          "court": "Boisko",
+          "team1": "1A LO",
           "team2": "3C LO",
           "stage": "Faza grupowa",
           "group": "A"
         },
         {
-          "time": "10:30",
+          "time": "10:45",
           "court": "Boisko",
           "team1": "1A LO",
           "team2": "2B LO",
@@ -304,7 +304,7 @@ const SCHEDULE_DATA = {
           "group": "A"
         },
         {
-          "time": "11:00",
+          "time": "11:15",
           "court": "Boisko",
           "team1": "2B LO",
           "team2": "3C LO",
@@ -312,7 +312,7 @@ const SCHEDULE_DATA = {
           "group": "A"
         },
         {
-          "time": "11:15",
+          "time": "11:30",
           "court": "Boisko",
           "team1": "III z gr A",
           "team2": "IV z gr A",
@@ -322,7 +322,7 @@ const SCHEDULE_DATA = {
           "placeholder2": "IV z gr A"
         },
         {
-          "time": "11:30",
+          "time": "11:45",
           "court": "Boisko",
           "team1": "I z gr A",
           "team2": "II z gr A",
@@ -336,13 +336,13 @@ const SCHEDULE_DATA = {
   },
   "other_events": [
     {
-      "time": "11:45",
+      "time": "12:00",
       "name": "Sztafety",
       "stage": "Wydarzenie ogólne",
       "court": "Biegnia / Główny plac"
     },
     {
-      "time": "12:00",
+      "time": "12:15",
       "name": "Mecz towarzyski",
       "stage": "Wydarzenie ogólne",
       "court": "Boisko główne"

@@ -112,6 +112,25 @@ function loadState() {
       if (tournamentState.resetTime === undefined) {
         tournamentState.resetTime = 0;
       }
+
+      // Sync times from SCHEDULE_DATA to preserve completed matches but update schedule times
+      Object.keys(SCHEDULE_DATA.sports).forEach(sportId => {
+        if (tournamentState.sports[sportId]) {
+          SCHEDULE_DATA.sports[sportId].matches.forEach((defaultMatch, idx) => {
+            if (tournamentState.sports[sportId].matches[idx]) {
+              tournamentState.sports[sportId].matches[idx].time = defaultMatch.time;
+            }
+          });
+        }
+      });
+      if (SCHEDULE_DATA.other_events && tournamentState.other_events) {
+        SCHEDULE_DATA.other_events.forEach((defaultEvent, idx) => {
+          if (tournamentState.other_events[idx]) {
+            tournamentState.other_events[idx].time = defaultEvent.time;
+          }
+        });
+      }
+      saveState();
     } catch (e) {
       console.error("Error parsing saved state, resetting:", e);
       resetToDefault();
