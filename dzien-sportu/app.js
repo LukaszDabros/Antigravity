@@ -76,6 +76,14 @@ function initApp() {
   updateRefereeUI();
 
   loadState();
+
+  // Recalculate standings and seeding for all sports on startup
+  if (tournamentState && tournamentState.sports) {
+    Object.keys(tournamentState.sports).forEach(sportId => {
+      updateStandingsAndSeeding(sportId);
+    });
+  }
+
   setupEventListeners();
   renderTimeline();
   renderLiveBanner();
@@ -812,6 +820,12 @@ function renderSportView(sportId) {
   `;
 }
 
+// Helper to check if a team is a real team (and not a placeholder) in a sport
+function isRealTeamInSport(sport, teamName) {
+  if (!teamName) return false;
+  return Object.values(sport.groups).some(groupTeams => groupTeams.includes(teamName));
+}
+
 // Helper to get overall final standings
 function getFinalStandings(sportId) {
   const sport = tournamentState.sports[sportId];
@@ -932,7 +946,15 @@ function getFinalStandings(sportId) {
 
   // Map each ranked team to their complete stats
   return rankedList.map((item, idx) => {
-    const stats = allTeams.find(t => t.team === item.team);
+    const stats = allTeams.find(t => t.team === item.team) || {
+      played: 0,
+      wins: 0,
+      draws: 0,
+      losses: 0,
+      scored: 0,
+      conceded: 0,
+      points: 0
+    };
     return {
       rank: idx + 1,
       team: item.team,
@@ -968,41 +990,51 @@ function updateStandingsAndSeeding(sportId) {
     // Find groups
     const t1 = match.team1;
     const t2 = match.team2;
-    const groupName = match.group;
 
-    const groupTable = sport.standings[groupName];
-    if (!groupTable) return;
+    // Find team data in any group's standings
+    let team1Data = null;
+    let team2Data = null;
+    Object.keys(sport.standings).forEach(gName => {
+      const tData1 = sport.standings[gName].find(t => t.team === t1);
+      if (tData1) team1Data = tData1;
+      const tData2 = sport.standings[gName].find(t => t.team === t2);
+      if (tData2) team2Data = tData2;
+    });
 
-    const team1Data = groupTable.find(t => t.team === t1);
-    const team2Data = groupTable.find(t => t.team === t2);
-
-    if (!team1Data || !team2Data) return;
+    if (!team1Data && !team2Data) return;
 
     const s1 = Number(match.team1_score);
     const s2 = Number(match.team2_score);
 
     // Update played and scores
-    team1Data.played += 1;
-    team2Data.played += 1;
-    team1Data.scored += s1;
-    team1Data.conceded += s2;
-    team2Data.scored += s2;
-    team2Data.conceded += s1;
+    if (team1Data) {
+      team1Data.played += 1;
+      team1Data.scored += s1;
+      team1Data.conceded += s2;
+      if (s1 > s2) {
+        team1Data.wins += 1;
+        team1Data.points += sportId === 'soccer' ? 3 : 2; // soccer: 3 for win, others: 2
+      } else if (s2 > s1) {
+        team1Data.losses += 1;
+      } else {
+        team1Data.draws += 1;
+        team1Data.points += 1;
+      }
+    }
 
-    if (s1 > s2) {
-      team1Data.wins += 1;
-      team2Data.losses += 1;
-      team1Data.points += sportId === 'soccer' ? 3 : 2; // soccer: 3 for win, others: 2
-    } else if (s2 > s1) {
-      team2Data.wins += 1;
-      team1Data.losses += 1;
-      team2Data.points += sportId === 'soccer' ? 3 : 2;
-    } else {
-      // Draw (only makes sense in soccer, but handle anyway)
-      team1Data.draws += 1;
-      team2Data.draws += 1;
-      team1Data.points += 1;
-      team2Data.points += 1;
+    if (team2Data) {
+      team2Data.played += 1;
+      team2Data.scored += s2;
+      team2Data.conceded += s1;
+      if (s2 > s1) {
+        team2Data.wins += 1;
+        team2Data.points += sportId === 'soccer' ? 3 : 2;
+      } else if (s1 > s2) {
+        team2Data.losses += 1;
+      } else {
+        team2Data.draws += 1;
+        team2Data.points += 1;
+      }
     }
   });
 
@@ -1041,19 +1073,22 @@ function updateStandingsAndSeeding(sportId) {
 
     // Seeding final matches
     sport.matches.forEach(match => {
-      if (match.group === 'Finały' && !match.completed) {
-        // For Volleyball: if no group matches are played yet, preserve the default pre-filled sheet teams (3C, 1B, 3A, 3B)
-        const hasAnyGroupMatchesPlayed = groupStageMatches.some(m => m.completed);
-        if (sportId === 'volleyball' && !hasAnyGroupMatchesPlayed) {
-          return;
-        }
+      if (match.group === 'Finały') {
+        const needsSeeding = !match.completed || !isRealTeamInSport(sport, match.team1) || !isRealTeamInSport(sport, match.team2);
+        if (needsSeeding) {
+          // For Volleyball: if no group matches are played yet, preserve the default pre-filled sheet teams (3C, 1B, 3A, 3B)
+          const hasAnyGroupMatchesPlayed = groupStageMatches.some(m => m.completed);
+          if (sportId === 'volleyball' && !hasAnyGroupMatchesPlayed) {
+            return;
+          }
 
-        if (match.stage.includes('3. miejsce') || match.stage.includes('m-ce 3')) {
-          match.team1 = secondA;
-          match.team2 = secondB;
-        } else if (match.stage.includes('Finał') || match.stage.includes('1-2') || match.stage.includes('m-ce 1')) {
-          match.team1 = firstA;
-          match.team2 = firstB;
+          if (match.stage.includes('3. miejsce') || match.stage.includes('m-ce 3')) {
+            match.team1 = secondA;
+            match.team2 = secondB;
+          } else if (match.stage.includes('Finał') || match.stage.includes('1-2') || match.stage.includes('m-ce 1')) {
+            match.team1 = firstA;
+            match.team2 = firstB;
+          }
         }
       }
     });
