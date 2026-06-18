@@ -122,7 +122,7 @@ const SCHEDULE_DATA = {
     },
     "soccer": {
       "name": "Piłka nożna",
-      "rules": "8'",
+      "rules": "10'",
       "groups": {
         "A": [
           "1A LO",
@@ -245,7 +245,7 @@ const SCHEDULE_DATA = {
     },
     "basketball": {
       "name": "Piłka koszykowa",
-      "rules": "8'",
+      "rules": "10'",
       "groups": {
         "A": [
           "1A LO",

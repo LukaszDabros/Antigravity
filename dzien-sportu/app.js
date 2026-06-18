@@ -113,9 +113,11 @@ function loadState() {
         tournamentState.resetTime = 0;
       }
 
-      // Sync times from SCHEDULE_DATA to preserve completed matches but update schedule times
+      // Sync times, rules, and names from SCHEDULE_DATA to preserve completed matches but update configuration
       Object.keys(SCHEDULE_DATA.sports).forEach(sportId => {
         if (tournamentState.sports[sportId]) {
+          tournamentState.sports[sportId].rules = SCHEDULE_DATA.sports[sportId].rules;
+          tournamentState.sports[sportId].name = SCHEDULE_DATA.sports[sportId].name;
           SCHEDULE_DATA.sports[sportId].matches.forEach((defaultMatch, idx) => {
             if (tournamentState.sports[sportId].matches[idx]) {
               tournamentState.sports[sportId].matches[idx].time = defaultMatch.time;
