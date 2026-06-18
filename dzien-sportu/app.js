@@ -125,12 +125,8 @@ function loadState() {
           });
         }
       });
-      if (SCHEDULE_DATA.other_events && tournamentState.other_events) {
-        SCHEDULE_DATA.other_events.forEach((defaultEvent, idx) => {
-          if (tournamentState.other_events[idx]) {
-            tournamentState.other_events[idx].time = defaultEvent.time;
-          }
-        });
+      if (SCHEDULE_DATA.other_events) {
+        tournamentState.other_events = JSON.parse(JSON.stringify(SCHEDULE_DATA.other_events));
       }
       saveState();
     } catch (e) {

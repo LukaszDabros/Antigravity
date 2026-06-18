@@ -340,12 +340,6 @@ const SCHEDULE_DATA = {
       "name": "Sztafety",
       "stage": "Wydarzenie ogólne",
       "court": "Biegnia / Główny plac"
-    },
-    {
-      "time": "12:15",
-      "name": "Mecz towarzyski",
-      "stage": "Wydarzenie ogólne",
-      "court": "Boisko główne"
     }
   ]
 };
