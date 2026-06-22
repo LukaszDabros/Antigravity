@@ -793,9 +793,12 @@ function renderSportView(sportId) {
   if (sportId === 'volleyball') {
     phaseHtml = 'Rozgrywki w dwóch grupach (A i B), mecze każdy z każdym.';
     promotionHtml = 'Zwycięzcy obu grup (1. miejsca) grają w <strong>Wielkim Finale</strong> o 1. miejsce. Drużyny z drugich miejsc z obu grup grają w <strong>Małym Finale</strong> o 3. miejsce.';
-  } else if (sportId === 'soccer' || sportId === 'basketball') {
+  } else if (sportId === 'soccer') {
     phaseHtml = 'Jedna wspólna tabela (system każdy z każdym).';
     promotionHtml = 'Dwie pierwsze drużyny z tabeli grają w <strong>Wielkim Finale</strong> o 1. miejsce. Drużyny z miejsc 3. i 4. grają w <strong>Małym Finale</strong> o 3. miejsce.';
+  } else if (sportId === 'basketball') {
+    phaseHtml = 'Jedna wspólna tabela (system każdy z każdym).';
+    promotionHtml = 'Brak fazy pucharowej. Końcowa tabela po fazie grupowej wyłania bezpośrednich zwycięzców turnieju (miejsca 1-4).';
   } else {
     phaseHtml = 'System kołowy (każdy z każdym).';
     promotionHtml = 'Zwycięzcy grup awansują do meczów finałowych.';
@@ -818,7 +821,7 @@ function renderSportView(sportId) {
   const groupsHtml = Object.keys(sport.groups).map(groupName => {
     const standings = sport.standings[groupName];
     const rowsHtml = standings.map((teamData, index) => {
-      const isQualified = index < 2; // top 2 go to finals
+      const isQualified = sportId !== 'basketball' && index < 2; // top 2 go to finals (except for basketball which has no finals)
       const rowClass = isQualified ? 'qualified-row' : '';
       
       // Select appropriate stats headers based on sport
@@ -1089,6 +1092,33 @@ function getFinalStandings(sportId) {
     // 4. Alphabetical
     return a.team.localeCompare(b.team);
   });
+
+  const hasFinalsMatches = sport.matches.some(m => m.group === 'Finały');
+  if (!hasFinalsMatches) {
+    const allGroupMatchesCompleted = sport.matches.every(m => m.completed);
+    const rankedList = allTeams.map((t, idx) => {
+      let status = 'Faza grupowa';
+      if (allGroupMatchesCompleted) {
+        if (idx === 0) status = 'Mistrz';
+        else if (idx === 1) status = 'Wicemistrz';
+        else if (idx === 2) status = '3. miejsce';
+        else if (idx === 3) status = '4. miejsce';
+      }
+      return { team: t.team, status };
+    });
+
+    return rankedList.map((item, idx) => {
+      const stats = allTeams.find(t => t.team === item.team) || {
+        played: 0, wins: 0, draws: 0, losses: 0, scored: 0, conceded: 0, points: 0
+      };
+      return {
+        rank: idx + 1,
+        team: item.team,
+        status: item.status,
+        ...stats
+      };
+    });
+  }
 
   // Find finals matches
   const finalMatch = sport.matches.find(m => m.group === 'Finały' && (m.stage.includes('Finał') || m.stage.includes('1-2') || m.stage.includes('m-ce 1')));

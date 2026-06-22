@@ -212,22 +212,6 @@
           "team2": "2B",
           "stage": "Faza grupowa",
           "group": "A"
-        },
-        {
-          "time": "11:00",
-          "court": "Boisko",
-          "team1": "II z gr A",
-          "team2": "II z gr B",
-          "stage": "Mecz o 3. miejsce",
-          "group": "Finały"
-        },
-        {
-          "time": "11:10",
-          "court": "Boisko",
-          "team1": "I z gr A",
-          "team2": "I z gr B",
-          "stage": "Finał",
-          "group": "Finały"
         }
       ],
       "groups": {
