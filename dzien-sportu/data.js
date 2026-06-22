@@ -316,7 +316,7 @@ const SCHEDULE_DATA = {
   },
   "other_events": [
     {
-      "time": "12:30",
+      "time": "12:00",
       "name": "Sztafety",
       "stage": "Wydarzenie ogólne",
       "court": "Biegnia / Główny plac"
