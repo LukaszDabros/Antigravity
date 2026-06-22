@@ -1402,9 +1402,14 @@ function updateStandingsAndSeeding(sportId) {
       if (match.group === 'Finały') {
         const needsSeeding = !match.completed || !isRealTeamInSport(sport, match.team1) || !isRealTeamInSport(sport, match.team2);
         if (needsSeeding) {
-          // For Volleyball: if no group matches are played yet, preserve the default pre-filled sheet teams (3C, 1B, 3A, 3B)
-          const hasAnyGroupMatchesPlayed = groupStageMatches.some(m => m.completed);
-          if (sportId === 'volleyball' && !hasAnyGroupMatchesPlayed) {
+          const allGroupStageCompleted = groupStageMatches.every(m => m.completed);
+          if (!allGroupStageCompleted) {
+            // Restore default placeholder teams from SCHEDULE_DATA
+            const defaultMatch = SCHEDULE_DATA.sports[sportId].matches.find(m => m.stage === match.stage && m.group === 'Finały');
+            if (defaultMatch) {
+              match.team1 = defaultMatch.team1;
+              match.team2 = defaultMatch.team2;
+            }
             return;
           }
 
@@ -1427,6 +1432,17 @@ function updateStandingsAndSeeding(sportId) {
     // Seeding final matches for single group
     sport.matches.forEach(match => {
       if (match.group === 'Finały' && !match.completed) {
+        const allGroupStageCompleted = groupStageMatches.every(m => m.completed);
+        if (!allGroupStageCompleted) {
+          // Restore default placeholder teams from SCHEDULE_DATA
+          const defaultMatch = SCHEDULE_DATA.sports[sportId].matches.find(m => m.stage === match.stage && m.group === 'Finały');
+          if (defaultMatch) {
+            match.team1 = defaultMatch.team1;
+            match.team2 = defaultMatch.team2;
+          }
+          return;
+        }
+
         if (match.stage.includes('3. miejsce') || match.stage.includes('m-ce 3')) {
           match.team1 = thirdA;
           match.team2 = fourthA;
