@@ -222,7 +222,7 @@ const SCHEDULE_DATA = {
           "group": "A"
         },
         {
-          "time": "11:45",
+          "time": "12:00",
           "court": "Boisko 1",
           "team1": "III z gr A",
           "team2": "IV z gr A",
@@ -232,7 +232,7 @@ const SCHEDULE_DATA = {
           "placeholder2": "IV z gr A"
         },
         {
-          "time": "11:45",
+          "time": "12:00",
           "court": "Boisko 2",
           "team1": "I z gr A",
           "team2": "II z gr A",
@@ -336,7 +336,7 @@ const SCHEDULE_DATA = {
   },
   "other_events": [
     {
-      "time": "12:00",
+      "time": "12:15",
       "name": "Sztafety",
       "stage": "Wydarzenie ogólne",
       "court": "Biegnia / Główny plac"

@@ -1,4 +1,4 @@
-{
+const SCHEDULE_DATA = {
   "title": "Dzień Sportu Liceum Sióstr Prezentek 2025",
   "sports": {
     "volleyball": {
@@ -392,4 +392,6 @@
       "court": "Boisko główne"
     }
   ]
-}
+};
+
+export default SCHEDULE_DATA;
