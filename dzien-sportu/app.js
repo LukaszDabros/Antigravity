@@ -146,18 +146,65 @@ function loadState() {
         tournamentState.resetTime = 0;
       }
 
-      // Sync times, rules, and names from SCHEDULE_DATA to preserve completed matches but update configuration
+      // Rebuild matches and sports lists to keep data.js as the source of truth, while preserving scores.
       Object.keys(SCHEDULE_DATA.sports).forEach(sportId => {
         if (tournamentState.sports[sportId]) {
+          const oldMatches = tournamentState.sports[sportId].matches || [];
+          
           tournamentState.sports[sportId].rules = SCHEDULE_DATA.sports[sportId].rules;
           tournamentState.sports[sportId].name = SCHEDULE_DATA.sports[sportId].name;
-          SCHEDULE_DATA.sports[sportId].matches.forEach((defaultMatch, idx) => {
-            if (tournamentState.sports[sportId].matches[idx]) {
-              tournamentState.sports[sportId].matches[idx].time = defaultMatch.time;
+          tournamentState.sports[sportId].groups = JSON.parse(JSON.stringify(SCHEDULE_DATA.sports[sportId].groups));
+          
+          // Rebuild matches from data.js, copying scores from matching old matches
+          tournamentState.sports[sportId].matches = SCHEDULE_DATA.sports[sportId].matches.map((defaultMatch, idx) => {
+            const matchCopy = JSON.parse(JSON.stringify(defaultMatch));
+            matchCopy.id = `${sportId}_match_${idx}`;
+            
+            const foundOld = oldMatches.find(old => {
+              if (matchCopy.group !== 'Finały' && old.group !== 'Finały') {
+                return old.group === matchCopy.group &&
+                       old.stage === matchCopy.stage &&
+                       old.team1 === matchCopy.team1 &&
+                       old.team2 === matchCopy.team2;
+              }
+              if (matchCopy.group === 'Finały' && old.group === 'Finały') {
+                const p1Match = (matchCopy.placeholder1 === old.placeholder1) || (matchCopy.team1 === old.team1);
+                const p2Match = (matchCopy.placeholder2 === old.placeholder2) || (matchCopy.team2 === old.team2);
+                return old.stage === matchCopy.stage && p1Match && p2Match;
+              }
+              return false;
+            });
+            
+            if (foundOld) {
+              matchCopy.completed = foundOld.completed;
+              matchCopy.team1_score = foundOld.team1_score;
+              matchCopy.team2_score = foundOld.team2_score;
+              if (foundOld.team1 && isRealTeamInSport(SCHEDULE_DATA.sports[sportId], foundOld.team1)) {
+                matchCopy.team1 = foundOld.team1;
+              }
+              if (foundOld.team2 && isRealTeamInSport(SCHEDULE_DATA.sports[sportId], foundOld.team2)) {
+                matchCopy.team2 = foundOld.team2;
+              }
             }
+            
+            return matchCopy;
+          });
+        } else {
+          // If sport was added, initialize it completely
+          tournamentState.sports[sportId] = JSON.parse(JSON.stringify(SCHEDULE_DATA.sports[sportId]));
+          tournamentState.sports[sportId].matches.forEach((match, idx) => {
+            match.id = `${sportId}_match_${idx}`;
           });
         }
       });
+      
+      // Remove any sports no longer in SCHEDULE_DATA
+      Object.keys(tournamentState.sports).forEach(sportId => {
+        if (!SCHEDULE_DATA.sports[sportId]) {
+          delete tournamentState.sports[sportId];
+        }
+      });
+      
       if (SCHEDULE_DATA.other_events) {
         tournamentState.other_events = JSON.parse(JSON.stringify(SCHEDULE_DATA.other_events));
       }
