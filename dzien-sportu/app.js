@@ -880,7 +880,7 @@ function renderSportView(sportId) {
   const finalsMatches = sport.matches.filter(m => m.group === 'Finały');
   finalsMatches.sort((a,b) => a.time.localeCompare(b.time)); // 3rd place usually first, then final
 
-  const bracketHtml = `
+  const bracketHtml = finalsMatches.length > 0 ? `
     <div class="glass-card finals-bracket-card">
       <h3 class="bracket-title"><i class="fa-solid fa-sitemap text-highlight"></i> Runda Finałowa</h3>
       <div class="bracket-stream">
@@ -919,7 +919,7 @@ function renderSportView(sportId) {
         }).join('')}
       </div>
     </div>
-  `;
+  ` : '';
 
   // Render Group Matches List
   const groupMatches = sport.matches.filter(m => m.group !== 'Finały');
@@ -978,11 +978,11 @@ function renderSportView(sportId) {
           <tbody>
             ${finalStandings.map(row => {
               let medalIcon = '';
-              if (row.rank === 1 && row.status === 'Mistrz') {
+              if (row.rank === 1 && (row.status === 'Mistrz' || row.status === '1. miejsce')) {
                 medalIcon = '<i class="fa-solid fa-medal" style="color: #eab308; font-size: 18px; margin-right: 6px;"></i>';
-              } else if (row.rank === 2 && row.status === 'Wicemistrz') {
+              } else if (row.rank === 2 && (row.status === 'Wicemistrz' || row.status === '2. miejsce')) {
                 medalIcon = '<i class="fa-solid fa-medal" style="color: #cbd5e1; font-size: 18px; margin-right: 6px;"></i>';
-              } else if (row.rank === 3 && row.status === '3. miejsce') {
+              } else if (row.rank === 3 && (row.status === '3. miejsce' || row.status === '3. miejsce (w grze)')) {
                 medalIcon = '<i class="fa-solid fa-medal" style="color: #cd7f32; font-size: 18px; margin-right: 6px;"></i>';
               }
               
@@ -999,6 +999,19 @@ function renderSportView(sportId) {
                 statusLabel = '3. miejsce 🥉';
               } else if (row.status === '4. miejsce') {
                 statusClass = 'gray';
+                statusLabel = '4. miejsce';
+              } else if (row.status === '1. miejsce') {
+                statusClass = 'gold';
+                statusLabel = '1. miejsce';
+              } else if (row.status === '2. miejsce') {
+                statusClass = 'silver';
+                statusLabel = '2. miejsce';
+              } else if (row.status === '3. miejsce (w grze)') {
+                statusClass = 'bronze';
+                statusLabel = '3. miejsce';
+              } else if (row.status === '4. miejsce (w grze)') {
+                statusClass = 'gray';
+                statusLabel = '4. miejsce';
               } else if (row.status === 'Finał') {
                 statusClass = 'info';
                 statusLabel = 'Finał (w grze)';
@@ -1103,6 +1116,12 @@ function getFinalStandings(sportId) {
         else if (idx === 1) status = 'Wicemistrz';
         else if (idx === 2) status = '3. miejsce';
         else if (idx === 3) status = '4. miejsce';
+      } else {
+        if (idx === 0) status = '1. miejsce';
+        else if (idx === 1) status = '2. miejsce';
+        else if (idx === 2) status = '3. miejsce (w grze)';
+        else if (idx === 3) status = '4. miejsce (w grze)';
+        else status = `${idx + 1}. miejsce (w grze)`;
       }
       return { team: t.team, status };
     });
