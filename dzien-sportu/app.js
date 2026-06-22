@@ -786,15 +786,30 @@ function renderSportView(sportId) {
   // Recalculate standings and dynamically populate finals placeholders if needed!
   updateStandingsAndSeeding(sportId);
 
+  // Determine rules and advancement details based on sport
+  let phaseHtml = '';
+  let promotionHtml = '';
+
+  if (sportId === 'volleyball') {
+    phaseHtml = 'Rozgrywki w dwóch grupach (A i B), mecze każdy z każdym.';
+    promotionHtml = 'Zwycięzcy obu grup (1. miejsca) grają w <strong>Wielkim Finale</strong> o 1. miejsce. Drużyny z drugich miejsc z obu grup grają w <strong>Małym Finale</strong> o 3. miejsce.';
+  } else if (sportId === 'soccer' || sportId === 'basketball') {
+    phaseHtml = 'Jedna wspólna tabela (system każdy z każdym).';
+    promotionHtml = 'Dwie pierwsze drużyny z tabeli grają w <strong>Wielkim Finale</strong> o 1. miejsce. Drużyny z miejsc 3. i 4. grają w <strong>Małym Finale</strong> o 3. miejsce.';
+  } else {
+    phaseHtml = 'System kołowy (każdy z każdym).';
+    promotionHtml = 'Zwycięzcy grup awansują do meczów finałowych.';
+  }
+
   // Render Layout
   let sidebarHtml = `
     <div class="glass-card rules-card">
       <h3><i class="fa-solid fa-circle-info text-highlight"></i> Zasady rozgrywek</h3>
       <ul class="rules-list">
-        <li><strong>Czas trwania:</strong> ${sport.rules}</li>
         <li><strong>Dyscyplina:</strong> ${sport.name}</li>
-        <li><strong>Faza grupowa:</strong> System kołowy (każdy z każdym).</li>
-        <li><strong>Awanse:</strong> Zwycięzcy grup grają w wielkim finale o 1. miejsce. Drużyny z drugich miejsc grają w meczu o 3. miejsce.</li>
+        <li><strong>Czas trwania meczu:</strong> ${sport.rules}</li>
+        <li><strong>Faza grupowa:</strong> ${phaseHtml}</li>
+        <li><strong>Finały i awanse:</strong> ${promotionHtml}</li>
       </ul>
     </div>
   `;
