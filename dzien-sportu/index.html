@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dzień Sportu 2025 - Harmonogram Rozgrywek</title>
-  <meta name="description" content="Interaktywny harmonogram rozgrywek sportowych na Dzień Sportu Liceum Ogólnokształcącego Sióstr Prezentek 2025. Śledź mecze siatkówki, koszykówki i piłki nożnej.">
+  <meta name="description" content="Interaktywny harmonogram rozgrywek sportowych na Dzień Sportu Liceum Ogólnokształcącego Sióstr Prezentek oraz Publicznej Szkoły Podstawowej Sióstr Prezentek 2026. Śledź mecze siatkówki, koszykówki i piłki nożnej.">
   
   <!-- Google Fonts: Outfit & Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,9 +15,23 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <!-- Custom Styles -->
-  <link rel="stylesheet" href="styles.css?v=1.1">
+  <link rel="stylesheet" href="styles.css?v=1.6">
 </head>
 <body class="dark-theme">
+  <!-- Ekran powitalny (tylko pierwsza wizyta) -->
+  <div id="welcome-splash" class="welcome-splash hidden">
+    <div class="splash-content">
+      <div class="splash-icon">
+        <i class="fa-solid fa-trophy"></i>
+      </div>
+      <h2 class="splash-title">Dzień Sportu</h2>
+      <p class="splash-subtitle">Sióstr Prezentek</p>
+      <div class="splash-loader">
+        <div class="loader-progress"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- Dynamic Gradient Background Circles -->
   <div class="bg-glow bg-glow-1"></div>
   <div class="bg-glow bg-glow-2"></div>
@@ -32,7 +46,7 @@
         </div>
         <div class="logo-text">
           <h1>Dzień Sportu</h1>
-          <p class="subtitle">Liceum Sióstr Prezentek 2025</p>
+          <p class="subtitle">SP i LO Sióstr Prezentek 2026</p>
         </div>
       </div>
       <div class="header-actions">
@@ -41,6 +55,9 @@
         </button>
         <button id="referee-login-btn" class="icon-btn text-btn" title="Panel sędziego (zablokowany)" aria-label="Panel sędziego">
           <i class="fa-solid fa-lock"></i> <span id="referee-btn-text">Sędzia</span>
+        </button>
+        <button id="backups-btn" class="icon-btn text-btn" title="Historia i kopie zapasowe" aria-label="Historia i kopie zapasowe">
+          <i class="fa-solid fa-clock-rotate-left"></i> <span>Kopie</span>
         </button>
         <button id="reset-data-btn" class="icon-btn text-btn" title="Resetuj wyniki" aria-label="Resetuj wyniki">
           <i class="fa-solid fa-rotate-left"></i> <span>Resetuj</span>
@@ -56,9 +73,17 @@
         <span class="pulse-dot"></span>
         <span class="status-label">NA ŻYWO / NASTĘPNE</span>
       </div>
-      <div id="next-up-container" class="banner-match-scroll">
-        <!-- Next match preview injected here -->
-        Ładowanie meczów...
+      <div class="banner-scroll-wrapper">
+        <button id="banner-scroll-left-btn" class="banner-nav-btn left-btn" aria-label="Poprzednie mecze">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <div id="next-up-container" class="banner-match-scroll">
+          <!-- Next match preview injected here -->
+          Ładowanie meczów...
+        </div>
+        <button id="banner-scroll-right-btn" class="banner-nav-btn right-btn" aria-label="Następne mecze">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
       </div>
     </div>
   </section>
@@ -147,14 +172,15 @@
 
       <!-- Class Selection Grid -->
       <div class="class-selector-grid">
-        <button class="class-btn" data-class="1A">1A</button>
-        <button class="class-btn" data-class="1B">1B</button>
-        <button class="class-btn" data-class="2A">2A</button>
-        <button class="class-btn" data-class="2B">2B</button>
-        <button class="class-btn" data-class="2C">2C</button>
-        <button class="class-btn" data-class="3A">3A</button>
-        <button class="class-btn" data-class="3B">3B</button>
-        <button class="class-btn" data-class="3C">3C</button>
+        <button class="class-btn" data-class="1A LO">1A</button>
+        <button class="class-btn" data-class="1B LO">1B</button>
+        <button class="class-btn" data-class="2A LO">2A</button>
+        <button class="class-btn" data-class="2B LO">2B</button>
+        <button class="class-btn" data-class="3A LO">3A</button>
+        <button class="class-btn" data-class="3B LO">3B</button>
+        <button class="class-btn" data-class="3C LO">3C</button>
+        <button class="class-btn" data-class="7a SP">7a</button>
+        <button class="class-btn" data-class="8a SP">8a</button>
       </div>
 
       <!-- Selected Class Dashboard -->
@@ -247,6 +273,32 @@
     </div>
   </div>
 
+  <!-- Backups and History Modal -->
+  <div id="backups-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="backups-modal-title">
+    <div class="modal-content glass-card animate-scale-up" style="max-width: 600px; width: 90%;">
+      <button id="backups-modal-close" class="modal-close" aria-label="Zamknij">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      
+      <div class="modal-header" style="margin-bottom: 20px;">
+        <h3 id="backups-modal-title">Kopie Zapasowe i Historia</h3>
+        <p class="text-muted" id="backups-modal-subtitle">Zarządzaj punktami przywracania stanu rozgrywek.</p>
+      </div>
+
+      <div class="backups-section">
+        <div id="referee-backups-actions" class="referee-actions hidden" style="margin-bottom: 12px;">
+          <button id="btn-create-manual-backup" class="btn btn-primary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <i class="fa-solid fa-plus"></i> Utwórz ręczny punkt przywracania
+          </button>
+        </div>
+
+        <div id="backups-list-container" class="backups-list" style="max-height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding-right: 4px;">
+          <!-- Lista punktów przywracania wstrzykiwana przez JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Notification Toast -->
   <div id="toast" class="toast hidden" role="status" aria-live="polite">
     Wyniki zaktualizowane!
@@ -261,6 +313,6 @@
 
   <!-- App Data and Scripts -->
   <script src="data.js"></script>
-  <script src="app.js?v=1.2"></script>
+  <script src="app.js?v=1.6"></script>
 </body>
 </html>

@@ -4,7 +4,11 @@
 
 const APP_KEY = 'gei1clcs';
 const SYNC_URL = 'https://keyvalue.immanuel.co/api/KeyVal';
-const REFEREE_PASSWORD = 'tr@baJerychonska2026';
+
+// PBKDF2 hash of password 'tr@baJerychonska2026' with salt 'prezentki_salt_2025' and 100000 iterations
+const REFEREE_PASSWORD_HASH = '3bd7eaa9907aad1908a3582399f074f7e7c93852f90454c8e3a55ff80ffa7f9a';
+const REFEREE_PASSWORD_SALT = 'prezentki_salt_2025';
+const REFEREE_PASSWORD_ITERATIONS = 100000;
 
 let tournamentState = null;
 let currentActiveTab = 'timeline';
@@ -50,7 +54,10 @@ const elements = {
   toast: document.getElementById('toast'),
   themeToggleBtn: document.getElementById('theme-toggle-btn'),
   resetDataBtn: document.getElementById('reset-data-btn'),
+  nextToggleBtn: null, // placeholder if any
   nextUpContainer: document.getElementById('next-up-container'),
+  bannerScrollLeftBtn: document.getElementById('banner-scroll-left-btn'),
+  bannerScrollRightBtn: document.getElementById('banner-scroll-right-btn'),
   sportFilters: document.querySelector('.filter-badges-wrapper'),
   refereeLoginBtn: document.getElementById('referee-login-btn'),
   refereeBtnText: document.getElementById('referee-btn-text'),
@@ -58,7 +65,15 @@ const elements = {
   refereeModalClose: document.getElementById('referee-modal-close'),
   refereeForm: document.getElementById('referee-form'),
   refereePasswordInput: document.getElementById('referee-password'),
-  btnCancelReferee: document.getElementById('btn-cancel-referee')
+  btnCancelReferee: document.getElementById('btn-cancel-referee'),
+  
+  // Backups Panel
+  backupsBtn: document.getElementById('backups-btn'),
+  backupsModal: document.getElementById('backups-modal'),
+  backupsModalClose: document.getElementById('backups-modal-close'),
+  refereeBackupsActions: document.getElementById('referee-backups-actions'),
+  btnCreateManualBackup: document.getElementById('btn-create-manual-backup'),
+  backupsListContainer: document.getElementById('backups-list-container')
 };
 
 // Current open match in modal
@@ -69,6 +84,19 @@ let activeModalMatch = null;
 // ==========================================================================
 
 function initApp() {
+  // Obsługa animacji powitalnej przy pierwszej wizycie
+  const hasVisited = localStorage.getItem('prezentki_sport_day_2025_visited');
+  const splash = document.getElementById('welcome-splash');
+  if (!hasVisited && splash) {
+    splash.classList.remove('hidden');
+    setTimeout(() => {
+      splash.classList.add('hidden');
+      localStorage.setItem('prezentki_sport_day_2025_visited', 'true');
+    }, 2000); // 2 sekundy animacji
+  } else if (splash) {
+    splash.style.display = 'none';
+  }
+
   // Check Referee Session
   if (sessionStorage.getItem('isReferee') === 'true') {
     isReferee = true;
@@ -97,6 +125,11 @@ function initApp() {
   setInterval(() => {
     pullStateFromCloud(true);
   }, 15000); // Poll every 15 seconds
+
+  // Periodically refresh the live banner to update active matches and indicators as time passes
+  setInterval(() => {
+    renderLiveBanner();
+  }, 30000); // Every 30 seconds
 }
 
 function loadState() {
@@ -158,6 +191,9 @@ function resetToDefault() {
 
 function saveState() {
   localStorage.setItem('prezentki_sport_day_2025_state', JSON.stringify(tournamentState));
+  if (typeof checkAndCreateAutoBackup === 'function') {
+    checkAndCreateAutoBackup();
+  }
 }
 
 // ==========================================================================
@@ -243,6 +279,45 @@ function setupEventListeners() {
   elements.modal.addEventListener('click', (e) => {
     if (e.target === elements.modal) closeModal();
   });
+
+  // Backups Panel Controls
+  if (elements.backupsBtn) {
+    elements.backupsBtn.addEventListener('click', openBackupsModal);
+  }
+  if (elements.backupsModalClose) {
+    elements.backupsModalClose.addEventListener('click', closeBackupsModal);
+  }
+  if (elements.backupsModal) {
+    elements.backupsModal.addEventListener('click', (e) => {
+      if (e.target === elements.backupsModal) closeBackupsModal();
+    });
+  }
+  if (elements.btnCreateManualBackup) {
+    elements.btnCreateManualBackup.addEventListener('click', () => {
+      if (!isReferee) {
+        alert("Musisz być zalogowany jako sędzia!");
+        return;
+      }
+      createBackup('manual');
+      showToast("Utworzono ręczną kopię zapasową! 💾");
+    });
+  }
+
+  // Live Banner scroll buttons
+  if (elements.bannerScrollLeftBtn && elements.bannerScrollRightBtn && elements.nextUpContainer) {
+    elements.bannerScrollLeftBtn.addEventListener('click', () => {
+      elements.nextUpContainer.scrollBy({
+        left: -320,
+        behavior: 'smooth'
+      });
+    });
+    elements.bannerScrollRightBtn.addEventListener('click', () => {
+      elements.nextUpContainer.scrollBy({
+        left: 320,
+        behavior: 'smooth'
+      });
+    });
+  }
 }
 
 // ==========================================================================
@@ -319,17 +394,47 @@ function handleRefereeLoginBtn() {
     elements.refereePasswordInput.focus();
   }
 }
-
 function closeRefereeModal() {
   elements.refereeModal.classList.add('hidden');
   pendingMatchIdAfterUnlock = null;
 }
 
-function handleRefereeSubmit(e) {
+async function verifyInputPassword(password) {
+  try {
+    const encoder = new TextEncoder();
+    const passwordKey = await crypto.subtle.importKey(
+      "raw",
+      encoder.encode(password),
+      "PBKDF2",
+      false,
+      ["deriveBits"]
+    );
+    const saltBytes = encoder.encode(REFEREE_PASSWORD_SALT);
+    const derivedBits = await crypto.subtle.deriveBits(
+      {
+        name: "PBKDF2",
+        salt: saltBytes,
+        iterations: REFEREE_PASSWORD_ITERATIONS,
+        hash: "SHA-256"
+      },
+      passwordKey,
+      256 // length in bits (32 bytes)
+    );
+    const hashArray = Array.from(new Uint8Array(derivedBits));
+    const computedHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return computedHash === REFEREE_PASSWORD_HASH;
+  } catch (e) {
+    console.error("Error verifying password:", e);
+    return false;
+  }
+}
+
+async function handleRefereeSubmit(e) {
   e.preventDefault();
   const pass = elements.refereePasswordInput.value.trim();
   
-  if (pass === REFEREE_PASSWORD) {
+  const isValid = await verifyInputPassword(pass);
+  if (isValid) {
     isReferee = true;
     sessionStorage.setItem('isReferee', 'true');
     updateRefereeUI();
@@ -352,20 +457,6 @@ function handleRefereeSubmit(e) {
   }
 }
 
-function triggerReset() {
-  if (confirm("Czy na pewno chcesz zresetować wszystkie wyniki do wartości początkowych na wszystkich urządzeniach?")) {
-    resetToDefault();
-    pushStateToCloud();
-    showToast("Zresetowano dane rozgrywek!");
-    
-    // Refresh current active views
-    renderLiveBanner();
-    if (currentActiveTab === 'timeline') renderTimeline();
-    else if (currentActiveTab === 'sports') renderSportView(currentActiveSport);
-    else if (currentActiveTab === 'class' && currentSelectedClass) selectClass(currentSelectedClass);
-  }
-}
-
 function updateRefereeUI() {
   const icon = elements.refereeLoginBtn.querySelector('i');
   if (isReferee) {
@@ -374,18 +465,89 @@ function updateRefereeUI() {
     elements.refereeLoginBtn.title = "Panel sędziego (odblokowany)";
     icon.className = 'fa-solid fa-lock-open';
     elements.refereeBtnText.textContent = "Sędzia: Zalogowany";
+    
+    // Show referee backup actions
+    if (elements.refereeBackupsActions) {
+      elements.refereeBackupsActions.classList.remove('hidden');
+    }
   } else {
     elements.refereeLoginBtn.classList.remove('active');
     elements.refereeLoginBtn.style.color = '';
     elements.refereeLoginBtn.title = "Panel sędziego (zablokowany)";
     icon.className = 'fa-solid fa-lock';
     elements.refereeBtnText.textContent = "Sędzia";
+    
+    // Hide referee backup actions
+    if (elements.refereeBackupsActions) {
+      elements.refereeBackupsActions.classList.add('hidden');
+    }
+  }
+  
+  // Re-render backups list to enable/disable restore and delete buttons appropriately
+  if (typeof renderBackupsList === 'function') {
+    renderBackupsList();
+  }
+}
+
+function triggerReset() {
+  if (confirm("Czy na pewno chcesz zresetować wszystkie wyniki do wartości początkowych na wszystkich urządzeniach?")) {
+    resetToDefault();
+    pushStateToCloud();
+    showToast("Zresetowano dane rozgrywek!");
+    
+    // Refresh current active views
+    lastScrolledActiveId = null;
+    renderLiveBanner();
+    if (currentActiveTab === 'timeline') renderTimeline();
+    else if (currentActiveTab === 'sports') renderSportView(currentActiveSport);
+    else if (currentActiveTab === 'class' && currentSelectedClass) selectClass(currentSelectedClass);
   }
 }
 
 // ==========================================================================
 // RENDERERS: LIVE BANNER
 // ==========================================================================
+
+let lastScrolledActiveId = null;
+
+function scrollToActiveMatch(smooth = true, force = false) {
+  const container = elements.nextUpContainer;
+  if (!container) return;
+
+  const activeCard = container.querySelector('.live-preview-card.active');
+  if (activeCard) {
+    const matchId = activeCard.getAttribute('data-match-id');
+    
+    // Only scroll if active match changed, or if forced (e.g. after score change)
+    if (!force && lastScrolledActiveId === matchId) {
+      return;
+    }
+    
+    const containerWidth = container.clientWidth;
+    const cardOffsetLeft = activeCard.offsetLeft;
+    const cardWidth = activeCard.clientWidth;
+    
+    const scrollTarget = cardOffsetLeft - (containerWidth / 2) + (cardWidth / 2);
+    container.scrollTo({
+      left: scrollTarget,
+      behavior: smooth ? 'smooth' : 'auto'
+    });
+    
+    lastScrolledActiveId = matchId;
+  } else {
+    // If all matches completed, scroll to the end
+    if (force || lastScrolledActiveId !== 'end') {
+      const lastCard = container.querySelector('.live-preview-card:last-child');
+      if (lastCard) {
+        container.scrollTo({
+          left: lastCard.offsetLeft,
+          behavior: smooth ? 'smooth' : 'auto'
+        });
+        lastScrolledActiveId = 'end';
+      }
+    }
+  }
+}
 
 function renderLiveBanner() {
   const allMatches = [];
@@ -397,23 +559,38 @@ function renderLiveBanner() {
     });
   });
 
-  // Filter completed and pending
-  const completed = allMatches.filter(m => m.completed);
-  const pending = allMatches.filter(m => !m.completed);
-  
-  // Sort pending by time, completed by time descending
-  pending.sort((a,b) => a.time.localeCompare(b.time));
-  completed.sort((a,b) => b.time.localeCompare(a.time));
-
-  // Combine: show last 2 completed (results) and next 4 pending
-  const displayMatches = [...completed.slice(0, 2).reverse(), ...pending.slice(0, 5)];
-
-  if (displayMatches.length === 0) {
+  if (allMatches.length === 0) {
     elements.nextUpContainer.innerHTML = `<span class="text-muted">Brak meczów do wyświetlenia</span>`;
     return;
   }
 
-  elements.nextUpContainer.innerHTML = displayMatches.map(match => {
+  // Sort all matches chronologically by time, then by id for stability
+  allMatches.sort((a, b) => {
+    const timeCompare = a.time.localeCompare(b.time);
+    if (timeCompare !== 0) return timeCompare;
+    return a.id.localeCompare(b.id);
+  });
+
+  // Calculate the active match time based on current system time
+  const now = new Date();
+  const nowStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+  // 1. First uncompleted match starting now or in the future
+  let activeIdx = allMatches.findIndex(m => !m.completed && m.time >= nowStr);
+  
+  // 2. If none, first uncompleted match (e.g. from the past but still outstanding)
+  if (activeIdx === -1) {
+    activeIdx = allMatches.findIndex(m => !m.completed);
+  }
+  
+  // 3. If still none (all completed), point to the last match
+  if (activeIdx === -1) {
+    activeIdx = allMatches.length - 1;
+  }
+
+  const activeTime = activeIdx !== -1 ? allMatches[activeIdx].time : null;
+
+  elements.nextUpContainer.innerHTML = allMatches.map(match => {
     const scoreStr = match.completed 
       ? `<span class="score-wrap">${match.team1_score}:${match.team2_score}</span>`
       : `<span class="score-wrap" style="background:rgba(255,255,255,0.05);color:var(--text-secondary)">--</span>`;
@@ -422,8 +599,24 @@ function renderLiveBanner() {
     const t1 = match.team1 || match.placeholder1 || "???";
     const t2 = match.team2 || match.placeholder2 || "???";
     
+    const isActive = activeTime && match.time === activeTime && !match.completed;
+    
+    let activeClass = '';
+    let badgeStyle = '';
+    
+    if (isActive) {
+      activeClass = ' active';
+      const isLive = match.time <= nowStr;
+      const badgeText = isLive ? 'NA ŻYWO' : 'NASTĘPNY';
+      const badgeColor = isLive ? '#ef4444' : 'var(--primary-color)';
+      const badgeBorder = isLive ? 'rgba(239, 68, 68, 0.5)' : 'var(--border-hover-color)';
+      badgeStyle = ` data-badge-text="${badgeText}" style="--badge-color:${badgeColor}; --badge-border:${badgeBorder}; cursor:pointer;"`;
+    } else {
+      badgeStyle = ` style="cursor:pointer;"`;
+    }
+    
     return `
-      <div class="live-preview-card" onclick="openScoreModal('${match.id}')" style="cursor:pointer;">
+      <div class="live-preview-card${activeClass}" data-match-id="${match.id}" onclick="openScoreModal('${match.id}')"${badgeStyle}>
         <span class="sport-indicator ${match.sportId}"></span>
         <span class="text-muted" style="font-size: 11px;">${match.time}</span>
         <span class="teams-wrap">${t1} vs ${t2}</span>
@@ -431,6 +624,11 @@ function renderLiveBanner() {
       </div>
     `;
   }).join('');
+
+  // Automatically scroll to the active match. Use a timeout to ensure element widths/offsets are calculated correctly
+  setTimeout(() => {
+    scrollToActiveMatch(false, false);
+  }, 100);
 }
 
 // ==========================================================================
@@ -1334,6 +1532,7 @@ function saveScoreForm(e) {
   pushStateToCloud();
 
   // Refresh Views
+  lastScrolledActiveId = null;
   renderLiveBanner();
   if (currentActiveTab === 'timeline') renderTimeline();
   else if (currentActiveTab === 'sports') renderSportView(currentActiveSport);
@@ -1545,6 +1744,209 @@ function showToast(message) {
     elements.toast.classList.add('hidden');
   }, 3000);
 }
+
+// ==========================================================================
+// BACKUP & SNAPSHOT LOGIC
+// ==========================================================================
+
+const AUTO_BACKUP_INTERVAL = 15 * 60 * 1000; // 15 minutes in ms
+const MAX_BACKUPS = 50; // Limit to 50 backups to protect localStorage size
+
+function getBackups() {
+  const data = localStorage.getItem('prezentki_sport_day_2025_backups');
+  if (!data) return [];
+  try {
+    return JSON.parse(data);
+  } catch (e) {
+    console.error("Error parsing backups:", e);
+    return [];
+  }
+}
+
+function saveBackups(backups) {
+  localStorage.setItem('prezentki_sport_day_2025_backups', JSON.stringify(backups));
+}
+
+function countCompletedMatches(state) {
+  let count = 0;
+  if (state && state.sports) {
+    Object.keys(state.sports).forEach(sportId => {
+      const sport = state.sports[sportId];
+      if (sport.matches) {
+        sport.matches.forEach(m => {
+          if (m.completed) count++;
+        });
+      }
+    });
+  }
+  return count;
+}
+
+function createBackup(type = 'auto') {
+  const backups = getBackups();
+  const now = new Date();
+  
+  const pad = (num) => String(num).padStart(2, '0');
+  const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  const dateStr = `${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${now.getFullYear()}`;
+  
+  const newBackup = {
+    id: `backup_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+    timestamp: Date.now(),
+    timeStr: timeStr,
+    dateStr: dateStr,
+    type: type,
+    state: JSON.parse(JSON.stringify(tournamentState)),
+    matchCount: countCompletedMatches(tournamentState)
+  };
+  
+  // Insert at beginning (newest first)
+  backups.unshift(newBackup);
+  
+  // Enforce size limit
+  if (backups.length > MAX_BACKUPS) {
+    backups.length = MAX_BACKUPS;
+  }
+  
+  saveBackups(backups);
+  renderBackupsList();
+  console.log(`${type === 'auto' ? 'Automatic' : 'Manual'} backup created.`);
+}
+
+function checkAndCreateAutoBackup() {
+  const backups = getBackups();
+  const now = Date.now();
+  
+  const autoBackups = backups.filter(b => b.type === 'auto');
+  const lastAuto = autoBackups.length > 0 ? autoBackups[0] : null;
+  
+  if (!lastAuto || (now - lastAuto.timestamp >= AUTO_BACKUP_INTERVAL)) {
+    // Check if the current state differs from the last backup
+    const currentStateStr = JSON.stringify(tournamentState);
+    const lastStateStr = lastAuto ? JSON.stringify(lastAuto.state) : "";
+    
+    if (currentStateStr !== lastStateStr) {
+      createBackup('auto');
+    }
+  }
+}
+
+function restoreBackup(backupId) {
+  const backups = getBackups();
+  const backup = backups.find(b => b.id === backupId);
+  if (!backup) {
+    alert("Nie znaleziono wybranej kopii zapasowej!");
+    return;
+  }
+  
+  const desc = `${backup.type === 'auto' ? 'Automatyczny' : 'Ręczny'} zapis z ${backup.dateStr} o ${backup.timeStr}`;
+  if (!confirm(`Czy na pewno chcesz przywrócić stan z: ${desc}?\nBieżące wyniki zostaną zastąpione!`)) {
+    return;
+  }
+  
+  // Restore state
+  tournamentState = JSON.parse(JSON.stringify(backup.state));
+  
+  // Save locally and push to cloud
+  saveState();
+  pushStateToCloud();
+  
+  // Close backups modal
+  closeBackupsModal();
+  
+  // Recompute standings
+  Object.keys(tournamentState.sports).forEach(sportId => {
+    updateStandingsAndSeeding(sportId);
+  });
+  
+  // Refresh views
+  lastScrolledActiveId = null;
+  renderLiveBanner();
+  if (currentActiveTab === 'timeline') renderTimeline();
+  else if (currentActiveTab === 'sports') renderSportView(currentActiveSport);
+  else if (currentActiveTab === 'class' && currentSelectedClass) selectClass(currentSelectedClass);
+  
+  showToast("Przywrócono stan z kopii zapasowej! 🔄");
+}
+
+function deleteBackup(backupId) {
+  let backups = getBackups();
+  const backup = backups.find(b => b.id === backupId);
+  if (!backup) return;
+  
+  const desc = `${backup.type === 'auto' ? 'Automatyczny' : 'Ręczny'} zapis z ${backup.dateStr} o ${backup.timeStr}`;
+  if (!confirm(`Czy na pewno chcesz usunąć tę kopię: ${desc}?`)) {
+    return;
+  }
+  
+  backups = backups.filter(b => b.id !== backupId);
+  saveBackups(backups);
+  renderBackupsList();
+  showToast("Usunięto punkt przywracania.");
+}
+
+function renderBackupsList() {
+  const backups = getBackups();
+  const container = elements.backupsListContainer;
+  
+  if (!container) return;
+  
+  if (backups.length === 0) {
+    container.innerHTML = `
+      <div class="backups-empty">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+        <p>Brak zapisanych punktów przywracania.</p>
+      </div>
+    `;
+    return;
+  }
+  
+  container.innerHTML = backups.map(b => {
+    const isAuto = b.type === 'auto';
+    const iconClass = isAuto ? 'fa-clock auto' : 'fa-user manual';
+    const titleText = isAuto ? 'Automatyczny zapis' : 'Ręczny zapis';
+    
+    // Disable buttons if not referee
+    const disabledAttr = isReferee ? '' : 'disabled';
+    const disabledTitle = isReferee ? '' : ' title="Zaloguj się jako sędzia, aby przywrócić/usunąć"';
+    
+    return `
+      <div class="backup-item">
+        <div class="backup-info">
+          <div class="backup-icon ${b.type}">
+            <i class="fa-solid ${iconClass}"></i>
+          </div>
+          <div class="backup-details">
+            <span class="backup-title">${titleText}</span>
+            <span class="backup-meta">${b.dateStr} o godz. ${b.timeStr} • Rozegrano meczów: ${b.matchCount}</span>
+          </div>
+        </div>
+        <div class="backup-actions">
+          <button class="btn-small-icon btn-restore" onclick="restoreBackup('${b.id}')" ${disabledAttr}${disabledTitle} aria-label="Przywróć tę kopię">
+            <i class="fa-solid fa-arrow-rotate-left"></i>
+          </button>
+          <button class="btn-small-icon btn-delete" onclick="deleteBackup('${b.id}')" ${disabledAttr}${disabledTitle} aria-label="Usuń tę kopię">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function openBackupsModal() {
+  renderBackupsList();
+  elements.backupsModal.classList.remove('hidden');
+}
+
+function closeBackupsModal() {
+  elements.backupsModal.classList.add('hidden');
+}
+
+// Expose backup functions to window for global access
+window.restoreBackup = restoreBackup;
+window.deleteBackup = deleteBackup;
+window.checkAndCreateAutoBackup = checkAndCreateAutoBackup;
 
 // Start Application
 window.addEventListener('DOMContentLoaded', initApp);
