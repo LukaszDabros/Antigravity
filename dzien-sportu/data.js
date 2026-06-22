@@ -99,7 +99,7 @@ const SCHEDULE_DATA = {
           "group": "B"
         },
         {
-          "time": "11:15",
+          "time": "11:30",
           "court": "Boisko 1",
           "team1": "I z gr A",
           "team2": "I z gr B",
@@ -109,7 +109,7 @@ const SCHEDULE_DATA = {
           "placeholder2": "I z gr B"
         },
         {
-          "time": "11:15",
+          "time": "11:30",
           "court": "Boisko 2",
           "team1": "II z gr A",
           "team2": "II z gr B",
@@ -206,7 +206,7 @@ const SCHEDULE_DATA = {
           "group": "A"
         },
         {
-          "time": "11:30",
+          "time": "11:15",
           "court": "Boisko 1",
           "team1": "2A LO",
           "team2": "2B LO",
@@ -214,7 +214,7 @@ const SCHEDULE_DATA = {
           "group": "A"
         },
         {
-          "time": "11:30",
+          "time": "11:15",
           "court": "Boisko 2",
           "team1": "1A LO",
           "team2": "3C LO",
