@@ -21,8 +21,8 @@
 
 // Rząd Dolny (Duże cyfry wyników)
 #define LOWER_NUM_DIGITS   4
-#define LOWER_LEDS_PER_SEG 3  // 3 LEDy na segment (duże cyfry)
-#define LOWER_LEDS_COUNT   (LOWER_NUM_DIGITS * 7 * LOWER_LEDS_PER_SEG) // 4x7x3 = 84 LED
+#define LOWER_LEDS_PER_SEG 4  // 4 LEDy na segment (duże cyfry) - taśma 60 LED/m (ok. 6.67 cm długości)
+#define LOWER_LEDS_COUNT   (LOWER_NUM_DIGITS * 7 * LOWER_LEDS_PER_SEG) // 4x7x4 = 112 LED
 
 CRGB upperLeds[UPPER_LEDS_COUNT];
 CRGB lowerLeds[LOWER_LEDS_COUNT];
