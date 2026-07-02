@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wielkoformatowy Zegar & Tablica LED - Wirtualny Panel</title>
+  <!-- Google Fonts: Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-color: #0d0f14;
+      --glass-bg: rgba(20, 24, 33, 0.7);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --primary: #ff3b30;
+      --primary-glow: rgba(255, 59, 48, 0.6);
+      --led-off: rgba(255, 59, 48, 0.03);
+      --led-border-off: rgba(255, 59, 48, 0.08);
+      --success: #34c759;
+      --success-glow: rgba(52, 199, 89, 0.4);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(255, 59, 48, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(34, 197, 94, 0.04) 0%, transparent 40%);
+      overflow-x: hidden;
+    }
+
+    header {
+      padding: 20px 40px;
+      border-bottom: 1px solid var(--glass-border);
+      backdrop-filter: blur(10px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    header h1 span {
+      color: var(--primary);
+      text-shadow: 0 0 10px var(--primary-glow);
+    }
+
+    .badge {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--text-muted);
+      transition: background-color 0.3s, box-shadow 0.3s;
+    }
+
+    .badge-dot.connected {
+      background-color: var(--success);
+      box-shadow: 0 0 8px var(--success-glow);
+    }
+
+    .main-layout {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 30px;
+      padding: 30px 40px;
+      max-width: 1600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Panele Boczne (Controls) */
+    .control-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 24px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      transition: border-color 0.3s;
+    }
+
+    .card:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .card h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Grid kontroli dla zegara */
+    .btn-group {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      color: var(--text-main);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      box-shadow: 0 0 12px var(--primary-glow);
+    }
+
+    .control-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .control-row label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .input-field {
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--glass-border);
+      color: var(--text-main);
+      padding: 12px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 1rem;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .input-field:focus {
+      border-color: var(--primary);
+    }
+
+    /* Kontrola tablicy wyników */
+    .score-control-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .score-card-control {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .score-card-control h3 {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .score-btn-pair {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .score-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      font-size: 1.4rem;
+    }
+
+    .score-btn-reset {
+      margin-top: 10px;
+      width: 100%;
+      padding: 8px;
+      font-size: 0.8rem;
+      background: transparent;
+      color: var(--text-muted);
+    }
+
+    /* Suwaki i checkboxy */
+    .slider-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .slider-row label {
+      font-size: 0.9rem;
+    }
+
+    .slider {
+      flex: 1;
+      -webkit-appearance: none;
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      outline: none;
+    }
+
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      box-shadow: 0 0 8px var(--primary-glow);
+    }
+
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .checkbox-container input {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .color-picker-input {
+      border: 1px solid var(--glass-border);
+      background: none;
+      width: 52px;
+      height: 34px;
+      border-radius: 6px;
+      cursor: pointer;
+      outline: none;
+      padding: 0;
+    }
+
+    .color-preset-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .color-preset-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      padding: 0;
+      transition: transform 0.1s, border-color 0.1s;
+    }
+
+    .color-preset-btn:hover {
+      transform: scale(1.15);
+      border-color: rgba(255, 255, 255, 0.6);
+    }
+
+    /* WIZUALIZACJA TABLICY LED (Simulator) */
+    .simulator-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #141720;
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 40px;
+      position: relative;
+      box-shadow: inset 0 4px 20px rgba(0,0,0,0.8);
+    }
+
+    /* Imitacja drewnianej ramy zewnętrznej */
+    .wooden-frame {
+      background: #2a1f1d; /* Ciemny mahoń/sosna bejcowana */
+      border: 10px solid #1a1312;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+      width: 100%;
+      max-width: 900px;
+      aspect-ratio: 900 / 663;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Panel czołowy (Czarny pleksiglass opal) */
+    .plexi-front {
+      background: #0f1015;
+      border-radius: 4px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 40px 30px;
+      position: relative;
+      box-shadow: inset 0 0 30px rgba(0,0,0,0.9);
+    }
+
+    /* Rząd górny (Małe cyfry) */
+    .row-upper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      height: 35%;
+    }
+
+    /* Rząd dolny (Duże cyfry) */
+    .row-lower {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      height: 50%;
+    }
+
+    /* Kafelki cyfry 7-segmentowej */
+    .digit-7seg {
+      position: relative;
+      background: transparent;
+      display: inline-block;
+    }
+
+    .digit-small {
+      width: 80px;
+      height: 144px;
+    }
+
+    .digit-large {
+      width: 120px;
+      height: 216px;
+    }
+
+    /* Separator dwukropka */
+    .colon-separator {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 24px;
+      height: 100%;
+      width: 20px;
+      align-items: center;
+    }
+
+    .colon-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      background: var(--led-off);
+      border: 1px solid var(--led-border-off);
+      transition: background-color 0.1s, box-shadow 0.1s;
+    }
+
+    .colon-dot.active {
+      background-color: var(--led-color, var(--primary));
+      box-shadow: 0 0 15px var(--led-color, var(--primary)), 0 0 30px var(--primary-glow);
+      border-color: var(--led-color, var(--primary));
+    }
+
+    .scoreboard-gap {
+      width: 60px;
+    }
+
+    /* Definicja segmentów CSS */
+    .segment {
+      position: absolute;
+      background-color: var(--led-off);
+      border: 1px solid var(--led-border-off);
+      transition: background-color 0.1s, box-shadow 0.1s, border-color 0.1s;
+    }
+
+    .segment.active {
+      background-color: var(--led-color, var(--primary));
+      border-color: var(--led-color, var(--primary));
+      box-shadow: 0 0 15px var(--led-color, var(--primary)), 0 0 30px var(--primary-glow);
+    }
+
+    /* Przypisanie kolorów dla sekcji */
+    .row-upper {
+      --led-color: var(--color-clock, var(--primary));
+    }
+    #l-dig-0, #l-dig-1 {
+      --led-color: var(--color-score-a, var(--primary));
+    }
+    #l-dig-2, #l-dig-3 {
+      --led-color: var(--color-score-b, var(--primary));
+    }
+
+    /* SEGMENTY DLA MAŁYCH CYFR */
+    /* A (Top) */
+    .digit-small .seg-a {
+      top: 0; left: 10px; right: 10px; height: 12px;
+      clip-path: polygon(0 50%, 50% 0, 100% 50%, 100% 100%, 0 100%);
+    }
+    /* F (Top Left) */
+    .digit-small .seg-f {
+      top: 10px; left: 0; width: 12px; height: 60px;
+      clip-path: polygon(50% 0, 100% 9%, 100% 91%, 50% 100%, 0 91%, 0 9%);
+    }
+    /* B (Top Right) */
+    .digit-small .seg-b {
+      top: 10px; right: 0; width: 12px; height: 60px;
+      clip-path: polygon(50% 0, 100% 9%, 100% 91%, 50% 100%, 0 91%, 0 9%);
+    }
+    /* G (Middle) */
+    .digit-small .seg-g {
+      top: 66px; left: 10px; right: 10px; height: 12px;
+      clip-path: polygon(50% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%);
+    }
+    /* E (Bottom Left) */
+    .digit-small .seg-e {
+      top: 74px; left: 0; width: 12px; height: 60px;
+      clip-path: polygon(50% 0, 100% 9%, 100% 91%, 50% 100%, 0 91%, 0 9%);
+    }
+    /* C (Bottom Right) */
+    .digit-small .seg-c {
+      top: 74px; right: 0; width: 12px; height: 60px;
+      clip-path: polygon(50% 0, 100% 9%, 100% 91%, 50% 100%, 0 91%, 0 9%);
+    }
+    /* D (Bottom) */
+    .digit-small .seg-d {
+      bottom: 0; left: 10px; right: 10px; height: 12px;
+      clip-path: polygon(0 0, 100% 0, 100% 50%, 50% 100%, 0 50%);
+    }
+
+    /* SEGMENTY DLA DUŻYCH CYFR */
+    /* A (Top) */
+    .digit-large .seg-a {
+      top: 0; left: 15px; right: 15px; height: 18px;
+      clip-path: polygon(0 50%, 50% 0, 100% 50%, 100% 100%, 0 100%);
+    }
+    /* F (Top Left) */
+    .digit-large .seg-f {
+      top: 15px; left: 0; width: 18px; height: 90px;
+      clip-path: polygon(50% 0, 100% 9%, 100% 91%, 50% 100%, 0 91%, 0 9%);
+    }
+    /* B (Top Right) */
+    .digit-large .seg-b {
+      top: 15px; right: 0; width: 18px; height: 90px;
+      clip-path: polygon(50% 0, 100% 9%, 100% 91%, 50% 100%, 0 91%, 0 9%);
+    }
+    /* G (Middle) */
+    .digit-large .seg-g {
+      top: 99px; left: 15px; right: 15px; height: 18px;
+      clip-path: polygon(50% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%);
+    }
+    /* E (Bottom Left) */
+    .digit-large .seg-e {
+      top: 111px; left: 0; width: 18px; height: 90px;
+      clip-path: polygon(50% 0, 100% 9%, 100% 91%, 50% 100%, 0 91%, 0 9%);
+    }
+    /* C (Bottom Right) */
+    .digit-large .seg-c {
+      top: 111px; right: 0; width: 18px; height: 90px;
+      clip-path: polygon(50% 0, 100% 9%, 100% 91%, 50% 100%, 0 91%, 0 9%);
+    }
+    /* D (Bottom) */
+    .digit-large .seg-d {
+      bottom: 0; left: 15px; right: 15px; height: 18px;
+      clip-path: polygon(0 0, 100% 0, 100% 50%, 50% 100%, 0 50%);
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--glass-border);
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1><span>■</span> ZEGAR & TABLICA LED - PANEL STEROWANIA</h1>
+    <div class="badge">
+      <div id="connection-dot" class="badge-dot"></div>
+      <span id="connection-text">ESP8266 Simulator</span>
+    </div>
+  </header>
+
+  <div class="main-layout">
+    
+    <!-- PANEL KONTROLNY (LEWY) -->
+    <div class="control-panel">
+      
+      <!-- KARTA POŁĄCZENIA -->
+      <div class="card">
+        <h2>Połączenie z Zegarem</h2>
+        <div class="control-row">
+          <label for="ip-address">Adres IP Mikrokontrolera ESP:</label>
+          <input type="text" id="ip-address" class="input-field" value="192.168.4.1">
+        </div>
+        <button id="btn-connect" class="btn" style="width:100%; background:var(--primary); color:white; border-color:var(--primary);">Połącz z ESP</button>
+      </div>
+
+      <!-- KARTA KONTROLI ZEGARA -->
+      <div class="card">
+        <h2>Kontrola Górnego Rzędu</h2>
+        <div class="btn-group">
+          <button id="mode-time" class="btn active">Zegar</button>
+          <button id="mode-stopwatch" class="btn">Stoper</button>
+          <button id="mode-timer" class="btn">Minutnik</button>
+        </div>
+
+        <!-- Panel Minutnika -->
+        <div id="timer-controls" style="display:none; border-top: 1px solid var(--glass-border); padding-top: 15px; margin-top: 15px;">
+          <div class="score-control-grid" style="margin-bottom: 15px;">
+            <div class="control-row" style="margin-bottom:0;">
+              <label for="timer-mins">Minuty:</label>
+              <input type="number" id="timer-mins" class="input-field" value="1" min="0" max="60">
+            </div>
+            <div class="control-row" style="margin-bottom:0;">
+              <label for="timer-secs">Sekundy:</label>
+              <input type="number" id="timer-secs" class="input-field" value="0" min="0" max="59">
+            </div>
+          </div>
+          <div class="btn-group" style="margin-bottom:0;">
+            <button id="btn-timer-start" class="btn" style="background:#22c55e; border-color:#22c55e;">Start</button>
+            <button id="btn-timer-pause" class="btn" style="background:#eab308; border-color:#eab308;">Pauza</button>
+            <button id="btn-timer-reset" class="btn">Reset</button>
+          </div>
+        </div>
+
+        <!-- Panel Stopera -->
+        <div id="stopwatch-controls" style="display:none; border-top: 1px solid var(--glass-border); padding-top: 15px; margin-top: 15px;">
+          <div class="btn-group" style="margin-bottom:0;">
+            <button id="btn-stopwatch-start" class="btn" style="background:#22c55e; border-color:#22c55e;">Start</button>
+            <button id="btn-stopwatch-pause" class="btn" style="background:#eab308; border-color:#eab308;">Pauza</button>
+            <button id="btn-stopwatch-reset" class="btn">Reset</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- KARTA KONTROLI DOLNEGO RZĘDU -->
+      <div class="card">
+        <h2>Kontrola Dolnego Rzędu</h2>
+        <div class="btn-group" style="margin-bottom: 16px;">
+          <button id="lmode-score" class="btn active">Wyniki</button>
+          <button id="lmode-temp" class="btn">Temperatura</button>
+          <button id="lmode-date" class="btn">Data</button>
+          <button id="lmode-cycle" class="btn">Autocykl</button>
+        </div>
+
+        <!-- Panel Wyników -->
+        <div id="lpanel-score" class="score-control-grid">
+          <div class="score-card-control">
+            <h3>GOSPODARZE</h3>
+            <div class="score-btn-pair">
+              <button class="btn score-btn" onclick="adjustScore('A', -1)">-</button>
+              <button class="btn score-btn" onclick="adjustScore('A', 1)">+</button>
+            </div>
+            <button class="btn score-btn-reset" onclick="resetScore('A')">Reset</button>
+          </div>
+
+          <div class="score-card-control">
+            <h3>GOŚCIE</h3>
+            <div class="score-btn-pair">
+              <button class="btn score-btn" onclick="adjustScore('B', -1)">-</button>
+              <button class="btn score-btn" onclick="adjustScore('B', 1)">+</button>
+            </div>
+            <button class="btn score-btn-reset" onclick="resetScore('B')">Reset</button>
+          </div>
+          
+          <button class="btn" onclick="resetAllScores()" style="grid-column: span 2; margin-top:10px;">Resetuj Wyniki</button>
+        </div>
+
+        <!-- Panel Temperatury -->
+        <div id="lpanel-temp" style="display:none; border-top: 1px solid var(--glass-border); padding-top: 15px;">
+          <div class="control-row">
+            <span>Bieżący odczyt z czujnika:</span>
+            <strong id="temp-status-val" style="font-size:1.3rem; color:var(--primary);">22°C</strong>
+          </div>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 10px; line-height: 1.4;">
+            Wartość odczytywana bezpośrednio z czujnika temperatury podłączonego do zegara.
+          </p>
+        </div>
+
+        <!-- Panel Autocyklu -->
+        <div id="lpanel-cycle" style="display:none; border-top: 1px solid var(--glass-border); padding-top: 15px;">
+          <p style="font-size: 0.9rem; line-height: 1.4;">
+            <strong>Tryb automatycznego przełączania:</strong>
+          </p>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px; line-height: 1.4;">
+            Dolny rząd naprzemiennie wyświetla temperaturę (5 s) i datę (5 s).
+          </p>
+        </div>
+
+        <!-- Panel Daty -->
+        <div id="lpanel-date" style="display:none; border-top: 1px solid var(--glass-border); padding-top: 15px;">
+          <div class="score-control-grid" style="margin-bottom: 12px;">
+            <div class="control-row" style="margin-bottom:0;">
+              <label for="date-day">Dzień:</label>
+              <input type="number" id="date-day" class="input-field" value="2" min="1" max="31">
+            </div>
+            <div class="control-row" style="margin-bottom:0;">
+              <label for="date-month">Miesiąc:</label>
+              <input type="number" id="date-month" class="input-field" value="7" min="1" max="12">
+            </div>
+          </div>
+          <div class="slider-row" style="margin-top: 0; margin-bottom: 12px;">
+            <label class="checkbox-container">
+              <input type="checkbox" id="auto-date-sync" checked>
+              Auto-sync z telefonu
+            </label>
+          </div>
+          <button id="btn-date-send" class="btn" style="width:100%; background:var(--success); border-color:var(--success);">Wyślij Datę</button>
+        </div>
+      </div>
+
+      <!-- KARTA KOLORÓW WYŚWIETLACZA -->
+      <div class="card">
+        <h2>Kolory Wyświetlacza</h2>
+        
+        <div style="margin-bottom:15px;">
+          <div class="slider-row" style="margin-top: 0; margin-bottom: 5px;">
+            <label for="color-clock">Zegar / Stoper (Góra):</label>
+            <input type="color" id="color-clock" value="#ff3b30" class="color-picker-input">
+          </div>
+          <div class="color-preset-group" id="presets-clock"></div>
+        </div>
+
+        <div style="margin-bottom:15px; border-top:1px solid var(--glass-border); padding-top:12px;">
+          <div class="slider-row" style="margin-top: 0; margin-bottom: 5px;">
+            <label for="color-score-a">Gospodarze / Lewa (Dół):</label>
+            <input type="color" id="color-score-a" value="#ff3b30" class="color-picker-input">
+          </div>
+          <div class="color-preset-group" id="presets-score-a"></div>
+        </div>
+
+        <div style="border-top:1px solid var(--glass-border); padding-top:12px;">
+          <div class="slider-row" style="margin-top: 0; margin-bottom: 5px;">
+            <label for="color-score-b">Goście / Prawa (Dół):</label>
+            <input type="color" id="color-score-b" value="#ff3b30" class="color-picker-input">
+          </div>
+          <div class="color-preset-group" id="presets-score-b"></div>
+        </div>
+      </div>
+
+      <!-- KARTA USTAWIEŃ SYSTEMOWYCH -->
+      <div class="card">
+        <h2>Ustawienia Wyświetlacza</h2>
+        <div class="slider-row">
+          <label for="brightness-slider">Jasność LED:</label>
+          <input type="range" id="brightness-slider" class="slider" min="10" max="255" value="150">
+          <span id="brightness-val">150</span>
+        </div>
+        <div class="slider-row" style="margin-top: 20px;">
+          <label class="checkbox-container">
+            <input type="checkbox" id="auto-brightness-check" checked>
+            Automatyczna jasność (LDR)
+          </label>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- WIZUALIZACJA SYMULATORA (PRAWY PANELE) -->
+    <div class="simulator-container">
+      
+      <!-- Drewniana rama -->
+      <div class="wooden-frame">
+        <!-- Plexi front -->
+        <div class="plexi-front">
+          
+          <!-- RZĄD GÓRNY (Mały zegar/stoper) -->
+          <div class="row-upper">
+            <!-- Dig 1 -->
+            <div id="u-dig-0" class="digit-7seg digit-small">
+              <div class="segment seg-a"></div>
+              <div class="segment seg-f"></div>
+              <div class="segment seg-b"></div>
+              <div class="segment seg-g"></div>
+              <div class="segment seg-e"></div>
+              <div class="segment seg-c"></div>
+              <div class="segment seg-d"></div>
+            </div>
+            <!-- Dig 2 -->
+            <div id="u-dig-1" class="digit-7seg digit-small">
+              <div class="segment seg-a"></div>
+              <div class="segment seg-f"></div>
+              <div class="segment seg-b"></div>
+              <div class="segment seg-g"></div>
+              <div class="segment seg-e"></div>
+              <div class="segment seg-c"></div>
+              <div class="segment seg-d"></div>
+            </div>
+            <!-- Dwukropek -->
+            <div class="colon-separator">
+              <div id="u-colon-0" class="colon-dot"></div>
+              <div id="u-colon-1" class="colon-dot"></div>
+            </div>
+            <!-- Dig 3 -->
+            <div id="u-dig-2" class="digit-7seg digit-small">
+              <div class="segment seg-a"></div>
+              <div class="segment seg-f"></div>
+              <div class="segment seg-b"></div>
+              <div class="segment seg-g"></div>
+              <div class="segment seg-e"></div>
+              <div class="segment seg-c"></div>
+              <div class="segment seg-d"></div>
+            </div>
+            <!-- Dig 4 -->
+            <div id="u-dig-3" class="digit-7seg digit-small">
+              <div class="segment seg-a"></div>
+              <div class="segment seg-f"></div>
+              <div class="segment seg-b"></div>
+              <div class="segment seg-g"></div>
+              <div class="segment seg-e"></div>
+              <div class="segment seg-c"></div>
+              <div class="segment seg-d"></div>
+            </div>
+          </div>
+          
+          <!-- RZĄD DOLNY (Wyniki) -->
+          <div class="row-lower">
+            <!-- Team A Dig 1 -->
+            <div id="l-dig-0" class="digit-7seg digit-large">
+              <div class="segment seg-a"></div>
+              <div class="segment seg-f"></div>
+              <div class="segment seg-b"></div>
+              <div class="segment seg-g"></div>
+              <div class="segment seg-e"></div>
+              <div class="segment seg-c"></div>
+              <div class="segment seg-d"></div>
+            </div>
+            <!-- Team A Dig 2 -->
+            <div id="l-dig-1" class="digit-7seg digit-large">
+              <div class="segment seg-a"></div>
+              <div class="segment seg-f"></div>
+              <div class="segment seg-b"></div>
+              <div class="segment seg-g"></div>
+              <div class="segment seg-e"></div>
+              <div class="segment seg-c"></div>
+              <div class="segment seg-d"></div>
+            </div>
+            
+            <!-- Odstęp środkowy -->
+            <div class="scoreboard-gap"></div>
+            
+            <!-- Team B Dig 1 -->
+            <div id="l-dig-2" class="digit-7seg digit-large">
+              <div class="segment seg-a"></div>
+              <div class="segment seg-f"></div>
+              <div class="segment seg-b"></div>
+              <div class="segment seg-g"></div>
+              <div class="segment seg-e"></div>
+              <div class="segment seg-c"></div>
+              <div class="segment seg-d"></div>
+            </div>
+            <!-- Team B Dig 2 -->
+            <div id="l-dig-3" class="digit-7seg digit-large">
+              <div class="segment seg-a"></div>
+              <div class="segment seg-f"></div>
+              <div class="segment seg-b"></div>
+              <div class="segment seg-g"></div>
+              <div class="segment seg-e"></div>
+              <div class="segment seg-c"></div>
+              <div class="segment seg-d"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      
+    </div>
+
+  </div>
+
+  <footer>
+    Wielkoformatowy Zegar & Tablica LED © 2026. Projekty oparte na ESP8266 i taśmach WS2812B.
+  </footer>
+
+  <script>
+    // Mapowanie cyfr 7-segmentowych
+    // Indeksy segmentów: [a, b, c, d, e, f, g]
+    const digitMap = {
+      '0': [1, 1, 1, 1, 1, 1, 0],
+      '1': [0, 1, 1, 0, 0, 0, 0],
+      '2': [1, 1, 0, 1, 1, 0, 1],
+      '3': [1, 1, 1, 1, 0, 0, 1],
+      '4': [0, 1, 1, 0, 0, 1, 1],
+      '5': [1, 0, 1, 1, 0, 1, 1],
+      '6': [1, 0, 1, 1, 1, 1, 1],
+      '7': [1, 1, 1, 0, 0, 0, 0],
+      '8': [1, 1, 1, 1, 1, 1, 1],
+      '9': [1, 1, 1, 1, 0, 1, 1],
+      ' ': [0, 0, 0, 0, 0, 0, 0],
+      '-': [0, 0, 0, 0, 0, 0, 1],
+      '*': [1, 1, 0, 0, 0, 1, 1], // Stopień
+      'C': [1, 0, 0, 1, 1, 1, 0]  // Litera C
+    };
+
+    const state = {
+      clockMode: 'time', // time, stopwatch, timer
+      lowerMode: 'score', // score, temp, date
+      connected: false,
+      ipAddress: '192.168.4.1',
+      
+      // Wyniki
+      scoreA: 0,
+      scoreB: 0,
+      
+      // Temperatura i data
+      tempVal: 22,
+      dateDay: 2,
+      dateMonth: 7,
+      autoSyncDate: true,
+
+      // Stoper
+      stopwatchMs: 0,
+      stopwatchInterval: null,
+      stopwatchLastTick: 0,
+
+      // Minutnik
+      timerDuration: 60,
+      timerRemaining: 60,
+      timerInterval: null,
+      
+      brightness: 150,
+      autoBrightness: true
+    };
+
+    const digitElements = {};
+
+    // Obsługa DOM
+    const connectionDot = document.getElementById('connection-dot');
+    const connectionText = document.getElementById('connection-text');
+    const btnConnect = document.getElementById('btn-connect');
+    const ipAddressInput = document.getElementById('ip-address');
+    
+    const modeTime = document.getElementById('mode-time');
+    const modeStopwatch = document.getElementById('mode-stopwatch');
+    const modeTimer = document.getElementById('mode-timer');
+    
+    const timerControls = document.getElementById('timer-controls');
+    const stopwatchControls = document.getElementById('stopwatch-controls');
+    
+    // Sliders
+    const brightnessSlider = document.getElementById('brightness-slider');
+    const brightnessVal = document.getElementById('brightness-val');
+    const autoBrightnessCheck = document.getElementById('auto-brightness-check');
+
+    // Inicjalizacja
+    function init() {
+      // Cache segmentów cyfr
+      ['u-dig-0', 'u-dig-1', 'u-dig-2', 'u-dig-3', 'l-dig-0', 'l-dig-1', 'l-dig-2', 'l-dig-3'].forEach(id => {
+        const parent = document.getElementById(id);
+        if (parent) {
+          digitElements[id] = {
+            'seg-a': parent.querySelector('.seg-a'),
+            'seg-b': parent.querySelector('.seg-b'),
+            'seg-c': parent.querySelector('.seg-c'),
+            'seg-d': parent.querySelector('.seg-d'),
+            'seg-e': parent.querySelector('.seg-e'),
+            'seg-f': parent.querySelector('.seg-f'),
+            'seg-g': parent.querySelector('.seg-g')
+          };
+        }
+      });
+
+      // Łączenie lokalnego serwera
+      btnConnect.addEventListener('click', toggleConnection);
+      
+      // Zmiana trybów
+      modeTime.addEventListener('click', () => setMode('time'));
+      modeStopwatch.addEventListener('click', () => setMode('stopwatch'));
+      modeTimer.addEventListener('click', () => setMode('timer'));
+
+      // Ustawienia jasności
+      brightnessSlider.addEventListener('input', (e) => {
+        state.brightness = e.target.value;
+        brightnessVal.innerText = state.brightness;
+        sendSettingsToESP();
+      });
+      autoBrightnessCheck.addEventListener('change', (e) => {
+        state.autoBrightness = e.target.checked;
+        sendSettingsToESP();
+      });
+
+      // Kontrole Stopera
+      document.getElementById('btn-stopwatch-start').addEventListener('click', startStopwatch);
+      document.getElementById('btn-stopwatch-pause').addEventListener('click', pauseStopwatch);
+      document.getElementById('btn-stopwatch-reset').addEventListener('click', resetStopwatch);
+
+      // Kontrole Minutnika
+      document.getElementById('btn-timer-start').addEventListener('click', startTimer);
+      document.getElementById('btn-timer-pause').addEventListener('click', pauseTimer);
+      document.getElementById('btn-timer-reset').addEventListener('click', resetTimer);
+      const timerMinsInput = document.getElementById('timer-mins');
+      const timerSecsInput = document.getElementById('timer-secs');
+
+      function updateTimerDuration() {
+        const mins = parseInt(timerMinsInput.value) || 0;
+        const secs = parseInt(timerSecsInput.value) || 0;
+        state.timerDuration = (mins * 60) + secs;
+        
+        if (!state.timerInterval) {
+          state.timerRemaining = state.timerDuration;
+        }
+        sendStateToESP();
+      }
+
+      timerMinsInput.addEventListener('change', updateTimerDuration);
+      timerSecsInput.addEventListener('change', updateTimerDuration);
+
+      // Zmiana trybów dolnego rzędu
+      const lmodeScore = document.getElementById('lmode-score');
+      const lmodeTemp = document.getElementById('lmode-temp');
+      const lmodeDate = document.getElementById('lmode-date');
+      const lmodeCycle = document.getElementById('lmode-cycle');
+      const lpanelScore = document.getElementById('lpanel-score');
+      const lpanelTemp = document.getElementById('lpanel-temp');
+      const lpanelDate = document.getElementById('lpanel-date');
+      const lpanelCycle = document.getElementById('lpanel-cycle');
+
+      function setLowerMode(mode) {
+        state.lowerMode = mode;
+        lmodeScore.classList.remove('active');
+        lmodeTemp.classList.remove('active');
+        lmodeDate.classList.remove('active');
+        lmodeCycle.classList.remove('active');
+        lpanelScore.style.display = 'none';
+        lpanelTemp.style.display = 'none';
+        lpanelDate.style.display = 'none';
+        lpanelCycle.style.display = 'none';
+
+        if (mode === 'score') {
+          lmodeScore.classList.add('active');
+          lpanelScore.style.display = 'grid';
+        } else if (mode === 'temp') {
+          lmodeTemp.classList.add('active');
+          lpanelTemp.style.display = 'block';
+        } else if (mode === 'date') {
+          lmodeDate.classList.add('active');
+          lpanelDate.style.display = 'block';
+          if (state.autoSyncDate) {
+            const now = new Date();
+            state.dateDay = now.getDate();
+            state.dateMonth = now.getMonth() + 1;
+            document.getElementById('date-day').value = state.dateDay;
+            document.getElementById('date-month').value = state.dateMonth;
+          }
+        } else if (mode === 'cycle') {
+          lmodeCycle.classList.add('active');
+          lpanelCycle.style.display = 'block';
+        }
+        sendStateToESP();
+      }
+
+      lmodeScore.addEventListener('click', () => setLowerMode('score'));
+      lmodeTemp.addEventListener('click', () => setLowerMode('temp'));
+      lmodeDate.addEventListener('click', () => setLowerMode('date'));
+      lmodeCycle.addEventListener('click', () => setLowerMode('cycle'));
+
+      // Kontrole daty
+      const dateDayInput = document.getElementById('date-day');
+      const dateMonthInput = document.getElementById('date-month');
+      const autoDateSync = document.getElementById('auto-date-sync');
+
+      dateDayInput.addEventListener('change', (e) => {
+        state.dateDay = parseInt(e.target.value) || 1;
+        sendStateToESP();
+      });
+      dateMonthInput.addEventListener('change', (e) => {
+        state.dateMonth = parseInt(e.target.value) || 1;
+        sendStateToESP();
+      });
+      autoDateSync.addEventListener('change', (e) => {
+        state.autoSyncDate = e.target.checked;
+        if (state.autoSyncDate) {
+          const now = new Date();
+          state.dateDay = now.getDate();
+          state.dateMonth = now.getMonth() + 1;
+          dateDayInput.value = state.dateDay;
+          dateMonthInput.value = state.dateMonth;
+          sendStateToESP();
+        }
+      });
+      document.getElementById('btn-date-send').addEventListener('click', sendStateToESP);
+
+      // Elementy i funkcje aktualizacji kolorów (DOM Cache)
+      const rowUpper = document.querySelector('.row-upper');
+      const lDig0 = document.getElementById('l-dig-0');
+      const lDig1 = document.getElementById('l-dig-1');
+      const lDig2 = document.getElementById('l-dig-2');
+      const lDig3 = document.getElementById('l-dig-3');
+
+      function updateClockColorLocal(val) {
+        if (rowUpper) rowUpper.style.setProperty('--led-color', val);
+      }
+      function updateScoreAColorLocal(val) {
+        if (lDig0) lDig0.style.setProperty('--led-color', val);
+        if (lDig1) lDig1.style.setProperty('--led-color', val);
+      }
+      function updateScoreBColorLocal(val) {
+        if (lDig2) lDig2.style.setProperty('--led-color', val);
+        if (lDig3) lDig3.style.setProperty('--led-color', val);
+      }
+
+      const colorClock = document.getElementById('color-clock');
+      const colorScoreA = document.getElementById('color-score-a');
+      const colorScoreB = document.getElementById('color-score-b');
+
+      // Initialize default color variables
+      state.colorClock = colorClock.value;
+      state.colorScoreA = colorScoreA.value;
+      state.colorScoreB = colorScoreB.value;
+      
+      updateClockColorLocal(state.colorClock);
+      updateScoreAColorLocal(state.colorScoreA);
+      updateScoreBColorLocal(state.colorScoreB);
+
+      colorClock.addEventListener('input', (e) => {
+        state.colorClock = e.target.value;
+        updateClockColorLocal(state.colorClock);
+      });
+      colorClock.addEventListener('change', () => {
+        sendStateToESP();
+      });
+
+      colorScoreA.addEventListener('input', (e) => {
+        state.colorScoreA = e.target.value;
+        updateScoreAColorLocal(state.colorScoreA);
+      });
+      colorScoreA.addEventListener('change', () => {
+        sendStateToESP();
+      });
+
+      colorScoreB.addEventListener('input', (e) => {
+        state.colorScoreB = e.target.value;
+        updateScoreBColorLocal(state.colorScoreB);
+      });
+      colorScoreB.addEventListener('change', () => {
+        sendStateToESP();
+      });
+
+      // Generowanie przycisków kolorów (Presets)
+      const presetColors = ['#ff3b30', '#34c759', '#007aff', '#ffcc00', '#af52de', '#ffffff'];
+      
+      function createPresets(containerId, section) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        presetColors.forEach(col => {
+          const btn = document.createElement('button');
+          btn.className = 'color-preset-btn';
+          btn.style.backgroundColor = col;
+          btn.title = col;
+          btn.addEventListener('click', () => {
+            if (section === 'clock') {
+              state.colorClock = col;
+              colorClock.value = col;
+              updateClockColorLocal(col);
+            } else if (section === 'score-a') {
+              state.colorScoreA = col;
+              colorScoreA.value = col;
+              updateScoreAColorLocal(col);
+            } else if (section === 'score-b') {
+              state.colorScoreB = col;
+              colorScoreB.value = col;
+              updateScoreBColorLocal(col);
+            }
+            sendStateToESP();
+          });
+          container.appendChild(btn);
+        });
+      }
+      
+      createPresets('presets-clock', 'clock');
+      createPresets('presets-score-a', 'score-a');
+      createPresets('presets-score-b', 'score-b');
+
+      // Synchronizacja daty na start
+      if (state.autoSyncDate) {
+        const now = new Date();
+        state.dateDay = now.getDate();
+        state.dateMonth = now.getMonth() + 1;
+        dateDayInput.value = state.dateDay;
+        dateMonthInput.value = state.dateMonth;
+      }
+
+      // Pętla odświeżania symulatora
+      setInterval(tick, 100);
+    }
+
+    let statusInterval = null;
+
+    function updateStatusFromESP() {
+      if (!state.connected) return;
+      fetch(`http://${state.ipAddress}/api/status`)
+        .then(res => res.json())
+        .then(data => {
+          console.log('Received status from ESP:', data);
+          if (data.tempVal !== undefined) {
+            state.tempVal = data.tempVal;
+            const tempDisplay = document.getElementById('temp-status-val');
+            if (tempDisplay) {
+              tempDisplay.innerText = state.tempVal + '°C';
+            }
+          }
+        })
+        .catch(err => console.warn('Błąd pobierania statusu z ESP:', err));
+    }
+
+    function toggleConnection() {
+      state.connected = !state.connected;
+      if (state.connected) {
+        btnConnect.innerText = 'Rozłącz';
+        btnConnect.style.background = '#eab308';
+        btnConnect.style.borderColor = '#eab308';
+        connectionDot.classList.add('connected');
+        connectionText.innerText = 'Połączono z ESP';
+        
+        updateStatusFromESP();
+        statusInterval = setInterval(updateStatusFromESP, 5000);
+      } else {
+        btnConnect.innerText = 'Połącz z ESP';
+        btnConnect.style.background = 'var(--primary)';
+        btnConnect.style.borderColor = 'var(--primary)';
+        connectionDot.classList.remove('connected');
+        connectionText.innerText = 'ESP8266 Simulator';
+        
+        if (statusInterval) {
+          clearInterval(statusInterval);
+          statusInterval = null;
+        }
+      }
+    }
+
+    function setMode(mode) {
+      state.clockMode = mode;
+      
+      // Ukrywanie sekcji
+      timerControls.style.display = 'none';
+      stopwatchControls.style.display = 'none';
+      
+      modeTime.classList.remove('active');
+      modeStopwatch.classList.remove('active');
+      modeTimer.classList.remove('active');
+
+      if (mode === 'time') {
+        modeTime.classList.add('active');
+      } else if (mode === 'stopwatch') {
+        modeStopwatch.classList.add('active');
+        stopwatchControls.style.display = 'block';
+      } else if (mode === 'timer') {
+        modeTimer.classList.add('active');
+        timerControls.style.display = 'block';
+      }
+
+      sendStateToESP();
+    }
+
+    // Sterowanie Stoperem
+    function startStopwatch() {
+      if (!state.stopwatchInterval) {
+        state.stopwatchLastTick = Date.now();
+        state.stopwatchInterval = setInterval(() => {
+          const now = Date.now();
+          state.stopwatchMs += (now - state.stopwatchLastTick);
+          state.stopwatchLastTick = now;
+        }, 10);
+      }
+    }
+    function pauseStopwatch() {
+      clearInterval(state.stopwatchInterval);
+      state.stopwatchInterval = null;
+    }
+    function resetStopwatch() {
+      pauseStopwatch();
+      state.stopwatchMs = 0;
+      sendStateToESP();
+    }
+
+    // Sterowanie Minutnikiem
+    function startTimer() {
+      if (!state.timerInterval && state.timerRemaining > 0) {
+        state.timerLastTick = Date.now();
+        state.timerInterval = setInterval(() => {
+          const now = Date.now();
+          const elapsed = (now - state.timerLastTick) / 1000;
+          state.timerLastTick = now;
+          
+          state.timerRemaining = Math.max(0, state.timerRemaining - elapsed);
+          if (state.timerRemaining <= 0) {
+            state.timerRemaining = 0;
+            pauseTimer();
+            triggerAlarm();
+          }
+        }, 30);
+        sendStateToESP();
+      }
+    }
+    function pauseTimer() {
+      if (state.timerInterval) {
+        clearInterval(state.timerInterval);
+        state.timerInterval = null;
+        sendStateToESP();
+      }
+    }
+    function resetTimer() {
+      pauseTimer();
+      state.timerRemaining = state.timerDuration;
+      sendStateToESP();
+    }
+
+    function triggerAlarm() {
+      let count = 0;
+      const flash = setInterval(() => {
+        const dots = document.querySelectorAll('.colon-dot');
+        dots.forEach(dot => dot.classList.toggle('active'));
+        count++;
+        if (count >= 10) {
+          clearInterval(flash);
+        }
+      }, 300);
+    }
+
+    // Wyniki
+    window.adjustScore = function(team, amt) {
+      if (team === 'A') {
+        state.scoreA = Math.max(0, state.scoreA + amt);
+      } else {
+        state.scoreB = Math.max(0, state.scoreB + amt);
+      }
+      sendStateToESP();
+    };
+
+    window.resetScore = function(team) {
+      if (team === 'A') state.scoreA = 0;
+      else state.scoreB = 0;
+      sendStateToESP();
+    };
+
+    window.resetAllScores = function() {
+      state.scoreA = 0;
+      state.scoreB = 0;
+      sendStateToESP();
+    };
+
+    // Renderowanie Cyfry
+    function renderDigit(elementId, char) {
+      const segs = digitElements[elementId];
+      if (!segs) return;
+      const mask = digitMap[char] || digitMap[' '];
+      
+      const names = ['seg-a', 'seg-b', 'seg-c', 'seg-d', 'seg-e', 'seg-f', 'seg-g'];
+      names.forEach((name, idx) => {
+        const seg = segs[name];
+        if (seg) {
+          if (mask[idx] === 1) {
+            seg.classList.add('active');
+          } else {
+            seg.classList.remove('active');
+          }
+        }
+      });
+    }
+
+    // Pętla odświeżania podglądu (sim)
+    function tick() {
+      // 1. Renderowanie Górnego Rzędu (Zegar / Stoper / Minutnik)
+      const colonDots = [document.getElementById('u-colon-0'), document.getElementById('u-colon-1')];
+
+      if (state.clockMode === 'time') {
+        const now = new Date();
+        const hrs = now.getHours().toString().padStart(2, '0');
+        const mins = now.getMinutes().toString().padStart(2, '0');
+        
+        renderDigit('u-dig-0', hrs[0]);
+        renderDigit('u-dig-1', hrs[1]);
+        renderDigit('u-dig-2', mins[0]);
+        renderDigit('u-dig-3', mins[1]);
+
+        // Miganie dwukropka zsynchronizowane z parzystością sekund zegara
+        const blink = now.getSeconds() % 2 === 0;
+        colonDots.forEach(dot => {
+          if (blink) dot.classList.add('active');
+          else dot.classList.remove('active');
+        });
+
+      } else if (state.clockMode === 'stopwatch') {
+        // Format MM:SS lub SS:CC (sekundy, setne)
+        const totalSec = Math.floor(state.stopwatchMs / 1000);
+        const mins = Math.floor(totalSec / 60);
+        const secs = totalSec % 60;
+        const centis = Math.floor((state.stopwatchMs % 1000) / 10);
+        
+        if (mins > 0) {
+          // Format MM:SS
+          const strMins = mins.toString().padStart(2, '0');
+          const strSecs = secs.toString().padStart(2, '0');
+          renderDigit('u-dig-0', strMins[0]);
+          renderDigit('u-dig-1', strMins[1]);
+          renderDigit('u-dig-2', strSecs[0]);
+          renderDigit('u-dig-3', strSecs[1]);
+        } else {
+          // Format SS:CC
+          const strSecs = secs.toString().padStart(2, '0');
+          const strCentis = centis.toString().padStart(2, '0');
+          renderDigit('u-dig-0', strSecs[0]);
+          renderDigit('u-dig-1', strSecs[1]);
+          renderDigit('u-dig-2', strCentis[0]);
+          renderDigit('u-dig-3', strCentis[1]);
+        }
+
+        // Miganie dwukropka w sync z sekundami stopera (stale włączony na pauzie)
+        const blink = !state.stopwatchInterval || (secs % 2 === 0);
+        colonDots.forEach(dot => {
+          if (blink) dot.classList.add('active');
+          else dot.classList.remove('active');
+        });
+
+      } else if (state.clockMode === 'timer') {
+        if (state.timerRemaining < 60) {
+          // Format SS:CC (sekundy, setne)
+          const secsVal = Math.floor(state.timerRemaining);
+          const secs = secsVal.toString().padStart(2, '0');
+          const centis = Math.floor((state.timerRemaining % 1) * 100).toString().padStart(2, '0');
+          
+          renderDigit('u-dig-0', secs[0]);
+          renderDigit('u-dig-1', secs[1]);
+          renderDigit('u-dig-2', centis[0]);
+          renderDigit('u-dig-3', centis[1]);
+          
+          // Miganie dwukropka w sync z sekundami minutnika (stale włączony na pauzie)
+          const blink = !state.timerInterval || (secsVal % 2 === 0);
+          colonDots.forEach(dot => {
+            if (blink) dot.classList.add('active');
+            else dot.classList.remove('active');
+          });
+        } else {
+          // Format MM:SS
+          const mins = Math.floor(state.timerRemaining / 60).toString().padStart(2, '0');
+          const secsVal = Math.floor(state.timerRemaining % 60);
+          const secs = secsVal.toString().padStart(2, '0');
+          
+          renderDigit('u-dig-0', mins[0]);
+          renderDigit('u-dig-1', mins[1]);
+          renderDigit('u-dig-2', secs[0]);
+          renderDigit('u-dig-3', secs[1]);
+          
+          // Miganie dwukropka w sync z sekundami minutnika (stale włączony na pauzie)
+          const blink = !state.timerInterval || (secsVal % 2 === 0);
+          colonDots.forEach(dot => {
+            if (blink) dot.classList.add('active');
+            else dot.classList.remove('active');
+          });
+        }
+      }
+
+      // 2. Renderowanie Dolnego Rzędu (Wyniki / Temperatura / Data / Autocykl)
+      if (state.lowerMode === 'score') {
+        const valA = state.scoreA.toString().padStart(2, ' ');
+        renderDigit('l-dig-0', valA[0]);
+        renderDigit('l-dig-1', valA[1]);
+
+        const valB = state.scoreB.toString().padStart(2, ' ');
+        renderDigit('l-dig-2', valB[0]);
+        renderDigit('l-dig-3', valB[1]);
+      } else if (state.lowerMode === 'temp') {
+        let tempStr = state.tempVal.toString();
+        if (state.tempVal >= 0 && state.tempVal < 10) {
+          tempStr = " " + tempStr;
+        }
+        renderDigit('l-dig-0', tempStr[0]);
+        renderDigit('l-dig-1', tempStr[1]);
+        renderDigit('l-dig-2', '*');
+        renderDigit('l-dig-3', 'C');
+      } else if (state.lowerMode === 'date') {
+        const dayStr = state.dateDay.toString().padStart(2, '0');
+        const monthStr = state.dateMonth.toString().padStart(2, '0');
+        renderDigit('l-dig-0', dayStr[0]);
+        renderDigit('l-dig-1', dayStr[1]);
+        renderDigit('l-dig-2', monthStr[0]);
+        renderDigit('l-dig-3', monthStr[1]);
+      } else if (state.lowerMode === 'cycle') {
+        const showTemp = Math.floor(Date.now() / 5000) % 2 === 0;
+        if (showTemp) {
+          let tempStr = state.tempVal.toString();
+          if (state.tempVal >= 0 && state.tempVal < 10) {
+            tempStr = " " + tempStr;
+          }
+          renderDigit('l-dig-0', tempStr[0]);
+          renderDigit('l-dig-1', tempStr[1]);
+          renderDigit('l-dig-2', '*');
+          renderDigit('l-dig-3', 'C');
+        } else {
+          const dayStr = state.dateDay.toString().padStart(2, '0');
+          const monthStr = state.dateMonth.toString().padStart(2, '0');
+          renderDigit('l-dig-0', dayStr[0]);
+          renderDigit('l-dig-1', dayStr[1]);
+          renderDigit('l-dig-2', monthStr[0]);
+          renderDigit('l-dig-3', monthStr[1]);
+        }
+      }
+    }
+
+    function hexToRgb(hex) {
+      const bigint = parseInt(hex.slice(1), 16);
+      const r = (bigint >> 16) & 255;
+      const g = (bigint >> 8) & 255;
+      const b = bigint & 255;
+      return [r, g, b];
+    }
+
+    // REST API calls to ESP (real lub mock)
+    function sendStateToESP() {
+      if (!state.connected) return;
+      console.log('Sending state to ESP:', state);
+      
+      const payload = {
+        mode: state.clockMode,
+        lowerMode: state.lowerMode,
+        scoreA: state.scoreA,
+        scoreB: state.scoreB,
+        tempVal: state.tempVal,
+        dateDay: state.dateDay,
+        dateMonth: state.dateMonth,
+        stopwatchMs: state.stopwatchMs,
+        timerDur: state.timerDuration,
+        timerRemMs: Math.floor(state.timerRemaining * 1000),
+        timerRunning: (state.timerInterval !== null),
+        colorClock: hexToRgb(state.colorClock),
+        colorA: hexToRgb(state.colorScoreA),
+        colorB: hexToRgb(state.colorScoreB)
+      };
+
+      fetch(`http://${state.ipAddress}/api/state`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).catch(err => console.warn('Błąd komunikacji z ESP:', err));
+    }
+
+    function sendSettingsToESP() {
+      if (!state.connected) return;
+      console.log('Sending settings to ESP:', state);
+      
+      const payload = {
+        brightness: parseInt(state.brightness),
+        auto: state.autoBrightness ? 1 : 0
+      };
+
+      fetch(`http://${state.ipAddress}/api/settings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).catch(err => console.warn('Błąd konfiguracji ESP:', err));
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>

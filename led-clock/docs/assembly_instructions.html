@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Instrukcja Montażu Elektroniki Krok po Kroku</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+    
+    body {
+      font-family: 'Outfit', sans-serif;
+      line-height: 1.6;
+      color: #1e293b;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      background: #f8fafc;
+    }
+
+    h1, h2, h3 {
+      color: #0f172a;
+      font-weight: 600;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      border-bottom: 2px dashed #cbd5e1;
+      padding-bottom: 12px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 6px;
+      margin-top: 40px;
+    }
+
+    h3 {
+      font-size: 1.2rem;
+      margin-top: 25px;
+    }
+
+    p, li {
+      font-size: 1.05rem;
+      color: #334155;
+    }
+
+    ul, ol {
+      padding-left: 20px;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    .warning-box {
+      background-color: #fffbeb;
+      border-left: 4px solid #d97706;
+      padding: 15px 20px;
+      border-radius: 6px;
+      margin: 25px 0;
+    }
+
+    .warning-box strong {
+      color: #92400e;
+    }
+
+    .warning-box p {
+      margin: 0;
+      color: #78350f;
+    }
+
+    .danger-box {
+      background-color: #fef2f2;
+      border-left: 4px solid #dc2626;
+      padding: 15px 20px;
+      border-radius: 6px;
+      margin: 25px 0;
+    }
+
+    .danger-box strong {
+      color: #991b1b;
+    }
+
+    .danger-box p {
+      margin: 0;
+      color: #7f1d1d;
+    }
+
+    pre, code {
+      font-family: 'JetBrains Mono', monospace;
+      background: #0f172a;
+      color: #f8fafc;
+      border-radius: 6px;
+    }
+
+    code {
+      padding: 2px 6px;
+      font-size: 0.95em;
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    pre {
+      padding: 18px;
+      overflow-x: auto;
+      font-size: 0.9rem;
+      border: 1px solid #1e293b;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+      color: inherit;
+    }
+
+    hr {
+      border: 0;
+      height: 1px;
+      background: #e2e8f0;
+      margin: 40px 0;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+        padding: 0;
+        max-width: 100%;
+      }
+      h1, h2, h3 {
+        page-break-after: avoid;
+      }
+      pre, .warning-box, .danger-box {
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Instrukcja Montażu Elektroniki Krok po Kroku</h1>
+  <p>Poniższa instrukcja krok po kroku pozwoli Ci prawidłowo i bezpiecznie zlutować oraz połączyć wszystkie komponenty elektroniczne Wielkoformatowego Zegara LED.</p>
+
+  <hr>
+
+  <h2>1. Narzędzia i Materiały Pomocnicze</h2>
+  <p>Przed rozpoczęciem przygotuj następujące rzeczy:</p>
+  <ul>
+    <li><strong>Stacja lutownicza</strong> lub lutownica kolbowa (temperatura ok. 320–350°C).</li>
+    <li><strong>Cyna lutownicza</strong> z topnikiem (np. pasta SAC305 Sn96.5Ag3.0Cu0.5).</li>
+    <li><strong>Topnik w płynie lub żelu</strong> (bardzo ułatwia lutowanie padów na paskach LED).</li>
+    <li><strong>Przewody montażowe:</strong>
+      <ul>
+        <li><strong>Przewody zasilające</strong> (przekrój 1.0 mm² lub 1.5 mm², najlepiej czerwony dla +5V i czarny dla GND) do głównej szyny zasilającej.</li>
+        <li><strong>Przewody sygnałowe</strong> (przekrój 0.25 mm² lub kable typu Kynar/Dupont) do łączenia segmentów i sygnałów danych.</li>
+      </ul>
+    </li>
+    <li><strong>Koszulki termokurczliwe</strong> (różne średnice) do zabezpieczania lutowanych połączeń.</li>
+    <li><strong>Opcjonalnie:</strong> Trzecia ręka (uchwyt z lupą), cążki do cięcia przewodów i ściągacz izolacji.</li>
+  </ul>
+
+  <h2>2. Krok 1: Przygotowanie i Cięcie Pasków LED</h2>
+  <p>Każdy segment zegara i tablicy wyników składa się z odpowiedniej liczby diod odciętych z rolki taśmy WS2812B.</p>
+  <ul>
+    <li><strong>Taśma górnego rzędu (Zegar):</strong> Wytnij 28 odcinków po <strong>2 diody LED</strong> (łącznie 56 diod dla 4 cyfr) oraz 1 odcinek z <strong>2 diodami LED</strong> (dwukropek).</li>
+    <li><strong>Taśma dolnego rzędu (Wyniki):</strong> Wytnij 28 odcinków po <strong>3 diody LED</strong> (łącznie 84 diody dla 4 cyfr).</li>
+  </ul>
+
+  <div class="warning-box">
+    <strong>Ostrzeżenie:</strong>
+    <p>Taśmę LED WS2812B można odcinać <strong>tylko w wyznaczonych miejscach</strong> (linia cięcia biegnąca dokładnie przez środek miedzianych padów lutowniczych). Użyj ostrych nożyczek i wykonaj proste, czyste cięcie.</p>
+  </div>
+
+  <h2>3. Krok 2: Łączenie Segmentów w Cyfry</h2>
+  <p>Każda cyfra składa się z 7 segmentów (A, B, C, D, E, F, G). Musisz połączyć je szeregowo tak, aby sygnał danych (Data) przechodził z jednego segmentu do kolejnego.</p>
+
+  <h3>Kierunek Przepływu Danych (Ważne!):</h3>
+  <ul>
+    <li>Taśmy adresowalne WS2812B mają określony kierunek przepływu sygnału oznaczony <strong>strzałkami na laminacie</strong> (od <code>DI</code> / <code>DIN</code> - Data In do <code>DO`</code> / <code>DOUT</code> - Data Out).</li>
+    <li>Zwróć szczególną uwagę, aby lutować wyjście <code>DO</code> poprzedniego segmentu z wejściem <code>DI</code> następnego segmentu. Odwrócenie kierunku spowoduje błąd i kolejne diody nie będą świecić!</li>
+  </ul>
+
+  <h3>Schemat połączenia w pojedynczej cyfrze (układ wężykowy):</h3>
+  <pre><code>           [A] 
+          +---+
+      [F] |   | [B]
+          +---+ &lt;--- Wejście danych (DI) całej cyfry na dole segmentu B
+      [E] | [G]| [C]
+          +---+
+           [D]</code></pre>
+  <p>Połącz segmenty cienkim przewodem według kolejności:<br>
+  <code>Wejście cyfry (DI)</code> &rarr; <strong>[B]</strong> &rarr; <strong>[A]</strong> &rarr; <strong>[F]</strong> &rarr; <strong>[G]</strong> &rarr; <strong>[E]</strong> &rarr; <strong>[D]</strong> &rarr; <strong>[C]</strong> &rarr; <code>Wyjście cyfry (DO) do kolejnej cyfry</code>.</p>
+
+  <h3>Proces lutowania segmentu:</h3>
+  <ol>
+    <li>Nałóż wykałaczką małą kropelkę pasty lutowniczej na miedziane pady segmentu LED.</li>
+    <li>Pobiel pady grotem lutownicy (podgrzej krótko, pasta zmieni się w błyszczącą kropelkę cyny: <code>5V</code>, <code>DI/DO</code>, <code>GND</code>).</li>
+    <li>Zdejmij ok. 2 mm izolacji z przewodu sygnałowego, pobiel końcówkę.</li>
+    <li>Przytknij przewód do padu i krótko podgrzej (ok. 1.5 - 2 sekundy). Nie przegrzewaj obudowy diody!</li>
+    <li><strong>Mostki zasilania:</strong> Zlutuj ze sobą równolegle linie zasilania <code>5V</code> oraz <code>GND</code> wszystkich segmentów wewnątrz cyfry.</li>
+  </ol>
+
+  <h2>4. Krok 3: Przygotowanie Czujnika Światła LDR</h2>
+  <p>Czujnik LDR (fotorezystor) pozwala na automatyczną regulację jasności ekranu w zależności od oświetlenia otoczenia.</p>
+  <ol>
+    <li>Utnij krótki kawałek rurki termokurczliwej i nasuń ją na jedną z nóżek fotorezystora LDR.</li>
+    <li>Zlutuj jedną nóżkę LDR z przewodem biegnącym do napięcia <strong>3.3V</strong> na płytce ESP8266.</li>
+    <li>Zlutuj drugą nóżkę LDR z rezystorem <strong>10 kΩ</strong>.</li>
+    <li>W punkcie wspólnego połączenia (pomiędzy LDR a rezystorem) przylutuj przewód sygnałowy i połącz go z pinem analogowym <strong>A0</strong> mikrokontrolera.</li>
+    <li>Wolny koniec rezystora 10 kΩ podłącz do wspólnej masy <strong>GND</strong>.</li>
+    <li>Ogrzej rurki termokurczliwe, aby zaizolować połączenia.</li>
+  </ol>
+
+  <h2>5. Krok 4: Przygotowanie Płytki Sterownika (ESP8266)</h2>
+  <p>Sterownik integruje mikrokontroler, kondensator oraz rezystory ochronne. Najwygodniej zmontować to na małym kawałku płytki uniwersalnej.</p>
+  <ol>
+    <li><strong>Rezystory ochronne na liniach danych:</strong>
+      <ul>
+        <li>Przylutuj rezystor <strong>330 Ω</strong> do pinu <strong>D5 (GPIO14)</strong>. Drugi koniec połącz z wejściem danych <code>DI</code> pierwszego segmentu zegara.</li>
+        <li>Przylutuj drugi rezystor <strong>330 Ω</strong> do pinu <strong>D6 (GPIO12)</strong>. Drugi koniec połącz z wejściem danych <code>DI</code> tablicy wyników.</li>
+      </ul>
+    </li>
+    <li><strong>Kondensator filtrujący:</strong>
+      <ul>
+        <li>Przylutuj kondensator elektrolityczny <strong>1000 µF</strong> bezpośrednio pomiędzy zasilanie 5V a masę GND wchodzącą na płytkę ESP8266.</li>
+        <li><strong>Uwaga na polaryzację:</strong> Pasek z minusem (-) na obudowie kondensatora musi iść do <strong>GND</strong>, a druga nóżka (+) do <strong>5V/VIN</strong>.</li>
+      </ul>
+    </li>
+  </ol>
+
+  <h2>6. Krok 5: Główne Zasilanie i Magistrala (Szyna Mocy)</h2>
+  <p>Przy poborze prądu do 10A, paski LED wykazują duże spadki napięcia na laminacie. Zapobiegamy temu stosując wstrzykiwanie zasilania (Power Injection):</p>
+  <ol>
+    <li>Poprowadź gruby dwużyłowy przewód (1.0 - 1.5 mm²) bezpośrednio od zasilacza 5V wzdłuż całego zegara (szyna zasilająca).</li>
+    <li><strong>Zegar (Góra):</strong> Podłącz +5V i GND z szyny zasilającej na początku rzędu (cyfra 1) oraz na końcu rzędu (cyfra 4).</li>
+    <li><strong>Wyniki (Dół):</strong> Podłącz +5V i GND na początku lewej strony, na środku (przy dwukropku) oraz na końcu prawej strony.</li>
+    <li>Podłącz zasilanie ESP8266 od tej samej głównej szyny do pinów <strong>5V/VIN</strong> i <strong>GND</strong>.</li>
+  </ol>
+
+  <h2>7. Krok 6: Podłączenie Zasilacza 5V 10A</h2>
+  <p>Przemysłowe zasilacze posiadają terminale śrubowe:</p>
+  <pre><code> Terminale zasilacza:
+ [ L ] [ N ] [ PE ] [ -V / GND ] [ -V / GND ] [ +V ] [ +V ] [ +V ADJ ]
+   |     |     |          |             |        |      |
+  AC   AC   Uziemienie  Masa(GND)    Masa(GND)  +5V    +5V
+ 230V  230V   (PE)       do LED        do ESP   do LED do ESP</code></pre>
+  <ol>
+    <li><strong>Sekcja AC 230V (Niebezpieczeństwo!):</strong>
+      <ul>
+        <li>Podłącz przewód brązowy (Faza) do zacisku <strong>L</strong>.</li>
+        <li>Podłącz przewód niebieski (Neutralny) do zacisku <strong>N</strong>.</li>
+        <li>Podłącz przewód żółto-zielony (Uziemienie) do zacisku <strong>PE</strong>.</li>
+      </ul>
+    </li>
+    <li><strong>Sekcja DC 5V (Niskie napięcie):</strong>
+      <ul>
+        <li>Podłącz czerwone przewody szyny zasilającej do zacisków <strong>+V</strong>.</li>
+        <li>Podłącz czarne przewody szyny zasilającej do zacisków <strong>-V (GND)</strong>.</li>
+      </ul>
+    </li>
+  </ol>
+
+  <div class="danger-box">
+    <strong>BHP i Bezpieczeństwo:</strong>
+    <p>Przed włożeniem wtyczki do kontaktu 230V upewnij się, że żadne przewody AC nie są odsłonięte i nie stykają się z metalową obudową zasilacza. Zawsze zamknij plastikową klapkę ochronną nad zaciskami.</p>
+  </div>
+
+  <h2>8. Krok 7: Pierwsze Uruchomienie i Diagnostyka</h2>
+  <ol>
+    <li>Upewnij się za pomocą multimetru, że na szynie zasilającej nie ma zwarcia (opór między +5V a GND powinien wynosić kilkaset omów lub rosnąć).</li>
+    <li>Włącz zasilacz. Niebieska dioda na ESP8266 powinna mignąć.</li>
+    <li>Zegar uruchomi się i diody zaświecą się na czerwono. Skonfiguruj sieć WiFi według instrukcji na ekranie telefonu.</li>
+    <li><strong>Szybki Troubleshooting:</strong>
+      <ul>
+        <li><em>Żadna dioda nie świeci:</em> Sprawdź obecność 5V na stykach zasilacza i zasilanie VIN na płytce ESP8266.</li>
+        <li><em>Świeci tylko część cyfry:</em> Popraw lut na linii danych (DI/DO) w miejscu, w którym kończy się świecenie. Upewnij się, że nie przylutowałeś kabla odwrotnie (DO do DO).</li>
+      </ul>
+    </li>
+  </ol>
+
+</body>
+</html>
