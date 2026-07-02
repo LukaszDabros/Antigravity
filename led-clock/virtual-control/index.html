@@ -1560,6 +1560,7 @@
       names.forEach((name, idx) => {
         const seg = segs[name];
         if (seg) {
+          seg.style.clipPath = ''; // resetuj custom clip-path
           if (mask[idx] === 1) {
             seg.classList.add('active');
           } else {
@@ -1567,6 +1568,17 @@
           }
         }
       });
+    }
+
+    // Specjalna wersja dla litery G w trybie Tabata Work:
+    // Segment środkowy (seg-a) świeci tylko prawą 1/3 — 1 dioda po prawej,
+    // co upodabnia do prawdziwego kształtu litery G.
+    function renderDigitG(elementId) {
+      renderDigit(elementId, 'G');
+      const segs = digitElements[elementId];
+      if (!segs || !segs['seg-a']) return;
+      // Przycinamy segment A do prawej 1/3 (odpowiednik 1 z 3 diod)
+      segs['seg-a'].style.clipPath = 'inset(0 0 0 66%)';
     }
 
     // Pętla odświeżania podglądu (sim)
@@ -1725,7 +1737,7 @@
             renderDigit('l-dig-2', 'P');
             renderDigit('l-dig-3', 'r'); // 'r' = najblizsze R na 7-seg
           } else if (state.tabataState === 'work') {
-            renderDigit('l-dig-2', 'G');
+            renderDigitG('l-dig-2'); // G z 1 diodą po prawej (jak prawdziwe G)
             renderDigit('l-dig-3', '0'); // '0' = duże O na 7-seg
           } else if (state.tabataState === 'rest') {
             renderDigit('l-dig-2', '-');

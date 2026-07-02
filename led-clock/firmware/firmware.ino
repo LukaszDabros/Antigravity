@@ -178,6 +178,26 @@ void drawLowerDigit(int digitIndex, char value, CRGB color) {
   }
 }
 
+// Specjalna wersja dla litery G - srodkowy segment (A) swieci tylko
+// JEDNA DIODA PO PRAWEJ STRONIE (l=2), co upodabnia do prawdziwego G.
+void drawLowerDigitG(int digitIndex, CRGB color) {
+  int digitOffset = digitIndex * 7 * LOWER_LEDS_PER_SEG;
+  byte charIndex = 16; // G
+
+  for (int seg = 0; seg < 7; seg++) {
+    bool active = digitSegments[charIndex][seg];
+    for (int l = 0; l < LOWER_LEDS_PER_SEG; l++) {
+      int ledIndex = digitOffset + (seg * LOWER_LEDS_PER_SEG) + l;
+      if (seg == 0 && active) {
+        // Segment A (srodkowy): tylko ostatnia dioda (prawa strona)
+        lowerLeds[ledIndex] = (l == LOWER_LEDS_PER_SEG - 1) ? color : CRGB::Black;
+      } else {
+        lowerLeds[ledIndex] = active ? color : CRGB::Black;
+      }
+    }
+  }
+}
+
 // ==========================================
 // REST API & CORS
 // ==========================================
@@ -604,7 +624,7 @@ void renderLowerRow() {
         drawLowerDigit(2, 'P', tabCol);
         drawLowerDigit(3, 'r', tabCol); // r = najblizsze R na 7-seg
       } else if (tabataState == "work") {
-        drawLowerDigit(2, 'G', tabCol);
+        drawLowerDigitG(2, tabCol); // G ze skróconym środkiem (1 dioda po prawej)
         drawLowerDigit(3, '0', tabCol); // '0' = duze O na 7-seg
       } else if (tabataState == "rest") {
         drawLowerDigit(2, '-', tabCol);
