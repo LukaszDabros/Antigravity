@@ -17,7 +17,7 @@ digit_h = 270;      // Wysokość cyfry na froncie (mm)
 seg_thickness = 32; // Zwiększona szerokość segmentu na froncie (mm) (było 30)
 
 /* [Wymiary Szablonu] */
-margin = 40;        // Margines zewnętrzny wokół cyfry (mm)
+margin = 30;        // Zmniejszony margines zewnętrzny (było 40), aby dopasować szerokość do druku na Ender 3 (220x220 mm)
 thickness = 8;      // Grubość szablonu (mm)
 
 // Obliczenie wymiarów otworów pilotujących w MDF (szerokość slotu w MDF = 14mm, długość = 68mm)
@@ -28,9 +28,9 @@ pilot_l = 68;                 // Skrócona długość (było 72 mm)
 slot_w = pilot_w + 2 * tool_offset; // 14 + 9 = 23 mm
 slot_l = pilot_l + 2 * tool_offset; // 68 + 9 = 77 mm
 
-// Rozmiar płyty szablonu
-outer_w = digit_w + 2 * margin; // 150 + 80 = 230 mm
-outer_h = digit_h + 2 * margin; // 270 + 80 = 350 mm
+// Rozmiar płyty szablonu (Szerokość zewnętrzna wynosi teraz 150 + 60 = 210 mm, mieści się na stole 220 mm)
+outer_w = digit_w + 2 * margin; // 150 + 60 = 210 mm
+outer_h = digit_h + 2 * margin; // 270 + 60 = 330 mm
 
 // Wymiary nacięć celowniczych
 cross_depth = 1.0;   // Głębokość linii centrujących (mm)
