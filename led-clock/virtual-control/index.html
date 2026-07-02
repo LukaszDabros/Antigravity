@@ -570,6 +570,7 @@
           <button id="mode-time" class="btn active">Zegar</button>
           <button id="mode-stopwatch" class="btn">Stoper</button>
           <button id="mode-timer" class="btn">Minutnik</button>
+          <button id="mode-tabata" class="btn">Tabata</button>
         </div>
 
         <!-- Panel Minutnika -->
@@ -597,6 +598,35 @@
             <button id="btn-stopwatch-start" class="btn" style="background:#22c55e; border-color:#22c55e;">Start</button>
             <button id="btn-stopwatch-pause" class="btn" style="background:#eab308; border-color:#eab308;">Pauza</button>
             <button id="btn-stopwatch-reset" class="btn">Reset</button>
+          </div>
+        </div>
+
+        <!-- Panel Tabaty -->
+        <div id="tabata-controls" style="display:none; border-top: 1px solid var(--glass-border); padding-top: 15px; margin-top: 15px;">
+          <div class="score-control-grid" style="margin-bottom: 12px;">
+            <div class="control-row" style="margin-bottom:0;">
+              <label for="tabata-prepare">Przygotowanie (s):</label>
+              <input type="number" id="tabata-prepare" class="input-field" value="10" min="0" max="99">
+            </div>
+            <div class="control-row" style="margin-bottom:0;">
+              <label for="tabata-work">Praca (s):</label>
+              <input type="number" id="tabata-work" class="input-field" value="20" min="1" max="999">
+            </div>
+          </div>
+          <div class="score-control-grid" style="margin-bottom: 15px;">
+            <div class="control-row" style="margin-bottom:0;">
+              <label for="tabata-rest">Odpoczynek (s):</label>
+              <input type="number" id="tabata-rest" class="input-field" value="10" min="0" max="999">
+            </div>
+            <div class="control-row" style="margin-bottom:0;">
+              <label for="tabata-rounds">Rundy (cykle):</label>
+              <input type="number" id="tabata-rounds" class="input-field" value="8" min="1" max="99">
+            </div>
+          </div>
+          <div class="btn-group" style="margin-bottom:0;">
+            <button id="btn-tabata-start" class="btn" style="background:#22c55e; border-color:#22c55e;">Start</button>
+            <button id="btn-tabata-pause" class="btn" style="background:#eab308; border-color:#eab308;">Pauza</button>
+            <button id="btn-tabata-reset" class="btn">Reset</button>
           </div>
         </div>
       </div>
@@ -857,11 +887,20 @@
       ' ': [0, 0, 0, 0, 0, 0, 0],
       '-': [0, 0, 0, 0, 0, 0, 1],
       '*': [1, 1, 0, 0, 0, 1, 1], // Stopień
-      'C': [1, 0, 0, 1, 1, 1, 0]  // Litera C
+      'C': [1, 0, 0, 1, 1, 1, 0], // Litera C
+      'P': [1, 1, 0, 0, 1, 1, 1],
+      'r': [0, 0, 0, 0, 1, 0, 1],
+      'G': [1, 0, 1, 1, 1, 1, 1],
+      'o': [0, 0, 1, 1, 1, 0, 1],
+      'E': [1, 0, 0, 1, 1, 1, 1],
+      'F': [1, 0, 0, 0, 1, 1, 1],
+      'n': [0, 0, 1, 0, 1, 0, 1],
+      'd': [0, 1, 1, 1, 1, 0, 1],
+      'H': [0, 1, 1, 0, 1, 1, 1]
     };
 
     const state = {
-      clockMode: 'time', // time, stopwatch, timer
+      clockMode: 'time', // time, stopwatch, timer, tabata
       lowerMode: 'score', // score, temp, date
       connected: false,
       ipAddress: '192.168.4.1',
@@ -886,6 +925,17 @@
       timerRemaining: 60,
       timerInterval: null,
       
+      // Tabata
+      tabataPrepare: 10,
+      tabataWork: 20,
+      tabataRest: 10,
+      tabataRounds: 8,
+      tabataCurrentRound: 1,
+      tabataState: 'idle', // idle, prepare, work, rest, finished
+      tabataRemaining: 10,
+      tabataInterval: null,
+      tabataLastTick: 0,
+      
       brightness: 150,
       autoBrightness: true
     };
@@ -901,9 +951,11 @@
     const modeTime = document.getElementById('mode-time');
     const modeStopwatch = document.getElementById('mode-stopwatch');
     const modeTimer = document.getElementById('mode-timer');
+    const modeTabata = document.getElementById('mode-tabata');
     
     const timerControls = document.getElementById('timer-controls');
     const stopwatchControls = document.getElementById('stopwatch-controls');
+    const tabataControls = document.getElementById('tabata-controls');
     
     // Sliders
     const brightnessSlider = document.getElementById('brightness-slider');
@@ -935,6 +987,7 @@
       modeTime.addEventListener('click', () => setMode('time'));
       modeStopwatch.addEventListener('click', () => setMode('stopwatch'));
       modeTimer.addEventListener('click', () => setMode('timer'));
+      modeTabata.addEventListener('click', () => setMode('tabata'));
 
       // Ustawienia jasności
       brightnessSlider.addEventListener('input', (e) => {
@@ -972,6 +1025,11 @@
 
       timerMinsInput.addEventListener('change', updateTimerDuration);
       timerSecsInput.addEventListener('change', updateTimerDuration);
+
+      // Kontrole Tabaty
+      document.getElementById('btn-tabata-start').addEventListener('click', startTabata);
+      document.getElementById('btn-tabata-pause').addEventListener('click', pauseTabata);
+      document.getElementById('btn-tabata-reset').addEventListener('click', resetTabata);
 
       // Zmiana trybów dolnego rzędu
       const lmodeScore = document.getElementById('lmode-score');
@@ -1167,6 +1225,29 @@
               tempDisplay.innerText = state.tempVal + '°C';
             }
           }
+          if (data.mode !== undefined && data.mode !== state.clockMode) {
+            state.clockMode = data.mode;
+            
+            // Sync active mode button style
+            modeTime.classList.toggle('active', data.mode === 'time');
+            modeStopwatch.classList.toggle('active', data.mode === 'stopwatch');
+            modeTimer.classList.toggle('active', data.mode === 'timer');
+            modeTabata.classList.toggle('active', data.mode === 'tabata');
+            
+            // Sync controls card visibility
+            timerControls.style.display = (data.mode === 'timer') ? 'block' : 'none';
+            stopwatchControls.style.display = (data.mode === 'stopwatch') ? 'block' : 'none';
+            tabataControls.style.display = (data.mode === 'tabata') ? 'block' : 'none';
+          }
+          if (data.scoreA !== undefined) state.scoreA = data.scoreA;
+          if (data.scoreB !== undefined) state.scoreB = data.scoreB;
+          
+          if (data.tabataState !== undefined) {
+            state.tabataState = data.tabataState;
+            state.tabataCurrentRound = data.tabataRound;
+            state.tabataRounds = data.tabataRounds;
+            state.tabataRemaining = data.tabataRemMs / 1000;
+          }
         })
         .catch(err => console.warn('Błąd pobierania statusu z ESP:', err));
     }
@@ -1202,10 +1283,12 @@
       // Ukrywanie sekcji
       timerControls.style.display = 'none';
       stopwatchControls.style.display = 'none';
+      tabataControls.style.display = 'none';
       
       modeTime.classList.remove('active');
       modeStopwatch.classList.remove('active');
       modeTimer.classList.remove('active');
+      modeTabata.classList.remove('active');
 
       if (mode === 'time') {
         modeTime.classList.add('active');
@@ -1215,6 +1298,9 @@
       } else if (mode === 'timer') {
         modeTimer.classList.add('active');
         timerControls.style.display = 'block';
+      } else if (mode === 'tabata') {
+        modeTabata.classList.add('active');
+        tabataControls.style.display = 'block';
       }
 
       sendStateToESP();
@@ -1285,6 +1371,89 @@
       }, 300);
     }
 
+    // Sterowanie Tabatą
+    function startTabata() {
+      state.tabataPrepare = parseInt(document.getElementById('tabata-prepare').value) || 10;
+      state.tabataWork = parseInt(document.getElementById('tabata-work').value) || 20;
+      state.tabataRest = parseInt(document.getElementById('tabata-rest').value) || 10;
+      state.tabataRounds = parseInt(document.getElementById('tabata-rounds').value) || 8;
+
+      if (!state.tabataInterval) {
+        if (state.tabataState === 'idle' || state.tabataState === 'finished') {
+          state.tabataState = 'prepare';
+          state.tabataCurrentRound = 1;
+          state.tabataRemaining = state.tabataPrepare;
+        }
+        
+        state.tabataLastTick = Date.now();
+        state.tabataInterval = setInterval(() => {
+          const now = Date.now();
+          const elapsed = (now - state.tabataLastTick) / 1000;
+          state.tabataLastTick = now;
+          
+          state.tabataRemaining = Math.max(0, state.tabataRemaining - elapsed);
+          
+          if (state.tabataRemaining <= 0) {
+            // Przejście stanów lokalnej maszyny stanów Tabaty
+            if (state.tabataState === 'prepare') {
+              state.tabataState = 'work';
+              state.tabataRemaining = state.tabataWork;
+            } else if (state.tabataState === 'work') {
+              if (state.tabataCurrentRound >= state.tabataRounds) {
+                state.tabataState = 'finished';
+                state.tabataRemaining = 0;
+                pauseTabata();
+              } else {
+                state.tabataState = 'rest';
+                state.tabataRemaining = state.tabataRest;
+              }
+            } else if (state.tabataState === 'rest') {
+              state.tabataState = 'work';
+              state.tabataCurrentRound++;
+              state.tabataRemaining = state.tabataWork;
+            }
+          }
+        }, 30);
+      }
+      
+      sendTabataActionToESP('start');
+    }
+
+    function pauseTabata() {
+      if (state.tabataInterval) {
+        clearInterval(state.tabataInterval);
+        state.tabataInterval = null;
+      }
+      sendTabataActionToESP('pause');
+    }
+
+    function resetTabata() {
+      pauseTabata();
+      state.tabataState = 'idle';
+      state.tabataCurrentRound = 1;
+      state.tabataRemaining = state.tabataPrepare;
+      sendTabataActionToESP('reset');
+    }
+
+    function sendTabataActionToESP(action) {
+      if (!state.connected) return;
+      
+      const payload = {
+        mode: 'tabata',
+        tabataPrepare: state.tabataPrepare,
+        tabataWork: state.tabataWork,
+        tabataRest: state.tabataRest,
+        tabataRounds: state.tabataRounds,
+        tabataAction: action
+      };
+
+      fetch(`http://${state.ipAddress}/api/state`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).catch(err => console.warn('Błąd wysyłania Tabaty do ESP:', err));
+    }
+
     // Wyniki
     window.adjustScore = function(team, amt) {
       if (team === 'A') {
@@ -1328,7 +1497,36 @@
 
     // Pętla odświeżania podglądu (sim)
     function tick() {
-      // 1. Renderowanie Górnego Rzędu (Zegar / Stoper / Minutnik)
+      // Dobór kolorystyki (Tabata vs Normalne kolory)
+      let uColor = state.colorClock;
+      let aColor = state.colorScoreA;
+      let bColor = state.colorScoreB;
+
+      if (state.clockMode === 'tabata') {
+        let tabCol = '#06b6d4'; // Cyan dla prepare
+        if (state.tabataState === 'work') tabCol = '#ef4444'; // Red dla work
+        else if (state.tabataState === 'rest') tabCol = '#22c55e'; // Green dla rest
+        else if (state.tabataState === 'finished') tabCol = (Math.floor(Date.now() / 250) % 2 === 0) ? '#d946ef' : '#1e293b'; // Flashing magenta
+        else if (state.tabataState === 'idle') tabCol = state.colorClock;
+        
+        uColor = tabCol;
+        aColor = tabCol;
+        bColor = tabCol;
+      }
+
+      // Aktualizacja kolorów elementów simulatora
+      const rowUpper = document.querySelector('.row-upper');
+      if (rowUpper) rowUpper.style.setProperty('--led-color', uColor);
+      const lDig0 = document.getElementById('l-dig-0');
+      const lDig1 = document.getElementById('l-dig-1');
+      if (lDig0) lDig0.style.setProperty('--led-color', aColor);
+      if (lDig1) lDig1.style.setProperty('--led-color', aColor);
+      const lDig2 = document.getElementById('l-dig-2');
+      const lDig3 = document.getElementById('l-dig-3');
+      if (lDig2) lDig2.style.setProperty('--led-color', bColor);
+      if (lDig3) lDig3.style.setProperty('--led-color', bColor);
+
+      // 1. Renderowanie Górnego Rzędu (Zegar / Stoper / Minutnik / Tabata)
       const colonDots = [document.getElementById('u-colon-0'), document.getElementById('u-colon-1')];
 
       if (state.clockMode === 'time') {
@@ -1416,36 +1614,60 @@
             else dot.classList.remove('active');
           });
         }
+      } else if (state.clockMode === 'tabata') {
+        const totalSec = Math.floor(state.tabataRemaining);
+        const mins = Math.floor(totalSec / 60).toString().padStart(2, '0');
+        const secs = (totalSec % 60).toString().padStart(2, '0');
+        
+        renderDigit('u-dig-0', mins[0]);
+        renderDigit('u-dig-1', mins[1]);
+        renderDigit('u-dig-2', secs[0]);
+        renderDigit('u-dig-3', secs[1]);
+        
+        // Dwukropek mruga w takt sekund
+        const blink = (state.tabataState === 'idle' || !state.tabataInterval) || (totalSec % 2 === 0);
+        colonDots.forEach(dot => {
+          if (blink) dot.classList.add('active');
+          else dot.classList.remove('active');
+        });
       }
 
-      // 2. Renderowanie Dolnego Rzędu (Wyniki / Temperatura / Data / Autocykl)
-      if (state.lowerMode === 'score') {
-        const valA = state.scoreA.toString().padStart(2, ' ');
-        renderDigit('l-dig-0', valA[0]);
-        renderDigit('l-dig-1', valA[1]);
-
-        const valB = state.scoreB.toString().padStart(2, ' ');
-        renderDigit('l-dig-2', valB[0]);
-        renderDigit('l-dig-3', valB[1]);
-      } else if (state.lowerMode === 'temp') {
-        let tempStr = state.tempVal.toString();
-        if (state.tempVal >= 0 && state.tempVal < 10) {
-          tempStr = " " + tempStr;
+      // 2. Renderowanie Dolnego Rzędu (Wyniki / Temperatura / Data / Autocykl / Tabata)
+      if (state.clockMode === 'tabata') {
+        if (state.tabataState === 'finished') {
+          // Dolny rząd pokazuje "dO nE" (Done)
+          renderDigit('l-dig-0', 'd');
+          renderDigit('l-dig-1', 'o');
+          renderDigit('l-dig-2', 'n');
+          renderDigit('l-dig-3', 'E');
+        } else {
+          // Lewa strona: r1, r2 itd. (r8 w idle)
+          const activeRound = (state.tabataState === 'idle') ? state.tabataRounds : state.tabataCurrentRound;
+          renderDigit('l-dig-0', 'r');
+          renderDigit('l-dig-1', activeRound.toString());
+          
+          // Prawa strona: Pr, Go, rE
+          if (state.tabataState === 'idle' || state.tabataState === 'prepare') {
+            renderDigit('l-dig-2', 'P');
+            renderDigit('l-dig-3', 'r');
+          } else if (state.tabataState === 'work') {
+            renderDigit('l-dig-2', 'G');
+            renderDigit('l-dig-3', 'o');
+          } else if (state.tabataState === 'rest') {
+            renderDigit('l-dig-2', 'r');
+            renderDigit('l-dig-3', 'E');
+          }
         }
-        renderDigit('l-dig-0', tempStr[0]);
-        renderDigit('l-dig-1', tempStr[1]);
-        renderDigit('l-dig-2', '*');
-        renderDigit('l-dig-3', 'C');
-      } else if (state.lowerMode === 'date') {
-        const dayStr = state.dateDay.toString().padStart(2, '0');
-        const monthStr = state.dateMonth.toString().padStart(2, '0');
-        renderDigit('l-dig-0', dayStr[0]);
-        renderDigit('l-dig-1', dayStr[1]);
-        renderDigit('l-dig-2', monthStr[0]);
-        renderDigit('l-dig-3', monthStr[1]);
-      } else if (state.lowerMode === 'cycle') {
-        const showTemp = Math.floor(Date.now() / 5000) % 2 === 0;
-        if (showTemp) {
+      } else {
+        if (state.lowerMode === 'score') {
+          const valA = state.scoreA.toString().padStart(2, ' ');
+          renderDigit('l-dig-0', valA[0]);
+          renderDigit('l-dig-1', valA[1]);
+
+          const valB = state.scoreB.toString().padStart(2, ' ');
+          renderDigit('l-dig-2', valB[0]);
+          renderDigit('l-dig-3', valB[1]);
+        } else if (state.lowerMode === 'temp') {
           let tempStr = state.tempVal.toString();
           if (state.tempVal >= 0 && state.tempVal < 10) {
             tempStr = " " + tempStr;
@@ -1454,13 +1676,32 @@
           renderDigit('l-dig-1', tempStr[1]);
           renderDigit('l-dig-2', '*');
           renderDigit('l-dig-3', 'C');
-        } else {
+        } else if (state.lowerMode === 'date') {
           const dayStr = state.dateDay.toString().padStart(2, '0');
           const monthStr = state.dateMonth.toString().padStart(2, '0');
           renderDigit('l-dig-0', dayStr[0]);
           renderDigit('l-dig-1', dayStr[1]);
           renderDigit('l-dig-2', monthStr[0]);
           renderDigit('l-dig-3', monthStr[1]);
+        } else if (state.lowerMode === 'cycle') {
+          const showTemp = Math.floor(Date.now() / 5000) % 2 === 0;
+          if (showTemp) {
+            let tempStr = state.tempVal.toString();
+            if (state.tempVal >= 0 && state.tempVal < 10) {
+              tempStr = " " + tempStr;
+            }
+            renderDigit('l-dig-0', tempStr[0]);
+            renderDigit('l-dig-1', tempStr[1]);
+            renderDigit('l-dig-2', '*');
+            renderDigit('l-dig-3', 'C');
+          } else {
+            const dayStr = state.dateDay.toString().padStart(2, '0');
+            const monthStr = state.dateMonth.toString().padStart(2, '0');
+            renderDigit('l-dig-0', dayStr[0]);
+            renderDigit('l-dig-1', dayStr[1]);
+            renderDigit('l-dig-2', monthStr[0]);
+            renderDigit('l-dig-3', monthStr[1]);
+          }
         }
       }
     }
@@ -1492,7 +1733,11 @@
         timerRunning: (state.timerInterval !== null),
         colorClock: hexToRgb(state.colorClock),
         colorA: hexToRgb(state.colorScoreA),
-        colorB: hexToRgb(state.colorScoreB)
+        colorB: hexToRgb(state.colorScoreB),
+        tabataPrepare: state.tabataPrepare,
+        tabataWork: state.tabataWork,
+        tabataRest: state.tabataRest,
+        tabataRounds: state.tabataRounds
       };
 
       fetch(`http://${state.ipAddress}/api/state`, {

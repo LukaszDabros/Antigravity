@@ -28,7 +28,7 @@ CRGB upperLeds[UPPER_LEDS_COUNT];
 CRGB lowerLeds[LOWER_LEDS_COUNT];
 
 // Mapowanie segmentów 7-segmentowych (A=0, B=1, C=2, D=3, E=4, F=5, G=6)
-const byte digitSegments[14][7] = {
+const byte digitSegments[23][7] = {
   {1, 1, 1, 1, 1, 1, 0}, // 0
   {0, 1, 1, 0, 0, 0, 0}, // 1
   {1, 1, 0, 1, 1, 0, 1}, // 2
@@ -39,10 +39,19 @@ const byte digitSegments[14][7] = {
   {1, 1, 1, 0, 0, 0, 0}, // 7
   {1, 1, 1, 1, 1, 1, 1}, // 8
   {1, 1, 1, 1, 0, 1, 1}, // 9
-  {0, 0, 0, 0, 0, 0, 0}, // Spacja (pusty)
-  {0, 0, 0, 0, 0, 0, 1}, // Kreska / Minus
-  {1, 1, 0, 0, 0, 1, 1}, // Stopień (*)
-  {1, 0, 0, 1, 1, 1, 0}  // Litera C (C)
+  {0, 0, 0, 0, 0, 0, 0}, // 10: Spacja (pusty)
+  {0, 0, 0, 0, 0, 0, 1}, // 11: Kreska / Minus
+  {1, 1, 0, 0, 0, 1, 1}, // 12: Stopień (*)
+  {1, 0, 0, 1, 1, 1, 0}, // 13: Litera C (C)
+  {1, 1, 0, 0, 1, 1, 1}, // 14: Litera P (P)
+  {0, 0, 0, 0, 1, 0, 1}, // 15: Litera r (r)
+  {1, 0, 1, 1, 1, 1, 1}, // 16: Litera G (G)
+  {0, 0, 1, 1, 1, 0, 1}, // 17: Litera o (o)
+  {1, 0, 0, 1, 1, 1, 1}, // 18: Litera E (E)
+  {1, 0, 0, 0, 1, 1, 1}, // 19: Litera F (F)
+  {0, 0, 1, 0, 1, 0, 1}, // 20: Litera n (n)
+  {0, 1, 1, 1, 1, 0, 1}, // 21: Litera d (d)
+  {0, 1, 1, 0, 1, 1, 1}  // 22: Litera H (H)
 };
 
 // ==========================================
@@ -52,7 +61,7 @@ ESP8266WebServer server(80);
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "tempus1.gum.gov.pl", 7200, 86400000); // Polski serwer czasu NTP, UTC+2 (DST)
 
-String clockMode = "time"; // "time", "stopwatch", "timer"
+String clockMode = "time"; // "time", "stopwatch", "timer", "tabata"
 String lowerMode = "score"; // "score", "temp", "date"
 
 CRGB colorClock = CRGB::Red; // Kolor zegara (góra)
@@ -73,6 +82,19 @@ bool stopwatchRunning = false;
 unsigned long timerTargetTime = 0;
 unsigned long timerRemainingMs = 60000;
 bool timerRunning = false;
+
+// Tabata
+int tabataPrepareSec = 10;
+int tabataWorkSec = 20;
+int tabataRestSec = 10;
+int tabataTotalRounds = 8;
+int tabataCurrentRound = 1;
+
+String tabataState = "idle"; // "idle", "prepare", "work", "rest", "finished"
+unsigned long tabataTargetTime = 0;
+unsigned long tabataRemainingMs = 0;
+bool tabataRunning = false;
+bool tabataPaused = false;
 
 // Jasność
 int ledBrightness = 150;
@@ -96,6 +118,15 @@ void drawUpperDigit(int digitIndex, char value, CRGB color) {
   else if (value == '-') charIndex = 11;
   else if (value == '*') charIndex = 12;
   else if (value == 'C') charIndex = 13;
+  else if (value == 'P') charIndex = 14;
+  else if (value == 'r') charIndex = 15;
+  else if (value == 'G') charIndex = 16;
+  else if (value == 'o') charIndex = 17;
+  else if (value == 'E') charIndex = 18;
+  else if (value == 'F') charIndex = 19;
+  else if (value == 'n') charIndex = 20;
+  else if (value == 'd') charIndex = 21;
+  else if (value == 'H') charIndex = 22;
 
   for (int seg = 0; seg < 7; seg++) {
     bool active = digitSegments[charIndex][seg];
@@ -122,6 +153,15 @@ void drawLowerDigit(int digitIndex, char value, CRGB color) {
   else if (value == '-') charIndex = 11;
   else if (value == '*') charIndex = 12;
   else if (value == 'C') charIndex = 13;
+  else if (value == 'P') charIndex = 14;
+  else if (value == 'r') charIndex = 15;
+  else if (value == 'G') charIndex = 16;
+  else if (value == 'o') charIndex = 17;
+  else if (value == 'E') charIndex = 18;
+  else if (value == 'F') charIndex = 19;
+  else if (value == 'n') charIndex = 20;
+  else if (value == 'd') charIndex = 21;
+  else if (value == 'H') charIndex = 22;
 
   for (int seg = 0; seg < 7; seg++) {
     bool active = digitSegments[charIndex][seg];
@@ -221,6 +261,46 @@ void handlePostState() {
     colorB = CRGB(arr[0].as<byte>(), arr[1].as<byte>(), arr[2].as<byte>());
   }
 
+  // Obsługa Tabaty
+  if (doc.containsKey("tabataPrepare")) {
+    tabataPrepareSec = doc["tabataPrepare"].as<int>();
+  }
+  if (doc.containsKey("tabataWork")) {
+    tabataWorkSec = doc["tabataWork"].as<int>();
+  }
+  if (doc.containsKey("tabataRest")) {
+    tabataRestSec = doc["tabataRest"].as<int>();
+  }
+  if (doc.containsKey("tabataRounds")) {
+    tabataTotalRounds = doc["tabataRounds"].as<int>();
+  }
+  if (doc.containsKey("tabataAction")) {
+    String action = doc["tabataAction"].as<String>();
+    if (action == "start") {
+      if (tabataState == "idle" || tabataState == "finished") {
+        tabataState = "prepare";
+        tabataCurrentRound = 1;
+        tabataTargetTime = millis() + (unsigned long)tabataPrepareSec * 1000;
+        tabataRemainingMs = (unsigned long)tabataPrepareSec * 1000;
+      } else if (tabataPaused) {
+        tabataPaused = false;
+        tabataTargetTime = millis() + tabataRemainingMs;
+      }
+      tabataRunning = true;
+    } else if (action == "pause") {
+      if (tabataRunning && !tabataPaused) {
+        tabataPaused = true;
+        tabataRemainingMs = tabataTargetTime - millis();
+      }
+    } else if (action == "reset") {
+      tabataRunning = false;
+      tabataPaused = false;
+      tabataState = "idle";
+      tabataCurrentRound = 1;
+      tabataRemainingMs = 0;
+    }
+  }
+
   server.send(200, "application/json", "{\"status\":\"ok\"}");
 }
 
@@ -257,7 +337,7 @@ void handlePostSettings() {
 // Endpoint GET /api/status
 void handleGetStatus() {
   setCorsHeaders();
-  StaticJsonDocument<384> doc;
+  StaticJsonDocument<512> doc;
   doc["mode"] = clockMode;
   doc["lowerMode"] = lowerMode;
   doc["scoreA"] = scoreA;
@@ -267,6 +347,14 @@ void handleGetStatus() {
   doc["dateMonth"] = dateMonth;
   doc["brightness"] = ledBrightness;
   doc["auto"] = autoBrightness ? 1 : 0;
+  
+  // Tabata status
+  doc["tabataState"] = tabataState;
+  doc["tabataRound"] = tabataCurrentRound;
+  doc["tabataRounds"] = tabataTotalRounds;
+  doc["tabataRemMs"] = tabataRunning && !tabataPaused ? (tabataTargetTime - millis()) : tabataRemainingMs;
+  doc["tabataRunning"] = tabataRunning ? 1 : 0;
+  doc["tabataPaused"] = tabataPaused ? 1 : 0;
   
   String output;
   serializeJson(doc, output);
@@ -445,10 +533,81 @@ void renderUpperRow() {
       bool blink = !timerRunning || (secs % 2 == 0);
       drawUpperColon(blink, color);
     }
+  } else if (clockMode == "tabata") {
+    unsigned long remMs = 0;
+    if (tabataState == "idle") {
+      remMs = (unsigned long)tabataPrepareSec * 1000;
+    } else if (tabataState == "finished") {
+      remMs = 0;
+    } else if (tabataRunning && !tabataPaused) {
+      long val = (long)tabataTargetTime - (long)millis();
+      remMs = (val > 0) ? val : 0;
+    } else {
+      remMs = tabataRemainingMs;
+    }
+
+    unsigned long totalSec = remMs / 1000;
+    unsigned long mins = totalSec / 60;
+    unsigned long secs = totalSec % 60;
+
+    String mStr = String(mins);
+    if (mins < 10) mStr = "0" + mStr;
+    String sStr = String(secs);
+    if (secs < 10) sStr = "0" + sStr;
+
+    // Dobór koloru na bazie fazy Tabaty
+    CRGB tabCol = CRGB::Cyan;
+    if (tabataState == "work") tabCol = CRGB::Red;
+    else if (tabataState == "rest") tabCol = CRGB::Green;
+    else if (tabataState == "finished") tabCol = ((millis() / 250) % 2 == 0) ? CRGB::Magenta : CRGB::Black;
+    else if (tabataState == "idle") tabCol = colorClock;
+
+    drawUpperDigit(0, mStr[0], tabCol);
+    drawUpperDigit(1, mStr[1], tabCol);
+    drawUpperDigit(2, sStr[0], tabCol);
+    drawUpperDigit(3, sStr[1], tabCol);
+
+    // Dwukropek mruga w takt sekund
+    bool blink = (tabataState == "idle" || tabataPaused) || (secs % 2 == 0);
+    drawUpperColon(blink, tabCol);
   }
 }
 
 void renderLowerRow() {
+  if (clockMode == "tabata") {
+    CRGB tabCol = CRGB::Cyan;
+    if (tabataState == "work") tabCol = CRGB::Red;
+    else if (tabataState == "rest") tabCol = CRGB::Green;
+    else if (tabataState == "finished") tabCol = ((millis() / 250) % 2 == 0) ? CRGB::Magenta : CRGB::Black;
+    else if (tabataState == "idle") tabCol = colorClock;
+
+    if (tabataState == "finished") {
+      // Dolny rząd pokazuje "dO nE" (Done)
+      drawLowerDigit(0, 'd', tabCol);
+      drawLowerDigit(1, 'o', tabCol);
+      drawLowerDigit(2, 'n', tabCol);
+      drawLowerDigit(3, 'E', tabCol);
+    } else {
+      // Lewa strona: numer rundy, np. "r1" lub "r8" w idle
+      int activeRound = (tabataState == "idle") ? tabataTotalRounds : tabataCurrentRound;
+      drawLowerDigit(0, 'r', tabCol);
+      drawLowerDigit(1, '0' + (activeRound % 10), tabCol);
+
+      // Prawa strona: status fazy "Pr", "Go", "rE"
+      if (tabataState == "idle" || tabataState == "prepare") {
+        drawLowerDigit(2, 'P', tabCol);
+        drawLowerDigit(3, 'r', tabCol);
+      } else if (tabataState == "work") {
+        drawLowerDigit(2, 'G', tabCol);
+        drawLowerDigit(3, 'o', tabCol);
+      } else if (tabataState == "rest") {
+        drawLowerDigit(2, 'r', tabCol);
+        drawLowerDigit(3, 'E', tabCol);
+      }
+    }
+    return;
+  }
+
   String currentMode = lowerMode;
   if (lowerMode == "cycle") {
     // Automatyczne przełączanie: 5 sekund temperatura, 5 sekund data
@@ -508,10 +667,36 @@ void updateTemperature() {
   }
 }
 
+void updateTabata() {
+  if (clockMode != "tabata" || !tabataRunning || tabataPaused) return;
+
+  long remMs = (long)tabataTargetTime - (long)millis();
+  if (remMs <= 0) {
+    // Przejścia stanów maszyny Tabaty
+    if (tabataState == "prepare") {
+      tabataState = "work";
+      tabataTargetTime = millis() + (unsigned long)tabataWorkSec * 1000;
+    } else if (tabataState == "work") {
+      if (tabataCurrentRound >= tabataTotalRounds) {
+        tabataState = "finished";
+        tabataRunning = false;
+      } else {
+        tabataState = "rest";
+        tabataTargetTime = millis() + (unsigned long)tabataRestSec * 1000;
+      }
+    } else if (tabataState == "rest") {
+      tabataState = "work";
+      tabataCurrentRound++;
+      tabataTargetTime = millis() + (unsigned long)tabataWorkSec * 1000;
+    }
+  }
+}
+
 void loop() {
   server.handleClient();
   updateTemperature();
   updateBrightness();
+  updateTabata();
 
   renderUpperRow();
   renderLowerRow();
