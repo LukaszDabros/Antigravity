@@ -87,3 +87,59 @@
 1.  **Ekranowanie Światła (Bridges):** Pomiędzy wyfrezowanymi komorami segmentów MDF powstają płaskie mostki o szerokości 5 mm. Aby zapobiec przedostawaniu się światła do sąsiednich (wyłączonych) segmentów, wierzchołki mostków (które stykają się bezpośrednio z pleksą) malujemy **czarnym matowym markerem lub farbą**.
 2.  **Maksymalizacja Odbicia (Wells):** Wnętrza wyfrezowanych skośnych lejów malujemy na **śnieżnobiały kolor** (najlepiej matowy), co świetnie miesza i odbija światło z poszczególnych diod, dając jednolity efekt świecenia segmentu na plexi.
 3.  **Ładunki elektrostatyczne (Antistatic):** Przed ostatecznym skręceniem zegara dokładnie przemyj mleczną pleksę płynem antystatycznym (lub płynem do szyb z antystatykiem). MDF po frezowaniu pyli, a akryl silnie przyciąga drobinki pyłu, co po włączeniu LED byłoby widoczne jako brzydkie ciemne plamki.
+
+---
+
+## 4. Kolejność Adresowania Segmentów w Pasku LED
+
+> [!IMPORTANT]
+> **Nowe nazewnictwo segmentów (A = ŚRODEK = PIERWSZY W ŁAŃCUCHU LED)**  
+> Zmieniono tradycyjne nazewnictwo 7-segmentowe, aby odzwierciedlało fizyczną kolejność lutowania taśmy LED.
+
+### Schemat ASCII nowego nazewnictwa:
+
+```
+       +------[C]------+
+       |               |
+      [B]   GÓRA      [D]
+       |               |
+       +------[A]------+   <--- A = ŚRODEK (wejście DIN taśmy!)
+       |               |
+      [G]   DÓŁ       [E]
+       |               |
+       +------[F]------+
+```
+
+### Tabela Mapowania:
+
+| Nr LED w segmencie | Nazwa (nowa) | Pozycja fizyczna | Opis |
+|--------------------|-------------|------------------|------|
+| 1. (PIERWSZE) | **A** | ŚRODEK | Poziomy segment środkowy |
+| 2. | B | GÓRNY-LEWY | Pionowy segment górny lewy |
+| 3. | C | GÓRNY | Poziomy segment górny |
+| 4. | D | GÓRNY-PRAWY | Pionowy segment górny prawy |
+| 5. | E | DOLNY-PRAWY | Pionowy segment dolny prawy |
+| 6. | F | DOLNY | Poziomy segment dolny |
+| 7. (OSTATNIE) | G | DOLNY-LEWY | Pionowy segment dolny lewy |
+
+### Tor sygnału DIN w obrębie jednej cyfry:
+
+```
+DIN → [A] (śRODEK) → [B] (górny-L) → [C] (góra) → [D] (górny-P)
+  → [E] (dolny-P) → [F] (dół) → [G] (dolny-L) → DOUT (do A następnej cyfry)
+```
+
+### Kolejność cyfr w całym rzędzie:
+
+```
+Rząd GÓRNY (D2/GPIO4):
+  Cyfra 1 [A→G] → Cyfra 2 [A→G] → ":" [dwie diody] → Cyfra 3 [A→G] → Cyfra 4 [A→G]
+
+Rząd DOLNY (D5/GPIO14):
+  Cyfra 1 [A→G] → Cyfra 2 [A→G] → Cyfra 3 [A→G] → Cyfra 4 [A→G]
+```
+
+> [!NOTE]
+> Ta kolejność różni się od tradycyjnego nazewnictwa 7-segmentowego, gdzie A=górny poziomy.
+> Została zaprojektowana tak, aby DIN taśmy LED wchodził zawsze do środkowego segmentu cyfry
+> co upraszcza trasę kabla i minimalizuje długość połączeń międzysegmentowych.

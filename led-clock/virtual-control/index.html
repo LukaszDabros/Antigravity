@@ -457,77 +457,81 @@
     }
 
     /* SEGMENTY DLA MAŁYCH CYFR */
-    /* A (Top) */
+    /* NOWE NAZEWNICTWO: A=środek(1. w łańcuchu), B=górny-L, C=górny, D=górny-P, E=dolny-P, F=dolny, G=dolny-L */
+
+    /* A (Środek / Middle) — PIERWSZA W ŁAŃCUCHU LED */
     .digit-small .seg-a {
-      top: 0; left: 1.11cqw; right: 1.11cqw; height: 1.33cqw;
-      clip-path: polygon(0 50%, 50% 0, 100% 50%, 100% 100%, 0 100%);
-    }
-    /* F (Top Left) */
-    .digit-small .seg-f {
-      top: 1.11cqw; left: 0; width: 1.33cqw; height: 6.67cqw;
-      clip-path: polygon(50% 0, 100% 9%, 100% 91%, 50% 100%, 0 91%, 0 9%);
-    }
-    /* B (Top Right) */
-    .digit-small .seg-b {
-      top: 1.11cqw; right: 0; width: 1.33cqw; height: 6.67cqw;
-      clip-path: polygon(50% 0, 100% 9%, 100% 91%, 50% 100%, 0 91%, 0 9%);
-    }
-    /* G (Middle) */
-    .digit-small .seg-g {
       top: 7.33cqw; left: 1.11cqw; right: 1.11cqw; height: 1.33cqw;
       clip-path: polygon(50% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%);
     }
-    /* E (Bottom Left) */
-    .digit-small .seg-e {
-      top: 8.22cqw; left: 0; width: 1.33cqw; height: 6.67cqw;
+    /* B (Górny Lewy / Top Left) */
+    .digit-small .seg-b {
+      top: 1.11cqw; left: 0; width: 1.33cqw; height: 6.67cqw;
       clip-path: polygon(50% 0, 100% 9%, 100% 91%, 50% 100%, 0 91%, 0 9%);
     }
-    /* C (Bottom Right) */
+    /* C (Górny / Top) */
     .digit-small .seg-c {
+      top: 0; left: 1.11cqw; right: 1.11cqw; height: 1.33cqw;
+      clip-path: polygon(0 50%, 50% 0, 100% 50%, 100% 100%, 0 100%);
+    }
+    /* D (Górny Prawy / Top Right) */
+    .digit-small .seg-d {
+      top: 1.11cqw; right: 0; width: 1.33cqw; height: 6.67cqw;
+      clip-path: polygon(50% 0, 100% 9%, 100% 91%, 50% 100%, 0 91%, 0 9%);
+    }
+    /* E (Dolny Prawy / Bottom Right) */
+    .digit-small .seg-e {
       top: 8.22cqw; right: 0; width: 1.33cqw; height: 6.67cqw;
       clip-path: polygon(50% 0, 100% 9%, 100% 91%, 50% 100%, 0 91%, 0 9%);
     }
-    /* D (Bottom) */
-    .digit-small .seg-d {
+    /* F (Dolny / Bottom) */
+    .digit-small .seg-f {
       bottom: 0; left: 1.11cqw; right: 1.11cqw; height: 1.33cqw;
       clip-path: polygon(0 0, 100% 0, 100% 50%, 50% 100%, 0 50%);
     }
+    /* G (Dolny Lewy / Bottom Left) */
+    .digit-small .seg-g {
+      top: 8.22cqw; left: 0; width: 1.33cqw; height: 6.67cqw;
+      clip-path: polygon(50% 0, 100% 9%, 100% 91%, 50% 100%, 0 91%, 0 9%);
+    }
 
     /* SEGMENTY DLA DUŻYCH CYFR */
-    /* A (Top) */
+    /* NOWE NAZEWNICTWO: A=środek(1. w łańcuchu), B=górny-L, C=górny, D=górny-P, E=dolny-P, F=dolny, G=dolny-L */
+
+    /* A (Środek / Middle) — PIERWSZA W ŁAŃCUCHU LED */
     .digit-large .seg-a {
-      top: 0; left: 1.67cqw; right: 1.67cqw; height: 2cqw;
-      clip-path: polygon(0 50%, 50% 0, 100% 50%, 100% 100%, 0 100%);
-    }
-    /* F (Top Left) */
-    .digit-large .seg-f {
-      top: 1.67cqw; left: 0; width: 2cqw; height: 10cqw;
-      clip-path: polygon(50% 0, 100% 9%, 100% 91%, 50% 100%, 0 91%, 0 9%);
-    }
-    /* B (Top Right) */
-    .digit-large .seg-b {
-      top: 1.67cqw; right: 0; width: 2cqw; height: 10cqw;
-      clip-path: polygon(50% 0, 100% 9%, 100% 91%, 50% 100%, 0 91%, 0 9%);
-    }
-    /* G (Middle) */
-    .digit-large .seg-g {
       top: 11cqw; left: 1.67cqw; right: 1.67cqw; height: 2cqw;
       clip-path: polygon(50% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%);
     }
-    /* E (Bottom Left) */
-    .digit-large .seg-e {
-      top: 12.33cqw; left: 0; width: 2cqw; height: 10cqw;
+    /* B (Górny Lewy / Top Left) */
+    .digit-large .seg-b {
+      top: 1.67cqw; left: 0; width: 2cqw; height: 10cqw;
       clip-path: polygon(50% 0, 100% 9%, 100% 91%, 50% 100%, 0 91%, 0 9%);
     }
-    /* C (Bottom Right) */
+    /* C (Górny / Top) */
     .digit-large .seg-c {
+      top: 0; left: 1.67cqw; right: 1.67cqw; height: 2cqw;
+      clip-path: polygon(0 50%, 50% 0, 100% 50%, 100% 100%, 0 100%);
+    }
+    /* D (Górny Prawy / Top Right) */
+    .digit-large .seg-d {
+      top: 1.67cqw; right: 0; width: 2cqw; height: 10cqw;
+      clip-path: polygon(50% 0, 100% 9%, 100% 91%, 50% 100%, 0 91%, 0 9%);
+    }
+    /* E (Dolny Prawy / Bottom Right) */
+    .digit-large .seg-e {
       top: 12.33cqw; right: 0; width: 2cqw; height: 10cqw;
       clip-path: polygon(50% 0, 100% 9%, 100% 91%, 50% 100%, 0 91%, 0 9%);
     }
-    /* D (Bottom) */
-    .digit-large .seg-d {
+    /* F (Dolny / Bottom) */
+    .digit-large .seg-f {
       bottom: 0; left: 1.67cqw; right: 1.67cqw; height: 2cqw;
       clip-path: polygon(0 0, 100% 0, 100% 50%, 50% 100%, 0 50%);
+    }
+    /* G (Dolny Lewy / Bottom Left) */
+    .digit-large .seg-g {
+      top: 12.33cqw; left: 0; width: 2cqw; height: 10cqw;
+      clip-path: polygon(50% 0, 100% 9%, 100% 91%, 50% 100%, 0 91%, 0 9%);
     }
 
     footer {
@@ -940,31 +944,32 @@
 
   <script>
     // Mapowanie cyfr 7-segmentowych
-    // Indeksy segmentów: [a, b, c, d, e, f, g]
+    // NOWA KOLEJNOŚĆ BITÓW: [A=środek, B=górny-L, C=górny, D=górny-P, E=dolny-P, F=dolny, G=dolny-L]
+    // Taśma LED wchodzi do A (środek), następnie B→C→D→E→F→G (dookoła), potem A następnej cyfry.
     const digitMap = {
-      '0': [1, 1, 1, 1, 1, 1, 0],
-      '1': [0, 1, 1, 0, 0, 0, 0],
-      '2': [1, 1, 0, 1, 1, 0, 1],
-      '3': [1, 1, 1, 1, 0, 0, 1],
-      '4': [0, 1, 1, 0, 0, 1, 1],
-      '5': [1, 0, 1, 1, 0, 1, 1],
-      '6': [1, 0, 1, 1, 1, 1, 1],
-      '7': [1, 1, 1, 0, 0, 0, 0],
+      '0': [0, 1, 1, 1, 1, 1, 1],
+      '1': [0, 0, 0, 1, 1, 0, 0],
+      '2': [1, 0, 1, 1, 0, 1, 1],
+      '3': [1, 0, 1, 1, 1, 1, 0],
+      '4': [1, 1, 0, 1, 1, 0, 0],
+      '5': [1, 1, 1, 0, 1, 1, 0],
+      '6': [1, 1, 1, 0, 1, 1, 1],
+      '7': [0, 0, 1, 1, 1, 0, 0],
       '8': [1, 1, 1, 1, 1, 1, 1],
-      '9': [1, 1, 1, 1, 0, 1, 1],
+      '9': [1, 1, 1, 1, 1, 1, 0],
       ' ': [0, 0, 0, 0, 0, 0, 0],
-      '-': [0, 0, 0, 0, 0, 0, 1],
-      '*': [1, 1, 0, 0, 0, 1, 1], // Stopień
-      'C': [1, 0, 0, 1, 1, 1, 0], // Litera C
-      'P': [1, 1, 0, 0, 1, 1, 1],
-      'r': [0, 0, 0, 0, 1, 0, 1],
-      'G': [1, 0, 1, 1, 1, 1, 1],
-      'o': [0, 0, 1, 1, 1, 0, 1],
-      'E': [1, 0, 0, 1, 1, 1, 1],
-      'F': [1, 0, 0, 0, 1, 1, 1],
-      'n': [0, 0, 1, 0, 1, 0, 1],
-      'd': [0, 1, 1, 1, 1, 0, 1],
-      'H': [0, 1, 1, 0, 1, 1, 1]
+      '-': [1, 0, 0, 0, 0, 0, 0],     // Kreska (tylko środek)
+      '*': [1, 1, 1, 1, 0, 0, 0],     // Stopień (góra + środek)
+      'C': [0, 1, 1, 0, 0, 1, 1],     // Litera C
+      'P': [1, 1, 1, 1, 0, 0, 1],     // Litera P
+      'r': [1, 0, 0, 0, 0, 0, 1],     // Litera r (środek + dolny-L)
+      'G': [1, 1, 1, 0, 1, 1, 1],     // Litera G (jak 6)
+      'o': [1, 0, 0, 0, 1, 1, 1],     // Litera o (dolna część)
+      'E': [1, 1, 1, 0, 0, 1, 1],     // Litera E
+      'F': [1, 1, 1, 0, 0, 0, 1],     // Litera F
+      'n': [1, 0, 0, 0, 1, 0, 1],     // Litera n
+      'd': [1, 0, 0, 1, 1, 1, 1],     // Litera d
+      'H': [1, 1, 0, 1, 1, 0, 1]      // Litera H
     };
 
     const state = {
@@ -1550,6 +1555,7 @@
       if (!segs) return;
       const mask = digitMap[char] || digitMap[' '];
       
+      // Kolejność bitów maski: [A=środek, B=górny-L, C=górny, D=górny-P, E=dolny-P, F=dolny, G=dolny-L]
       const names = ['seg-a', 'seg-b', 'seg-c', 'seg-d', 'seg-e', 'seg-f', 'seg-g'];
       names.forEach((name, idx) => {
         const seg = segs[name];
@@ -1714,16 +1720,16 @@
           renderDigit('l-dig-0', 'r');
           renderDigit('l-dig-1', activeRound.toString());
           
-          // Prawa strona: Pr, Go, rE
+          // Prawa strona: Cd (prepare), Go (work), -- (rest)
           if (state.tabataState === 'idle' || state.tabataState === 'prepare') {
-            renderDigit('l-dig-2', 'P');
-            renderDigit('l-dig-3', 'r');
+            renderDigit('l-dig-2', 'C');
+            renderDigit('l-dig-3', 'd');
           } else if (state.tabataState === 'work') {
             renderDigit('l-dig-2', 'G');
             renderDigit('l-dig-3', 'o');
           } else if (state.tabataState === 'rest') {
-            renderDigit('l-dig-2', 'r');
-            renderDigit('l-dig-3', 'E');
+            renderDigit('l-dig-2', '-');
+            renderDigit('l-dig-3', '-');
           }
         }
       } else {
@@ -1783,36 +1789,52 @@
     }
 
     // REST API calls to ESP (real lub mock)
+    // AbortController – anuluje poprzedni request zanim wyśle nowy (fix zawieszania)
+    let _sendController = null;
+    let _sendTimer = null;
+
     function sendStateToESP() {
       if (!state.connected) return;
-      console.log('Sending state to ESP:', state);
-      
-      const payload = {
-        mode: state.clockMode,
-        lowerMode: state.lowerMode,
-        scoreA: state.scoreA,
-        scoreB: state.scoreB,
-        tempVal: state.tempVal,
-        dateDay: state.dateDay,
-        dateMonth: state.dateMonth,
-        stopwatchMs: state.stopwatchMs,
-        timerDur: state.timerDuration,
-        timerRemMs: Math.floor(state.timerRemaining * 1000),
-        timerRunning: (state.timerInterval !== null),
-        colorClock: hexToRgb(state.colorClock),
-        colorA: hexToRgb(state.colorScoreA),
-        colorB: hexToRgb(state.colorScoreB),
-        tabataPrepare: state.tabataPrepare,
-        tabataWork: state.tabataWork,
-        tabataRest: state.tabataRest,
-        tabataRounds: state.tabataRounds
-      };
 
-      fetch(`http://${state.ipAddress}/api/state`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      }).catch(err => console.warn('Błąd komunikacji z ESP:', err));
+      // Debounce 120ms: jeśli przychodzi kolejne wywołanie przed upływem czasu,
+      // poprzedni request zostaje anulowany i zastąpiony nowym.
+      if (_sendTimer) clearTimeout(_sendTimer);
+      if (_sendController) { _sendController.abort(); }
+
+      _sendTimer = setTimeout(() => {
+        _sendController = new AbortController();
+        const signal = _sendController.signal;
+
+        const payload = {
+          mode: state.clockMode,
+          lowerMode: state.lowerMode,
+          scoreA: state.scoreA,
+          scoreB: state.scoreB,
+          tempVal: state.tempVal,
+          dateDay: state.dateDay,
+          dateMonth: state.dateMonth,
+          stopwatchMs: state.stopwatchMs,
+          timerDur: state.timerDuration,
+          timerRemMs: Math.floor(state.timerRemaining * 1000),
+          timerRunning: (state.timerInterval !== null),
+          colorClock: hexToRgb(state.colorClock),
+          colorA: hexToRgb(state.colorScoreA),
+          colorB: hexToRgb(state.colorScoreB),
+          tabataPrepare: state.tabataPrepare,
+          tabataWork: state.tabataWork,
+          tabataRest: state.tabataRest,
+          tabataRounds: state.tabataRounds
+        };
+
+        fetch(`http://${state.ipAddress}/api/state`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          signal
+        }).catch(err => {
+          if (err.name !== 'AbortError') console.warn('Błąd komunikacji z ESP:', err);
+        });
+      }, 120);
     }
 
     function sendSettingsToESP() {

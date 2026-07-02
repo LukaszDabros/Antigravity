@@ -27,31 +27,37 @@
 CRGB upperLeds[UPPER_LEDS_COUNT];
 CRGB lowerLeds[LOWER_LEDS_COUNT];
 
-// Mapowanie segmentów 7-segmentowych (A=0, B=1, C=2, D=3, E=4, F=5, G=6)
+// Mapowanie segmentów 7-segmentowych
+// NOWA KOLEJNOŚĆ FIZYCZNA W ŁAŃCUCHU LED (bitów w tablicy):
+//   [0]=A  [1]=B     [2]=C  [3]=D     [4]=E      [5]=F   [6]=G
+//   środek  górny-L  górny  górny-P  dolny-P    dolny   dolny-L
+// Taśma LED wchodzi do segmentu A (ŚRODEK), obraca się dookoła cyfry
+// i wychodzi do środka kolejnej cyfry (A następnej).
 const byte digitSegments[23][7] = {
-  {1, 1, 1, 1, 1, 1, 0}, // 0
-  {0, 1, 1, 0, 0, 0, 0}, // 1
-  {1, 1, 0, 1, 1, 0, 1}, // 2
-  {1, 1, 1, 1, 0, 0, 1}, // 3
-  {0, 1, 1, 0, 0, 1, 1}, // 4
-  {1, 0, 1, 1, 0, 1, 1}, // 5
-  {1, 0, 1, 1, 1, 1, 1}, // 6
-  {1, 1, 1, 0, 0, 0, 0}, // 7
-  {1, 1, 1, 1, 1, 1, 1}, // 8
-  {1, 1, 1, 1, 0, 1, 1}, // 9
-  {0, 0, 0, 0, 0, 0, 0}, // 10: Spacja (pusty)
-  {0, 0, 0, 0, 0, 0, 1}, // 11: Kreska / Minus
-  {1, 1, 0, 0, 0, 1, 1}, // 12: Stopień (*)
-  {1, 0, 0, 1, 1, 1, 0}, // 13: Litera C (C)
-  {1, 1, 0, 0, 1, 1, 1}, // 14: Litera P (P)
-  {0, 0, 0, 0, 1, 0, 1}, // 15: Litera r (r)
-  {1, 0, 1, 1, 1, 1, 1}, // 16: Litera G (G)
-  {0, 0, 1, 1, 1, 0, 1}, // 17: Litera o (o)
-  {1, 0, 0, 1, 1, 1, 1}, // 18: Litera E (E)
-  {1, 0, 0, 0, 1, 1, 1}, // 19: Litera F (F)
-  {0, 0, 1, 0, 1, 0, 1}, // 20: Litera n (n)
-  {0, 1, 1, 1, 1, 0, 1}, // 21: Litera d (d)
-  {0, 1, 1, 0, 1, 1, 1}  // 22: Litera H (H)
+  // A(śr)  B(gL)  C(góra) D(gP)  E(dP)  F(dół) G(dL)
+  {0,     1,     1,     1,     1,     1,     1},  // 0
+  {0,     0,     0,     1,     1,     0,     0},  // 1
+  {1,     0,     1,     1,     0,     1,     1},  // 2
+  {1,     0,     1,     1,     1,     1,     0},  // 3
+  {1,     1,     0,     1,     1,     0,     0},  // 4
+  {1,     1,     1,     0,     1,     1,     0},  // 5
+  {1,     1,     1,     0,     1,     1,     1},  // 6
+  {0,     0,     1,     1,     1,     0,     0},  // 7
+  {1,     1,     1,     1,     1,     1,     1},  // 8
+  {1,     1,     1,     1,     1,     1,     0},  // 9
+  {0,     0,     0,     0,     0,     0,     0},  // 10: Spacja (pusty)
+  {1,     0,     0,     0,     0,     0,     0},  // 11: Kreska / Minus
+  {1,     1,     1,     1,     0,     0,     0},  // 12: Stopień (*)
+  {0,     1,     1,     0,     0,     1,     1},  // 13: Litera C
+  {1,     1,     1,     1,     0,     0,     1},  // 14: Litera P
+  {1,     0,     0,     0,     0,     0,     1},  // 15: Litera r
+  {1,     1,     1,     0,     1,     1,     1},  // 16: Litera G (jak 6)
+  {1,     0,     0,     0,     1,     1,     1},  // 17: Litera o
+  {1,     1,     1,     0,     0,     1,     1},  // 18: Litera E
+  {1,     1,     1,     0,     0,     0,     1},  // 19: Litera F
+  {1,     0,     0,     0,     1,     0,     1},  // 20: Litera n
+  {1,     0,     0,     1,     1,     1,     1},  // 21: Litera d
+  {1,     1,     0,     1,     1,     0,     1}   // 22: Litera H
 };
 
 // ==========================================

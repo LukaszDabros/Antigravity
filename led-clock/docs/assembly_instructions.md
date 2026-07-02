@@ -27,24 +27,39 @@ Każdy segment zegara i tablicy wyników składa się z odpowiedniej liczby diod
 ---
 
 ## 3. Krok 2: Łączenie Segmentów w Cyfry
-Każda cyfra składa się z 7 segmentów (A, B, C, D, E, F, G). Musisz połączyć je szeregowo tak, aby sygnał danych (Data) przechodził z jednego segmentu do kolejnego.
+
+Każda cyfra składa się z 7 segmentów oznaczonych **A–G**. Segmenty połączone są szeregowo w pasku LED, przy czym **segment A (ŚRODKOWY) jest ZAWSZE PIERWSZYM segmentem w łańcuchu** – taśma LED wchodzi do środka cyfry, okrąża ją dookoła i przechodzi do środka kolejnej cyfry.
+
+> [!IMPORTANT]
+> **Nowe nazewnictwo segmentów** (A = ŚRODEK ≠ tradycyjny standard):
+> - A = Środkowy poziomy (wejście DIN, PIERWSZY w łańcuchu)
+> - B = Górny lewy pionowy
+> - C = Górny poziomy
+> - D = Górny prawy pionowy
+> - E = Dolny prawy pionowy
+> - F = Dolny poziomy
+> - G = Dolny lewy pionowy (ostatni w cyfry, DOUT do A kolejnej cyfry)
 
 ### Kierunek Przepływu Danych (Ważne!):
-* Taśmy adresowalne WS2812B mają określony kierunek przepływu sygnału oznaczony **strzałkami na laminacie** (od `DI` / `DIN` - Data In do `DO` / `DOUT` - Data Out). 
+* Taśmy adresowalne WS2812B mają określony kierunek przepływu sygnału oznaczony **strzałkami na laminacie** (od `DI` / `DIN` - Data In do `DO` / `DOUT` - Data Out).
 * Zwróć szczególną uwagę, aby lutować wyjście `DO` poprzedniego segmentu z wejściem `DI` następnego segmentu. Odwrócenie kierunku spowoduje, że diody za błędem nie będą świecić!
 
-### Schemat połączenia w pojedynczej cyfrze (propozycja układu wężykowego):
+### Schemat połączenia w pojedynczej cyfrze (nowa kolejność):
 ```
-           [A] 
-          +---+
-      [F] |   | [B]
-          +---+ <--- Wejście danych (DI) całej cyfry na dole segmentu B
-      [E] | [G]| [C]
-          +---+
-           [D]
+           +------[C]------+
+           |               |
+          [B]   GÓRA      [D]
+           |               |
+           +------[A]------+  <--- DIN wchodzi tutaj (ŚRODEK, segment A)
+           |               |
+          [G]   DÓŁ       [E]
+           |               |
+           +------[F]------+
 ```
-Połącz segmenty cienkim przewodem według kolejności:
-`Wejście cyfry (DI)` -> **[B]** -> **[A]** -> **[F]** -> **[G]** -> **[E]** -> **[D]** -> **[C]** -> `Wyjście cyfry (DO) do kolejnej cyfry`.
+
+Połącz segmenty cienkim przewodem według kolejności:  
+`DIN (z ESP lub poprzedniej cyfry)` → **[A]** (środek) → **[B]** (górny-L) → **[C]** (góra) → **[D]** (górny-P)  
+→ **[E]** (dolny-P) → **[F]** (dół) → **[G]** (dolny-L) → `DOUT → do segmentu A kolejnej cyfry`.
 
 ### Proces lutowania segmentu:
 1.  Nałóż odrobinę topnika na miedziane pady segmentu LED.
