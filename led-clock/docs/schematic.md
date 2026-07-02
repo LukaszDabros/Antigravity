@@ -4,9 +4,9 @@
 *   **Mikrokontroler:** ESP8266 (np. NodeMCU V3 lub Wemos D1 Mini).
 *   **Paski LED:** Adresowalne WS2812B (zasilane 5V, gęstość 60 LED/m).
     *   Rząd górny (Zegar): $4 \times 7 \times 2\text{ LED} + 2\text{ LED (dwukropek)} = 58\text{ diod}$.
-    *   Rząd dolny (Wyniki): $4 \times 7 \times 4\text{ LED} = 112\text{ diod}$ (cztery diody o długości ok. 6.67 cm na segment).
-    *   Suma diod: 170 LED.
-*   **Zasilacz:** Zasilacz impulsowy stabilizowany 5V DC, minimum 10A (rekomendowany 5V 10A lub więcej dla zapewnienia bezpiecznego zapasu mocy i stabilnej pracy przy dowolnym kolorze/jasności, maksymalny pobór prądu całej tablicy na kolorze białym wynosi ok. 10.2A, jednak w typowym użytkowaniu nie przekroczy 5-6A).
+    *   Rząd dolny (Wyniki): $4 \times 7 \times 3\text{ LED} = 84\text{ diody}$ (trzy diody o długości ok. 5.0 cm na segment).
+    *   Suma diod: 142 LED.
+*   **Zasilacz:** Zasilacz impulsowy stabilizowany 5V DC, minimum 8A (rekomendowany 5V 10A dla zapewnienia bezpiecznego zapasu mocy i stabilnej pracy przy dowolnym kolorze/jasności).
 *   **Sensor jasności LDR:** Fotorezystor GL5528 (lub podobny) + rezystor $10\text{ k}\Omega$ (dzielnik napięcia).
 *   **Kondensator filtrujący:** Elektrolityczny $1000\ \mu\text{F}$ / 6.3V (lub 10V) na wejściu zasilania pasków LED (chroni przed skokami napięcia).
 *   **Rezystory zabezpieczające:** $2 \times 330\ \Omega$ (wpinane szeregowo w linie danych D5 i D6).
@@ -63,7 +63,7 @@
     *   **DIN** $\rightarrow$ Pin D6 (GPIO12) poprzez rezystor $330\ \Omega$.
 
 > [!IMPORTANT]
-> **Power Injection (Wstrzykiwanie zasilania):** Z uwagi na spadki napięcia na paskach LED, zasilanie 5V oraz GND należy doprowadzić do pasków z obu końców (szczególnie w przypadku dolnego paska z 112 diodami).
+> **Power Injection (Wstrzykiwanie zasilania):** Z uwagi na spadki napięcia na paskach LED, zasilanie 5V oraz GND należy doprowadzić do pasków z obu końców (szczególnie w przypadku dolnego paska z 84 diodami).
 
 ---
 

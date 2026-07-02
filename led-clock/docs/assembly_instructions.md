@@ -48,7 +48,7 @@ Przed przystąpieniem do montażu elektroniki należy przygotować rdzeń obudow
 
 Każdy segment zegara i tablicy wyników składa się z odpowiedniej liczby diod odciętych z rolki taśmy WS2812B.
 * **Taśma górnego rzędu (Zegar):** Wytnij 28 odcinków po **2 diody LED** (łącznie 56 diod dla 4 cyfr) oraz 1 odcinek z **2 diodami LED** (dwukropek).
-* **Taśma dolnego rzędu (Wyniki):** Wytnij 28 odcinków po **4 diody LED** (łącznie 112 diod dla 4 cyfr, każdy odcinek ma ok. 6.67 cm długości).
+* **Taśma dolnego rzędu (Wyniki):** Wytnij 28 odcinków po **3 diody LED** (łącznie 84 diody dla 4 cyfr, każdy odcinek ma ok. 5.0 cm długości).
 
 > **Ostrzeżenie:** Taśmę LED WS2812B można odcinać **tylko w wyznaczonych miejscach** (linia cięcia biegnąca dokładnie przez środek miedzianych padów lutowniczych). Użyj ostrych nożyczek.
 
