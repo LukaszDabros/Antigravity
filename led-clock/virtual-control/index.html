@@ -1433,6 +1433,7 @@
     }
 
     function triggerAlarm() {
+      state.timerAlarmEndTime = Date.now() + 3000;
       let count = 0;
       const flash = setInterval(() => {
         const dots = document.querySelectorAll('.colon-dot');
@@ -1598,6 +1599,9 @@
         uColor = tabCol;
         aColor = tabCol;
         bColor = tabCol;
+      } else if (state.clockMode === 'timer' && state.timerAlarmEndTime && Date.now() < state.timerAlarmEndTime) {
+        // Migaj na biało-czerwono co 150ms podczas alarmu
+        uColor = (Math.floor(Date.now() / 150) % 2 === 0) ? '#ffffff' : '#ff3b30';
       }
 
       // Aktualizacja kolorów elementów simulatora

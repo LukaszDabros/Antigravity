@@ -511,14 +511,30 @@ void renderUpperRow() {
   } else if (clockMode == "timer") {
     // Minutnik
     long remVal = timerRemainingMs;
+    static unsigned long timerAlarmEndTime = 0;
+
     if (timerRunning) {
       remVal = (long)timerTargetTime - (long)millis();
       if (remVal <= 0) {
         timerRemainingMs = 0;
         timerRunning = false;
         remVal = 0;
+        // Aktywacja alarmu na 3 sekundy
+        timerAlarmEndTime = millis() + 3000;
       } else {
         timerRemainingMs = remVal;
+      }
+    }
+
+    // Sprawdzenie czy trwa alarm po zakończeniu odliczania (przez 3 sekundy)
+    bool isAlarmActive = false;
+    if (timerRemainingMs == 0 && timerAlarmEndTime > 0) {
+      if (millis() < timerAlarmEndTime) {
+        isAlarmActive = true;
+        // Naprzemienne miganie Biały / Czerwony co 150 ms
+        color = ((millis() / 150) % 2 == 0) ? CRGB::White : CRGB::Red;
+      } else {
+        timerAlarmEndTime = 0; // Koniec alarmu
       }
     }
 
