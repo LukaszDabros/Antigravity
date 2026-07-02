@@ -1709,21 +1709,21 @@
       // 2. Renderowanie Dolnego Rzędu (Wyniki / Temperatura / Data / Autocykl / Tabata)
       if (state.clockMode === 'tabata') {
         if (state.tabataState === 'finished') {
-          // Dolny rząd pokazuje "dO nE" (Done)
-          renderDigit('l-dig-0', 'd');
-          renderDigit('l-dig-1', 'o');
+          // Dolny rząd pokazuje " EnD" (End)
+          renderDigit('l-dig-0', ' ');
+          renderDigit('l-dig-1', 'E');
           renderDigit('l-dig-2', 'n');
-          renderDigit('l-dig-3', 'E');
+          renderDigit('l-dig-3', 'd');
         } else {
           // Lewa strona: r1, r2 itd. (r8 w idle)
           const activeRound = (state.tabataState === 'idle') ? state.tabataRounds : state.tabataCurrentRound;
           renderDigit('l-dig-0', 'r');
           renderDigit('l-dig-1', activeRound.toString());
           
-          // Prawa strona: Cd (prepare), Go (work), -- (rest)
+          // Prawa strona: PR (prepare), GO (work), -- (rest)
           if (state.tabataState === 'idle' || state.tabataState === 'prepare') {
-            renderDigit('l-dig-2', 'C');
-            renderDigit('l-dig-3', 'd');
+            renderDigit('l-dig-2', 'P');
+            renderDigit('l-dig-3', 'r'); // 'r' = najblizsze R na 7-seg
           } else if (state.tabataState === 'work') {
             renderDigit('l-dig-2', 'G');
             renderDigit('l-dig-3', '0'); // '0' = duże O na 7-seg

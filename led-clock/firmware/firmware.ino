@@ -588,21 +588,21 @@ void renderLowerRow() {
     else if (tabataState == "idle") tabCol = colorClock;
 
     if (tabataState == "finished") {
-      // Dolny rząd pokazuje "dO nE" (Done)
-      drawLowerDigit(0, 'd', tabCol);
-      drawLowerDigit(1, 'o', tabCol);
+      // Dolny rząd pokazuje " EnD" (End)
+      drawLowerDigit(0, ' ', tabCol);
+      drawLowerDigit(1, 'E', tabCol);
       drawLowerDigit(2, 'n', tabCol);
-      drawLowerDigit(3, 'E', tabCol);
+      drawLowerDigit(3, 'd', tabCol);
     } else {
       // Lewa strona: numer rundy, np. "r1" lub "r8" w idle
       int activeRound = (tabataState == "idle") ? tabataTotalRounds : tabataCurrentRound;
       drawLowerDigit(0, 'r', tabCol);
       drawLowerDigit(1, '0' + (activeRound % 10), tabCol);
 
-      // Prawa strona: status fazy "Cd", "GO", "--"
+      // Prawa strona: status fazy "PR", "GO", "--"
       if (tabataState == "idle" || tabataState == "prepare") {
-        drawLowerDigit(2, 'C', tabCol);
-        drawLowerDigit(3, 'd', tabCol);
+        drawLowerDigit(2, 'P', tabCol);
+        drawLowerDigit(3, 'r', tabCol); // r = najblizsze R na 7-seg
       } else if (tabataState == "work") {
         drawLowerDigit(2, 'G', tabCol);
         drawLowerDigit(3, '0', tabCol); // '0' = duze O na 7-seg
