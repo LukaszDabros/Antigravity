@@ -599,16 +599,16 @@ void renderLowerRow() {
       drawLowerDigit(0, 'r', tabCol);
       drawLowerDigit(1, '0' + (activeRound % 10), tabCol);
 
-      // Prawa strona: status fazy "Pr", "Go", "rE"
+      // Prawa strona: status fazy "Cd", "GO", "--"
       if (tabataState == "idle" || tabataState == "prepare") {
-        drawLowerDigit(2, 'P', tabCol);
-        drawLowerDigit(3, 'r', tabCol);
+        drawLowerDigit(2, 'C', tabCol);
+        drawLowerDigit(3, 'd', tabCol);
       } else if (tabataState == "work") {
         drawLowerDigit(2, 'G', tabCol);
-        drawLowerDigit(3, 'o', tabCol);
+        drawLowerDigit(3, '0', tabCol); // '0' = duze O na 7-seg
       } else if (tabataState == "rest") {
-        drawLowerDigit(2, 'r', tabCol);
-        drawLowerDigit(3, 'E', tabCol);
+        drawLowerDigit(2, '-', tabCol);
+        drawLowerDigit(3, '-', tabCol);
       }
     }
     return;
