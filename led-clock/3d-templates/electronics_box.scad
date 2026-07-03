@@ -118,13 +118,29 @@ module box_cover() {
         difference() {
             // Zewnętrzny obrys pokrywy z kołnierzem
             union() {
+                // Płaska góra pokrywy
                 rounded_cube(box_w + 2*wall_t, box_l + 2*wall_t, wall_t, 4);
-                // Wewnętrzny kołnierz pozycjonujący wchodzący do pudełka
-                translate([wall_t + 0.2, wall_t + 0.2, wall_t])
-                    rounded_cube(box_w - 0.4, box_l - 0.4, 3, 2);
+                
+                // Wewnętrzny kołnierz pozycjonujący z wbudowanym luzem 0.4 mm na stronę
+                difference() {
+                    translate([wall_t + 0.4, wall_t + 0.4, wall_t])
+                        rounded_cube(box_w - 0.8, box_l - 0.8, 3, 2);
+                    
+                    // WYCIĘCIE NAROŻNIKÓW W KOŁNIERZU (omijanie słupków śrub w bazie)
+                    // Baza ma słupki o promieniu 8 mm w narożnikach wewnętrznych.
+                    // Odejmujemy cylindry o r=9 mm z lekkim zapasem w rogach wewnętrznych.
+                    translate([wall_t, wall_t, wall_t - 0.5])
+                        cylinder(r = 9.0, h = 4);
+                    translate([wall_t + box_w, wall_t, wall_t - 0.5])
+                        cylinder(r = 9.0, h = 4);
+                    translate([wall_t, wall_t + box_l, wall_t - 0.5])
+                        cylinder(r = 9.0, h = 4);
+                    translate([wall_t + box_w, wall_t + box_l, wall_t - 0.5])
+                        cylinder(r = 9.0, h = 4);
+                }
             }
             
-            // Wycięcie środka kołnierza pokrywy
+            // Wycięcie środka kołnierza pokrywy (oszczędność materiału)
             translate([wall_t + 2, wall_t + 2, wall_t])
                 rounded_cube(box_w - 4, box_l - 4, 4, 2);
                 
