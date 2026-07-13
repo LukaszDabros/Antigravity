@@ -30,11 +30,56 @@ Sterowanie opiera się na mikrokontrolerze **WeMos D1 Mini** (ESP8266). Poniżej
 
 ---
 
-## 2. Graficzny schemat połączeń bezpośrednich (Wiring Diagram)
+## 2. Graficzny schemat połączeń bezpośrednich (ASCII Wiring Diagram)
 
-Poniższy rysunek przedstawia przejrzysty schemat połączeń wszystkich komponentów z płytek sterujących, sensora temperatury, modułu zegara podtrzymującego RTC DS3231, przekaźnika oraz zasilacza 5V 10A:
+Poniższy schemat blokowy przedstawia bezbłędny rozkład połączeń w pająku bez użycia płytki drukowanej. Zasilanie 5V i masa GND rozprowadzane są w układzie gwiazdy z punktu wspólnego na kondensatorze 1000uF bezpośrednio do odbiorników (ESP, paski LED, moduły), co zapobiega przeciążeniom mikrokontrolera.
 
-![Kompletny czytelny schemat połączeń bezpośrednich](C:\Users\dabro\.gemini\antigravity\brain\452313a3-fbeb-4282-9a3a-5c8adb1e4b4e\perfect_wiring_schematic_fixed_final_1783959720897.png)
+```
+                  =============================================
+                  |             ZASILACZ 5V 10A               |
+                  |                                           |
+                  |    [ L ] [ N ] [ PE ]   [ -V/GND ] [ +V ]  |
+                  ==============================+========+====
+                                                |        |
+                                         (GND)  |        |  (+5V)
+                                                v        v
+                                            +---+--------+---+
+                                            |  KONDENSATOR   |
+                                            |   1000 uF      |
+                                            +---+--------+---+
+                                                |        |
+    +-------------------------------------------+        +------------------------------------------+
+    | Masa Wspólna (GND) - czarne przewody               | Szyna Zasilania (+5V) - czerwone przewody|
+    v                                                    v
+    +--> WeMos D1 Mini [ G ]                             +--> WeMos D1 Mini [ 5V ]
+    +--> DS3231 RTC [ GND ]                              +--> DS3231 RTC [ VCC ]
+    +--> Sensor DS18B20 [ GND ]                          +--> Przekaźnik VCC (goldpin) [ VCC ]
+    +--> Przekaźnik GND (goldpin) [ GND ]                +--> Przekaźnik terminal [ COM ]
+    +--> Piezo Buzzer [ - ]                              +--> Pasek LED Górny [ +5V ]
+    +--> Pasek LED Górny [ GND ]                         +--> Pasek LED Dolny [ +5V ]
+    +--> Pasek LED Dolny [ GND ]
+    
+
+  POŁĄCZENIA SYGNAŁOWE I DANYCH (Nie łączą się z zasilaniem ani masą!):
+  
+  [ WeMos D1 Mini ]                                     [ Moduły i Czujniki ]
+  
+        [ D5 ] ---------[ Rezystor 330 Ohm ]----------> Pasek LED Górny [ DIN ]
+        [ D7 ] ---------[ Rezystor 330 Ohm ]----------> Pasek LED Dolny [ DIN ]
+        
+        [ D2 ] (SDA) ---------------------------------> DS3231 RTC [ SDA ]
+        [ D1 ] (SCL) ---------------------------------> DS3231 RTC [ SCL ]
+        
+        [ D6 ] ---------------------------------------> Sensor DS18B20 [ DQ ]
+        [ 3V3 ] (Zasilanie 3.3V) ---------------------> Sensor DS18B20 [ VCC ]
+        
+        [ D0 ] ---------------------------------------> Przekaźnik [ IN1 ] (goldpin)
+        
+
+  OBWÓD WYKONAWCZY BUZZERA (PRZEKAŹNIK):
+  
+  [ Przekaźnik terminal NO ] --------------------------> Piezo Buzzer [ + ]
+```
 
 ---
 
