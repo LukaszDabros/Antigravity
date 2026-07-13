@@ -8,7 +8,7 @@ Zasilacz impulsowy 5V 10A jest zamontowany w odległości, aby nie wywoływał z
 > **Analiza Roli Przekaźnika (Sterowanie Buzzerem):**
 > Mikrokontroler ESP8266 (WeMos D1 Mini) na swoich pinach wejścia/wyjścia (GPIO) operuje na napięciu **3.3V** o bardzo małym maksymalnym prądzie (ok. 12mA na pin). 
 > Podłączenie głośnego buzzera 5V bezpośrednio pod pin ESP skutkuje bardzo cichym dźwiękiem (lub całkowitym brakiem działania) i przeciąża port procesora. 
-> **Rozwiązanie:** Używamy przekaźnika 1-kanałowego jako klucza. Pin sterujący ESP (`D8`) przełącza wejście przekaźnika (`IN1`), a przekaźnik zwiera pełną linię **5V** bezpośrednio do buzzera. Dzięki temu buzzer zasilany jest pełną mocą i działa z maksymalną głośnością.
+> **Rozwiązanie:** Używamy przekaźnika 1-kanałowego jako klucza. Pin sterujący ESP (`D0`) przełącza wejście przekaźnika (`IN1`), a przekaźnik zwiera pełną linię **5V** bezpośrednio do buzzera. Dzięki temu buzzer zasilany jest pełną mocą i działa z maksymalną głośnością.
 
 ---
 
@@ -23,7 +23,7 @@ Sterowanie opiera się na mikrokontrolerze **WeMos D1 Mini** (ESP8266). Poniżej
 | **Zegar RTC DS3231 (SDA)** | `D2` (GPIO4) | Magistrala I2C | Dane czasu rzeczywistego (podtrzymanie bateryjne) |
 | **Zegar RTC DS3231 (SCL)** | `D1` (GPIO5) | Magistrala I2C | Taktowanie szyny danych czasu |
 | **Sensor Temp. DS18B20** | `D6` (GPIO12) | Magistrala 1-Wire | Odczyt temperatury (płytka posiada rezystor pull-up) |
-| **Moduł przekaźnika (IN1)** | `D8` (GPIO15) | Wyjście cyfrowe | Sterowanie cewką przekaźnika (załączanie buzzera) |
+| **Moduł przekaźnika (IN1)** | `D0` (GPIO16) | Wyjście cyfrowe | Sterowanie cewką przekaźnika (załączanie buzzera) |
 | **Zasilanie komponentów** | `5V` (zasilacz) | Zasilanie główne | Zasilanie 5V do WeMos, RTC, cewki przekaźnika i styków roboczych |
 | **Zasilanie sensora temp.** | `3V3` (z WeMosa) | Zasilanie pomocnicze| Zasilanie czujnika temperatury stabilnym napięciem 3.3V |
 | **Masa Wspólna** | `GND` / `G` | Masa (GND) | Połączenie mas wszystkich modułów i pasków LED |
@@ -71,7 +71,7 @@ Czujnik temperatury zintegrowany jest na płytce z własnym rezystorem podciąga
 
 ### Krok 4: Połączenie Buzzera przez Przekaźnik
 Buzzer zasilany jest pełnym napięciem 5V poprzez styki przekaźnika.
-1. Przylutuj pin **IN1** (wejście sterujące cewki przekaźnika) bezpośrednio do pinu **D8** (GPIO15) na WeMos D1 Mini.
+1. Przylutuj pin **IN1** (wejście sterujące cewki przekaźnika) bezpośrednio do pinu **D0** (GPIO16) na WeMos D1 Mini.
 2. Podłącz styk normalnie otwarty (**NO**) przekaźnika do nóżki dodatniej ( oznaczonej jako **+** ) buzzera.
 3. Nóżkę ujemną (-) buzzera połącz z masą wspólną **GND**.
 
@@ -101,13 +101,13 @@ Buzzer zasilany jest pełnym napięciem 5V poprzez styki przekaźnika.
                 | 3V3  D0   D1   D2   D5   D6   D7   D8     |
                 +-+-+-+--+--+-+--+-+--+-+--+-+--+-+--+-+----+
                   | |    | |  | |  | |  | |  | |  | |  | |
-                  | |    | |  | |  | |  | |  | |  | |  +-------> Relay (IN1)
+                  | |    | |  | |  | |  | |  | |  | |  +-------> [Nie używany D8]
                   | |    | |  | |  | |  | |  | |  +------------> [R 330R] -> DIN Dolny LED
                   | |    | |  | |  | |  | |  +-----------------> Sensor Temp. (DQ)
                   | |    | |  | |  | |  +----------------------> [R 330R] -> DIN Górny LED
                   | |    | |  | |  +---------------------------> RTC DS3231 (SDA)
                   | |    | |  +--------------------------------> RTC DS3231 (SCL)
-                  | |    +-------------------------------------> [Nie używany D0]
+                  | |    +-------------------------------------> Relay (IN1)
                   | +----------------------------------------> Sensor Temp. (VCC 3.3V)
                   
                   

@@ -5,24 +5,35 @@
 #include <NTPClient.h>        // https://github.com/taranais/NTPClient
 #include <WiFiUdp.h>
 #include <FastLED.h>          // https://github.com/FastLED/FastLED
+#include <Wire.h>             // Obsługa magistrali I2C
+#include <RTClib.h>           // Obsługa RTC DS3231 (Adafruit RTClib)
+#include <OneWire.h>          // Protokół OneWire dla DS18B20
+#include <DallasTemperature.h> // Obsługa czujnika temperatury DS18B20
 
 // ==========================================
-// KONFIGURACJA SPRZĘTOWA LED
+// KONFIGURACJA SPRZĘTOWA LED I CZUJNIKÓW
 // ==========================================
 #define UPPER_DATA_PIN    14  // GPIO14 (D5) - Rząd górny (Zegar)
-#define LOWER_DATA_PIN    12  // GPIO12 (D6) - Rząd dolny (Wyniki)
-#define LDR_PIN           A0  // Analogowy sensor jasności LDR
+#define LOWER_DATA_PIN    13  // GPIO13 (D7) - Rząd dolny (Wyniki)
+#define ONE_WIRE_BUS      12  // GPIO12 (D6) - Czujnik temperatury DS18B20
+#define RELAY_PIN         16  // GPIO16 (D0) - Przekaźnik sterujący buzzerem (Active LOW)
+#define LDR_PIN           A0  // Analogowy sensor jasności LDR (nieużywany bez fizycznego czujnika)
+
+// Inicjalizacja magistral i obiektów czujników
+RTC_DS3231 rtc;
+OneWire oneWire(ONE_WIRE_BUS);
+DallasTemperature sensors(&oneWire);
 
 // Rząd Górny (Małe cyfry zegara/stopera)
 #define UPPER_NUM_DIGITS   4
 #define UPPER_LEDS_PER_SEG 2  // 2 LEDy na segment (małe cyfry)
 #define UPPER_COLON_LEDS   2  // 2 diody dla dwukropka
-#define UPPER_LEDS_COUNT   (UPPER_NUM_DIGITS * 7 * UPPER_LEDS_PER_SEG + UPPER_COLON_LEDS) // 4x7x2 + 2 = 58 LED
+#define UPPER_LEDS_COUNT   (UPPER_NUM_DIGITS * 7 * UPPER_LEDS_PER_SEG + UPPER_COLON_LEDS) // 58 LED
 
 // Rząd Dolny (Duże cyfry wyników)
 #define LOWER_NUM_DIGITS   4
-#define LOWER_LEDS_PER_SEG 4  // 4 LEDy na segment (duże cyfry) - taśma 60 LED/m (ok. 6.67 cm długości)
-#define LOWER_LEDS_COUNT   (LOWER_NUM_DIGITS * 7 * LOWER_LEDS_PER_SEG) // 4x7x4 = 112 LED
+#define LOWER_LEDS_PER_SEG 3  // 3 LEDy na segment (duże cyfry)
+#define LOWER_LEDS_COUNT   (LOWER_NUM_DIGITS * 7 * LOWER_LEDS_PER_SEG) // 84 LED
 
 CRGB upperLeds[UPPER_LEDS_COUNT];
 CRGB lowerLeds[LOWER_LEDS_COUNT];
@@ -104,8 +115,24 @@ bool tabataPaused = false;
 
 // Jasność
 int ledBrightness = 150;
-bool autoBrightness = true;
+bool autoBrightness = false; // Wyłączone domyślnie (brak czujnika LDR)
 unsigned long lastBrightnessCheck = 0;
+
+// ==========================================
+// OBSŁUGA BUZZERA I PRZEKAŹNIKA
+// ==========================================
+
+// Sterowanie stanem przekaźnika (Active LOW)
+void setBuzzer(bool active) {
+  digitalWrite(RELAY_PIN, active ? LOW : HIGH);
+}
+
+// Wyzwalanie piknięcia o określonym czasie trwania (w milisekundach)
+void triggerBuzzer(int durationMs) {
+  setBuzzer(true);
+  delay(durationMs);
+  setBuzzer(false);
+}
 
 // ==========================================
 // OBSŁUGA STRUKTURY LED (7-SEGMENTOWEJ)
@@ -394,16 +421,37 @@ void handleGetStatus() {
 void setup() {
   Serial.begin(115200);
 
+  // Konfiguracja przekaźnika (D0) i wyłączenie buzzera na starcie (Active LOW)
+  pinMode(RELAY_PIN, OUTPUT);
+  digitalWrite(RELAY_PIN, HIGH);
+
+  // Inicjalizacja I2C dla RTC DS3231 (SDA=D2, SCL=D1)
+  Wire.begin(4, 5);
+  if (!rtc.begin()) {
+    Serial.println("Nie znaleziono RTC DS3231!");
+  } else {
+    Serial.println("Inicjalizacja RTC powiodła się.");
+    if (rtc.lostPower()) {
+      Serial.println("RTC utraciło zasilanie, synchronizacja z czasem kompilacji...");
+      rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+    }
+  }
+
+  // Inicjalizacja czujnika temperatury DS18B20 (D6)
+  sensors.begin();
+  sensors.setWaitForConversion(false); // Odczyt nieblokujący
+
   // Inicjalizacja LED
   FastLED.addLeds<WS2812B, UPPER_DATA_PIN, GRB>(upperLeds, UPPER_LEDS_COUNT).setCorrection(TypicalLEDStrip);
   FastLED.addLeds<WS2812B, LOWER_DATA_PIN, GRB>(lowerLeds, LOWER_LEDS_COUNT).setCorrection(TypicalLEDStrip);
   FastLED.setBrightness(ledBrightness);
 
-  // Pokaz powitalny (czerwone segmenty)
+  // Pokaz powitalny i piknięcie buzzera
   fill_solid(upperLeds, UPPER_LEDS_COUNT, CRGB::Red);
   fill_solid(lowerLeds, LOWER_LEDS_COUNT, CRGB::Red);
   FastLED.show();
-  delay(1000);
+  triggerBuzzer(150); // Krótkie piknięcie powitalne
+  delay(850);
   FastLED.clear(true);
 
   // WiFiManager konfiguruje portal połączalności
@@ -447,13 +495,36 @@ void updateBrightness() {
   }
 }
 
+void getLocalTime(int &hrs, int &mins, int &secs) {
+  // Jeśli połączono z WiFi, synchronizujemy NTP i uaktualniamy RTC co godzinę
+  if (WiFi.status() == WL_CONNECTED) {
+    timeClient.update();
+    hrs = timeClient.getHours();
+    mins = timeClient.getMinutes();
+    secs = timeClient.getSeconds();
+
+    static unsigned long lastRtcSync = 0;
+    if (millis() - lastRtcSync > 3600000 || lastRtcSync == 0) { // Co 1 godzinę
+      lastRtcSync = millis();
+      unsigned long epochTime = timeClient.getEpochTime();
+      rtc.adjust(DateTime(epochTime));
+      Serial.println("Zsynchronizowano zegar RTC z serwerem czasu NTP.");
+    }
+  } else {
+    // Brak połączenia WiFi -> czytamy bezpośrednio z modułu RTC
+    DateTime now = rtc.now();
+    hrs = now.hour();
+    mins = now.minute();
+    secs = now.second();
+  }
+}
+
 void renderUpperRow() {
   CRGB color = colorClock;
 
   if (clockMode == "time") {
-    timeClient.update();
-    int hrs = timeClient.getHours();
-    int mins = timeClient.getMinutes();
+    int hrs, mins, secs;
+    getLocalTime(hrs, mins, secs);
     
     String hrsStr = String(hrs);
     if (hrs < 10) hrsStr = "0" + hrsStr;
@@ -465,8 +536,8 @@ void renderUpperRow() {
     drawUpperDigit(2, minsStr[0], color);
     drawUpperDigit(3, minsStr[1], color);
 
-    // Miganie dwukropka zsynchronizowane z sekundami NTP
-    bool blink = (timeClient.getSeconds() % 2 == 0);
+    // Miganie dwukropka zsynchronizowane z sekundami
+    bool blink = (secs % 2 == 0);
     drawUpperColon(blink, color);
 
   } else if (clockMode == "stopwatch") {
@@ -532,9 +603,12 @@ void renderUpperRow() {
       if (millis() < timerAlarmEndTime) {
         isAlarmActive = true;
         // Naprzemienne miganie Biały / Czerwony co 150 ms
-        color = ((millis() / 150) % 2 == 0) ? CRGB::White : CRGB::Red;
+        bool activeCycle = ((millis() / 150) % 2 == 0);
+        color = activeCycle ? CRGB::White : CRGB::Red;
+        setBuzzer(activeCycle); // Buzzer bipa razem z miganiem na biało
       } else {
         timerAlarmEndTime = 0; // Koniec alarmu
+        setBuzzer(false); // Upewnij się, że wyłączysz buzzer
       }
     }
 
@@ -701,11 +775,15 @@ void updateTemperature() {
   unsigned long now = millis();
   if (now - lastTempUpdate > 10000 || lastTempUpdate == 0) {
     lastTempUpdate = now;
-    // Symulacja czujnika temperatury (np. DS18B20 lub DHT22)
-    // Płynna zmiana temperatury w czasie za pomocą funkcji sinus
-    float baseTemp = 22.0;
-    float wave = sin(now / 120000.0) * 1.5; // Zmiana o +/- 1.5 stopnia co 2 minuty
-    temperatureVal = (int)round(baseTemp + wave);
+    sensors.requestTemperatures();
+    float tempC = sensors.getTempCByIndex(0);
+    
+    // Jeśli czujnik jest prawidłowo podłączony
+    if (tempC != DEVICE_DISCONNECTED_C && tempC > -50.0 && tempC < 80.0) {
+      temperatureVal = (int)round(tempC);
+    } else {
+      Serial.println("Błąd odczytu DS18B20!");
+    }
   }
 }
 
@@ -713,23 +791,46 @@ void updateTabata() {
   if (clockMode != "tabata" || !tabataRunning || tabataPaused) return;
 
   long remMs = (long)tabataTargetTime - (long)millis();
+  
+  // Odliczanie ostatnich 3 sekund faz przygotowania lub odpoczynku (krótkie piknięcie na sekundy 3, 2, 1)
+  static int lastSecBuzzed = -1;
+  int currentSecRemaining = remMs / 1000;
+  if (tabataState == "prepare" || tabataState == "rest") {
+    if (remMs > 0 && currentSecRemaining <= 3 && currentSecRemaining > 0 && currentSecRemaining != lastSecBuzzed) {
+      lastSecBuzzed = currentSecRemaining;
+      triggerBuzzer(100);
+    }
+  }
+
   if (remMs <= 0) {
+    lastSecBuzzed = -1; // Reset pamięci odliczania sekundy
     // Przejścia stanów maszyny Tabaty
     if (tabataState == "prepare") {
       tabataState = "work";
       tabataTargetTime = millis() + (unsigned long)tabataWorkSec * 1000;
+      triggerBuzzer(500); // 1 długi sygnał na start wysiłku
     } else if (tabataState == "work") {
       if (tabataCurrentRound >= tabataTotalRounds) {
         tabataState = "finished";
         tabataRunning = false;
+        // Koniec treningu - 3 wyraźne sygnały
+        for (int i = 0; i < 3; i++) {
+          triggerBuzzer(300);
+          if (i < 2) delay(150);
+        }
       } else {
         tabataState = "rest";
         tabataTargetTime = millis() + (unsigned long)tabataRestSec * 1000;
+        // Start odpoczynku - 2 krótkie sygnały
+        triggerBuzzer(150);
+        delay(100);
+        triggerBuzzer(150);
       }
     } else if (tabataState == "rest") {
       tabataState = "work";
       tabataCurrentRound++;
       tabataTargetTime = millis() + (unsigned long)tabataWorkSec * 1000;
+      triggerBuzzer(500); // 1 długi sygnał na start wysiłku
     }
   }
 }
