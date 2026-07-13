@@ -107,20 +107,23 @@ module tpu_insert() {
             translate([11, 78, 3])
                 cylinder(d = 12.5, h = 10);
                 
-            // E. Kieszeń na Kondensator 1000uF (szer: 11 mm, dł: 21 mm, głębokość: 8 mm)
-            translate([25, 73, 3])
-                cube([11, 21, 10]);
-                
             // F. Kieszeń na czujnik DS18B20 (szer: 16 mm, dł: 21 mm, głębokość: 8 mm)
             translate([44, 63, 3])
                 cube([16, 21, 10]);
 
-            // GANAŁY KABLOWE NA DNIE WKŁADU (nacięcia o głębokości 3 mm na ułożenie kabli pod elementami)
-            // Kanał główny wzdłuż osi Y
-            translate([31.5, 2, 0]) cube([4, box_l - 6, 3.5]);
-            // Kanały poprzeczne łączące kieszenie
-            translate([2, 20, 0]) cube([box_w - 6, 4, 3.5]);
-            translate([2, 55, 0]) cube([box_w - 6, 4, 3.5]);
+            // KANAŁY KABLOWE NA DNIE WKŁADU ORAZ DUŻA KOMORA NA KONDENSATOR 1000uF
+            // (Nacięcia w spodzie wkładu TPU, aby kable i kondensator leżały pod elementami bez naprężeń)
+            
+            // Komora na kondensator 1000uF (szer: 14 mm, dł: 30 mm, głębokość: 9 mm)
+            translate([22, 60, -0.5])
+                cube([14, 30, 9.5]);
+            
+            // Kanał główny wzdłuż osi Y (szerokość 6 mm)
+            translate([30.5, 2, -0.5]) cube([6, box_l - 6, 4]);
+            
+            // Kanały poprzeczne łączące kieszenie (szerokość 6 mm)
+            translate([2, 18, -0.5]) cube([box_w - 6, 6, 4]);
+            translate([2, 53, -0.5]) cube([box_w - 6, 6, 4]);
             
             // Wycięcia na narożne słupki śrubowe bazy
             translate([0, 0, -0.5]) cylinder(r = 8.5, h = 14);
