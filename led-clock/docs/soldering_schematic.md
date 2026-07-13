@@ -1,88 +1,106 @@
-# Schemat Połączeń Bezpośrednich (Pająk / Point-to-Point)
+# Schemat Połączeń Bezpośrednich (Bez PCB)
 
-Poniższy dokument przedstawia dokładny opis bezpośredniego łączenia przewodów (lutowania "w pająka" z użyciem koszulek termokurczliwych) komponentów elektronicznych bez użycia płytki drukowanej (PCB/perfboard). Taki montaż oszczędza miejsce w obudowie i jest wysoce niezawodny.
+Poniższy dokument przedstawia dokładny opis bezpośredniego łączenia przewodów (lutowania "w pająka" z użyciem koszulek termokurczliwych) dla kompletnego zestawu komponentów sterujących zegarem LED. 
+
+Zasilacz impulsowy 5V 10A jest zamontowany w odległości, aby nie wywoływał zakłóceń elektromagnetycznych (EMI/RF) w pracy modułu bezprzewodowego oraz czujników.
 
 ---
 
 ## 1. Wykaz wyprowadzeń i połączeń (Pinout)
 
-Sterowanie zegarem opiera się na mikrokontrolerze **ESP8266** (np. NodeMCU V3 / Wemos D1 Mini) lub **ESP32**. Poniżej znajduje się schemat połączeń:
+Sterowanie opiera się na mikrokontrolerze **WeMos D1 Mini** (ESP8266). Poniżej znajduje się schemat połączeń dla wszystkich modułów:
 
-| Nazwa Komponentu | Pin na ESP8266 | Pin na ESP32 | Cel / Połączenie |
+| Nazwa Komponentu | Pin na WeMos D1 Mini | Typ sygnału | Rola / Cel połączenia |
 | :--- | :--- | :--- | :--- |
-| **Pasek LED Górny (Zegar)** | `D5` (GPIO14) | `GPIO14` | Linia danych poprzez rezystor 330 $\Omega$ do `DIN` taśmy górnej |
-| **Pasek LED Dolny (Wyniki)** | `D6` (GPIO12) | `GPIO12` | Linia danych poprzez rezystor 330 $\Omega$ do `DIN` taśmy dolnej |
-| **Sensor LDR (Jasność)** | `A0` (ADC0) | `GPIO36` (VP) | Sygnał z dzielnika napięcia LDR + 10k $\Omega$ |
-| **Zasilanie Mikrokontrolera** | `5V` / `VIN` | `5V` / `VIN` | Napięcie 5V z głównego zasilacza |
-| **Masa Wspólna** | `GND` | `GND` | Połączona z masą zasilacza i masami pasków LED |
+| **Pasek LED Górny (Zegar)** | `D5` (GPIO14) | Wyjście cyfrowe | Poprzez rezystor 330 $\Omega$ do `DIN` taśmy górnej |
+| **Pasek LED Dolny (Wyniki)** | `D7` (GPIO13) | Wyjście cyfrowe | Poprzez rezystor 330 $\Omega$ do `DIN` taśmy dolnej |
+| **Zegar RTC DS3231 (SDA)** | `D2` (GPIO4) | Magistrala I2C | Dane czasu rzeczywistego (podtrzymanie bateryjne) |
+| **Zegar RTC DS3231 (SCL)** | `D1` (GPIO5) | Magistrala I2C | Taktowanie szyny danych czasu |
+| **Sensor Temp. DS18B20** | `D6` (GPIO12) | Magistrala 1-Wire | Odczyt temperatury (płytka posiada rezystor pull-up) |
+| **Buzzer 5V** | `D8` (GPIO15) | Wyjście cyfrowe | Sygnalizacja dźwiękowa faz Tabaty i alarmu minutnika |
+| **Moduł przekaźnika (Relay)**| `D0` (GPIO16) | Wyjście cyfrowe | Sterowanie przekaźnikiem 1-kanałowym |
+| **Zasilanie komponentów** | `5V` (zasilacz) | Zasilanie główne | Zasilanie 5V do WeMos, RTC, Buzzera i Przekaźnika |
+| **Zasilanie sensora temp.** | `3V3` (z WeMosa) | Zasilanie pomocnicze| Zasilanie czujnika temperatury stabilnym napięciem 3.3V |
+| **Masa Wspólna** | `GND` | Masa (GND) | Połączenie mas wszystkich modułów i pasków LED |
 
 ---
 
-## 2. Graficzny schemat połączeń (Wiring Diagram - No PCB)
+## 2. Graficzny schemat połączeń bezpośrednich (Wiring Diagram)
 
-Poniższy rysunek przedstawia graficzny schemat połączeń bezpośrednich (bez użycia płytki drukowanej), gdzie wszystkie luty są zabezpieczone koszulkami termokurczliwymi:
+Poniższy rysunek przedstawia graficzny schemat połączeń wszystkich komponentów z płytek sterujących, sensora temperatury, modułu zegara podtrzymującego RTC DS3231, przekaźnika oraz buzzera:
 
-![Wizualny schemat połączeń bez płytki drukowanej](C:\Users\dabro\.gemini\antigravity\brain\452313a3-fbeb-4282-9a3a-5c8adb1e4b4e\wiring_schematic_no_pcb_1783955883273.png)
+![Kompletny schemat połączeń bezpośrednich w pająku](C:\Users\dabro\.gemini\antigravity\brain\452313a3-fbeb-4282-9a3a-5c8adb1e4b4e\wemos_d1_full_wiring_no_pcb_1783957555000.png)
 
 ---
 
 ## 3. Instrukcja Montażu Krok po Kroku (Lutowanie bezpośrednie)
 
 > [!IMPORTANT]
-> **Izolacja termokurczliwa:** Przed zlutowaniem jakichkolwiek dwóch przewodów lub nóżek elementów, pamiętaj o nasunięciu kawałka koszulki termokurczliwej na jeden z przewodów. Po zlutowaniu nasuń koszulkę na miejsce łączenia i ogrzej ją (np. zapalniczką lub gorącym powietrzem), aby trwale odizolować połączenie.
+> **Izolowanie połączeń:** Zawsze nakładaj rurki termokurczliwe na przewody przed lutowaniem. Ponieważ wszystkie moduły lutujemy bezpośrednio "w pająku", izolowanie odsłoniętych lutów zapobiegnie powstawaniu zwarć wewnątrz ciasnej obudowy.
 
-### Krok 1: Węzeł zasilania i kondensator filtrujący
-1. Weź główny kabel zasilający 5V (czerwony) i GND (czarny) z zasilacza zewnętrznego.
-2. Przylutuj kondensator elektrolityczny **1000 $\mu$F** bezpośrednio do kabli zasilających:
-   * Nóżkę dodatnią (dłuższą, bez paska) zlutuj z kablem **+5V**.
-   * Nóżkę ujemną (krótszą, oznaczona paskiem z minusem) zlutuj z kablem **GND**.
-3. Od tego samego węzła wyprowadź:
-   * Czerwony przewód 5V do pinu `VIN` / `5V` mikrokontrolera ESP.
-   * Czarny przewód GND do pinu `GND` mikrokontrolera ESP.
-   * Linie zasilania 5V i GND idące do pasków LED (magistrala).
+### Krok 1: Węzeł zasilania 5V i kondensator
+1. Przylutuj kondensator elektrolityczny **1000 $\mu$F** bezpośrednio na linii zasilania 5V z zasilacza (dłuższa nóżka do plusa, krótsza z szarym paskiem do minusa GND).
+2. Od pinu dodatniego kondensatora odprowadź przewody zasilające do:
+   * Pinu **5V** na płytce WeMos D1 Mini.
+   * Pinu **VCC** modułu zegara RTC DS3231.
+   * Pinu **VCC** modułu przekaźnika (Relay).
+   * Linii zasilających **+5V** obu pasków LED.
+3. Od pinu ujemnego kondensatora odprowadź przewody masowe do:
+   * Pinu **GND** na płytce WeMos D1 Mini.
+   * Pinu **GND** modułu zegara RTC DS3231.
+   * Pinu **GND** modułu przekaźnika (Relay).
+   * Pinu ujemnego (-) buzzera piezoelektrycznego.
+   * Pinu **GND** modułu sensora temperatury DS18B20.
+   * Linii masowych **GND** obu pasków LED.
 
-### Krok 2: Lutowanie rezystorów na liniach danych
-1. Weź rezystor **R1 (330 $\Omega$)**. Przylutuj jedną z jego nóżek bezpośrednio do pinu **D5** (GPIO14) na płytce mikrokontrolera.
-2. Drugą nóżkę rezystora zlutuj z przewodem sygnałowym (zielonym/żółtym) biegnącym do wejścia danych `DIN` górnego paska LED.
-3. Postąp tak samo z rezystorem **R2 (330 $\Omega$)**: przylutuj go do pinu **D6** (GPIO12) i połącz z linią danych dolnego paska LED.
-4. Całe rezystory wraz z lutami zamknij w koszulkach termokurczliwych.
+### Krok 2: Podłączenie modułu RTC DS3231
+Zegar RTC DS3231 pozwala utrzymać dokładną godzinę bez dostępu do Internetu.
+1. Przylutuj pin **SDA** modułu RTC do pinu **D2** na WeMos D1 Mini.
+2. Przylutuj pin **SCL** modułu RTC do pinu **D1** na WeMos D1 Mini.
 
-### Krok 3: Połączenie sensora LDR i rezystora 10k $\Omega$
-1. Weź rezystor **R3 (10 k$\Omega$)**. Przylutuj go bezpośrednio pomiędzy pin **A0** a pin **GND** mikrokontrolera.
-2. Przylutuj przewody sensora LDR:
-   * Jeden przewód z sensora LDR przylutuj do pinu **3V3** (lub 5V) na ESP.
-   * Drugi przewód z sensora LDR przylutuj bezpośrednio do pinu **A0** (do punktu połączenia z rezystorem R3).
-3. Zabezpiecz nóżki LDR oraz luty przy ESP koszulkami termokurczliwymi.
+### Krok 3: Podłączenie czujnika temperatury DS18B20
+Czujnik temperatury zintegrowany jest na płytce z własnym rezystorem podciągającym (pull-up), dzięki czemu wymaga tylko bezpośredniego połączenia.
+1. Przylutuj pin **VCC** czujnika do pinu **3V3** na WeMos D1 Mini.
+2. Przylutuj pin **DQ** (dane) czujnika bezpośrednio do pinu **D6** na WeMos D1 Mini.
+
+### Krok 4: Podłączenie Buzzera i Przekaźnika
+1. Przylutuj nóżkę dodatnią (+) buzzera bezpośrednio do pinu **D8** (GPIO15) na WeMos D1 Mini.
+2. Przylutuj pin **IN1** (wejście sterujące) modułu przekaźnika bezpośrednio do pinu **D0** (GPIO16) na WeMos D1 Mini.
+
+### Krok 5: Linie danych pasków LED (D5, D7)
+1. Przylutuj rezystor **330 $\Omega$** szeregowo do pinu **D5** na WeMos D1 Mini. Drugi koniec rezystora połącz z linią sygnałową danych `DIN` pierwszego segmentu górnego paska LED (Zegar).
+2. Przylutuj drugi rezystor **330 $\Omega$** szeregowo do pinu **D7** na WeMos D1 Mini. Drugi koniec rezystora połącz z linią sygnałową danych `DIN` dolnego paska LED (Wyniki).
 
 ---
 
-## 4. Schemat Blokowy Przepływu Mocy i Sygnału
+## 4. Schemat Blokowy Przepływu Zasilania i Sygnałów
 
 ```
-                       +-----------------------------+
-                       |     Zasilacz 5V 10A         |
-                       +------+---------------+------+
-                              |               |
-                              | +5V           | GND
-                              v               v
-                        ============================= [ power lines ]
-                             |                 |
-            +----------------+                 +---------------+
-            |                                                  |
-            |   +---------------------------------------+      |
-            |   |           ESP8266 (NodeMCU)           |      |
-            |   |                                       |      |
-            +-->| VIN/5V                             GND|<-----+
-                |                                       |
-                |   3V3     A0          D5          D6  |
-                +----+------+-----------+-----------+---+
-                     |      |           |           |
-                     |    [R3 10k]    [R1 330R]   [R2 330R]
-                     |      |           |           |
-                   [LDR]----+           |           |
-                     |                  v           v
-                     v                [DIN]       [DIN]
-                  (do 3V3)          Zegar LED   Wyniki LED
+                          +-----------------------------+
+                          |      Zasilacz 5V 10A        |
+                          +------+---------------+------+
+                                 |               |
+                                 | +5V           | GND
+                                 v               v
+                           ======[ Szyna Zasilania 5V/GND ]======
+                                /                 \
+           +-------------------+                   +---------------+
+           |                                                       |
+           |    +-------------------------------------------+      |
+           |    |            WeMos D1 Mini (ESP8266)        |      |
+           |    |                                           |      |
+           +--->| 5V                                     GND|<-----+
+                | 3V3  D0   D1   D2   D5   D6   D7   D8     |
+                +-+-+--+-+--+-+--+-+--+-+--+-+--+-+--+-+----+
+                  | |  | |  | |  | |  | |  | |  | |  | |
+                  | |  | |  | |  | |  | |  | |  | |  +-------> Buzzer (+)
+                  | |  | |  | |  | |  | |  | |  +------------> [R 330R] -> DIN Dolny LED
+                  | |  | |  | |  | |  | |  +-----------------> Sensor Temp. (DQ)
+                  | |  | |  | |  | |  +----------------------> [R 330R] -> DIN Górny LED
+                  | |  | |  | |  +---------------------------> RTC DS3231 (SDA)
+                  | |  | |  +--------------------------------> RTC DS3231 (SCL)
+                  | |  +-------------------------------------> Przekaźnik (IN1)
+                  | +----------------------------------------> Sensor Temp. (VCC 3.3V)
 ```
 
 > [!TIP]
