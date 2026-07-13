@@ -162,3 +162,7 @@ Zasilacze przemysłowe (metalowe typu "Mesh") posiadają terminale śrubowe.
     *   *Żadna dioda nie świeci:* Sprawdź miernikiem napięcie 5V na szynie. Sprawdź, czy ESP8266 otrzymuje zasilanie na pinie VIN.
     *   *Świeci tylko pierwsza dioda/segment:* Prawdopodobnie sygnał danych został przylutowany odwrotnie (do wyjścia DO zamiast wejścia DI) lub uszkodzona jest linia sygnałowa między pierwszym a drugim segmentem.
     *   *Diody na końcu paska świecą na żółtawo/słabiej:* Brak wystarczającego wstrzykiwania zasilania (Power Injection). Dlutuj dodatkowe przewody zasilające bezpośrednio z zasilacza do końcowych segmentów.
+
+> [!TIP]
+> **Testowanie przed lutowaniem:** Aby upewnić się, że wszystkie fizyczne komponenty (WeMos, zegar RTC, czujnik temperatury, przekaźnik i buzzer) są w pełni sprawne i poprawnie skonfigurowane, zalecamy zmontowanie układu testowego na płytce stykowej. Pełną instrukcję wpięcia elementów w płytkę stykową, procedurę wgrywania oprogramowania przez USB oraz pierwszego łączenia z WiFi znajdziesz w przewodniku: [`docs/breadboard_setup.md`](file:///c:/Users/dabro/.antigravity/led-clock/docs/breadboard_setup.md).
+
