@@ -34,7 +34,7 @@ Sterowanie opiera się na mikrokontrolerze **WeMos D1 Mini** (ESP8266). Poniżej
 
 Poniższy rysunek przedstawia przejrzysty schemat połączeń wszystkich komponentów z płytek sterujących, sensora temperatury, modułu zegara podtrzymującego RTC DS3231, przekaźnika oraz zasilacza 5V 10A:
 
-![Kompletny czytelny schemat połączeń bezpośrednich](C:\Users\dabro\.gemini\antigravity\brain\452313a3-fbeb-4282-9a3a-5c8adb1e4b4e\clear_wiring_schematic_fixed_1783958308276.png)
+![Kompletny czytelny schemat połączeń bezpośrednich](C:\Users\dabro\.gemini\antigravity\brain\452313a3-fbeb-4282-9a3a-5c8adb1e4b4e\final_wiring_schematic_fixed_1783958683658.png)
 
 ---
 
