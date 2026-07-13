@@ -20,7 +20,11 @@ Sterowanie zegarem opiera się na mikrokontrolerze **ESP8266** (np. NodeMCU V3 /
 
 ## 2. Graficzny układ montażowy elementów (Płytka 50x70 mm)
 
-Poniższy schemat przedstawia rozkład elementów na płytce uniwersalnej (widok od góry, od strony elementów).
+Poniższy rysunek przedstawia graficzny schemat rozmieszczenia elementów oraz połączeń na płytce prototypowej (perfboard):
+
+![Wizualny schemat połączeń i lutowania elementów](C:\Users\dabro\.gemini\antigravity\brain\452313a3-fbeb-4282-9a3a-5c8adb1e4b4e\soldering_layout_diagram_1783955761188.png)
+
+Poniższy schemat tekstowy przedstawia rozkład wyprowadzeń złącz i elementów na płytce uniwersalnej (widok od góry, od strony elementów).
 
 ```
    +-------------------------------------------------------------+
