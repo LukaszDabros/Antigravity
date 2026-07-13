@@ -11,17 +11,17 @@ Wykorzystujemy standardową płytkę stykową (widoczną na Twoim zdjęciu).
 *   **Szyna niebieska (-)** to wspólna linia masy **GND**.
 
 ### Krok 1: Wpięcie mikrokontrolera (WeMos D1 Mini)
-Wepnij WeMos D1 Mini okrakiem nad centralną rynienką dzielącą płytkę na dwie sekcje, tak aby nóżki weszły w rzędy **od 15 do 22**:
-*   **Lewa strona WeMosa** (RST, A0, D0, D5, D6, D7, D8, 3V3) trafia w **kolumnę E (rzędy 15-22)**.
-*   **Prawa strona WeMosa** (TX, RX, D1, D2, D3, D4, G, 5V) trafia w **kolumnę F (rzędy 15-22)**.
+Płytka WeMos D1 Mini ma szeroki rozstaw nóżek (0.8 cala). Wepnij ją okrakiem nad centralną rynienką w rzędy **od 15 do 22**:
+*   **Lewa strona WeMosa** (RST, A0, D0, D5, D6, D7, D8, 3V3) musi wejść w **kolumnę B** (rzędy 15-22). Szeroka obudowa zasłoni kolumny C, D i E. Wolny dostęp do tych pinów zyskujesz **wyłącznie w kolumnie A** (rząd 15-22).
+*   **Prawa strona WeMosa** (TX, RX, D1, D2, D3, D4, G, 5V) musi wejść w **kolumnę I** (rzędy 15-22). Obudowa zasłoni kolumny F, G i H. Wolny dostęp do tych pinów zyskujesz **wyłącznie w kolumnie J** (rząd 15-22).
 
 ### Krok 2: Połączenia zasilania i kondensatora
 1.  Wepnij **kondensator elektrolityczny 1000 µF** bezpośrednio w szyny zasilające na skraju płytki:
     *   Dłuższą nóżkę (+) wepnij do czerwonej szyny **(+)**.
     *   Krótszą nóżkę (-) (z paskiem z minusem) wepnij do niebieskiej szyny **(-)**.
 2.  Połącz zasilanie WeMosa z szynami:
-    *   Przewód z czerwonej szyny **(+)** poprowadź do rzędu **22, kolumna J** (pin **5V** WeMosa).
-    *   Przewód z niebieskiej szyny **(-)** poprowadź do rzędu **21, kolumna J** (pin **G** / GND WeMosa).
+    *   Poprowadź przewód z czerwonej szyny **(+)** do rzędu **22, kolumna J** (łączy się z pinem **5V** WeMosa).
+    *   Poprowadź przewód z niebieskiej szyny **(-)** do rzędu **21, kolumna J** (łączy się z pinem **G** / GND WeMosa).
 
 ### Krok 3: Wpięcie i podłączenie modułów
 
@@ -29,19 +29,19 @@ Wepnij WeMos D1 Mini okrakiem nad centralną rynienką dzielącą płytkę na dw
 Wepnij moduł DS3231 w rzędy **od 30 do 35 w kolumnie C**:
 *   Pin **VCC** (rząd 34) $\rightarrow$ przewód do czerwonej szyny **(+)**.
 *   Pin **GND** (rząd 35) $\rightarrow$ przewód do niebieskiej szyny **(-)**.
-*   Pin **SDA** (rząd 33) $\rightarrow$ przewód do rzędu **18, kolumna G** (pin **D2** WeMosa).
-*   Pin **SCL** (rząd 32) $\rightarrow$ przewód do rzędu **17, kolumna G** (pin **D1** WeMosa).
+*   Pin **SDA** (rząd 33) $\rightarrow$ przewód do rzędu **18, kolumna J** (łączy się z pinem **D2** WeMosa).
+*   Pin **SCL** (rząd 32) $\rightarrow$ przewód do rzędu **17, kolumna J** (łączy się z pinem **D1** WeMosa).
 
 #### B. Czujnik temperatury (DS18B20)
 Wepnij 3-pinową płytkę czujnika w rzędy **od 40 do 42 w kolumnie C**:
-*   Pin **VCC** (rząd 40) $\rightarrow$ przewód do rzędu **22, kolumna A** (pin **3V3** WeMosa dla zasilania 3.3V).
-*   Pin **DQ** (rząd 41) $\rightarrow$ przewód do rzędu **19, kolumna A** (pin **D6** WeMosa).
+*   Pin **VCC** (rząd 40) $\rightarrow$ przewód do rzędu **22, kolumna A** (łączy się z pinem **3V3** WeMosa dla zasilania 3.3V).
+*   Pin **DQ** (rząd 41) $\rightarrow$ przewód do rzędu **19, kolumna A** (łączy się z pinem **D6** WeMosa).
 *   Pin **GND** (rząd 42) $\rightarrow$ przewód do niebieskiej szyny **(-)**.
 
 #### C. Przekaźnik i Buzzer Piezo (Sterowanie dźwiękiem)
 1.  Wepnij piny sterujące przekaźnika (`VCC`, `IN1`, `GND`) w rzędy **od 48 do 50 w kolumnie C**:
     *   Pin **VCC** (rząd 48) $\rightarrow$ przewód do czerwonej szyny **(+)**.
-    *   Pin **IN1** (rząd 49) $\rightarrow$ przewód do rzędu **17, kolumna A** (pin **D0** WeMosa).
+    *   Pin **IN1** (rząd 49) $\rightarrow$ przewód do rzędu **17, kolumna A** (łączy się z pinem **D0** WeMosa).
     *   Pin **GND** (rząd 50) $\rightarrow$ przewód do niebieskiej szyny **(-)**.
 2.  Złącze śrubowe przekaźnika (po prawej stronie płytki przekaźnika):
     *   Do zacisku **COM** doprowadź przewód z czerwonej szyny **(+)**.
@@ -53,8 +53,8 @@ Wepnij 3-pinową płytkę czujnika w rzędy **od 40 do 42 w kolumnie C**:
 #### D. Paski LED (WS2812B)
 1.  Zasilanie pasków LED (czerwone i czarne przewody z obu taśm) podłącz równolegle bezpośrednio do szyn zasilania płytki stykowej (czerwona szyna dla +5V, niebieska szyna dla GND).
 2.  Podłączenie linii danych z rezystorami ochronnymi:
-    *   Wepnij rezystor **330 Ω** pomiędzy rząd **18, kolumnę B** (pin **D5** WeMosa) a wolny rząd **25**. Z rzędu 25 wyprowadź przewód danych do linii `DIN` górnego paska LED.
-    *   Wepnij drugi rezystor **330 Ω** pomiędzy rząd **20, kolumnę B** (pin **D7** WeMosa) a wolny rząd **27**. Z rzędu 27 wyprowadź przewód danych do linii `DIN` dolnego paska LED.
+    *   Wepnij rezystor **330 Ω** pomiędzy rząd **18, kolumnę A** (łączy się z pinem **D5** WeMosa) a wolny rząd **25**. Z rzędu 25 wyprowadź przewód danych do linii `DIN` górnego paska LED.
+    *   Wepnij drugi rezystor **330 Ω** pomiędzy rząd **20, kolumnę A** (łączy się z pinem **D7** WeMosa) a wolny rząd **27**. Z rzędu 27 wyprowadź przewód danych do linii `DIN` dolnego paska LED.
 
 ---
 
