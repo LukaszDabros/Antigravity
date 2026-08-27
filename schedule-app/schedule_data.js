@@ -29,7 +29,7 @@ const scheduleData = {
       ]
     },
     {
-      "lesson": "l.3-4",
+      "lesson": "l.3",
       "teachers": [
         {
           "teacher": "M. Księżna - Michalska",
@@ -48,7 +48,26 @@ const scheduleData = {
       ]
     },
     {
-      "lesson": "l. 5-6",
+      "lesson": "l.4",
+      "teachers": [
+        {
+          "teacher": "M. Księżna - Michalska",
+          "groups": [
+            "7a/8a ch. siłownia",
+            "7a/8a ch. sala"
+          ]
+        },
+        {
+          "teacher": "A.Krynicka-Ślusarek",
+          "groups": [
+            "7a/8a dz. sala",
+            "7a/8a dz. siłownia"
+          ]
+        }
+      ]
+    },
+    {
+      "lesson": "l.5",
       "teachers": [
         {
           "teacher": "M. Księżna - Michalska",
@@ -67,7 +86,45 @@ const scheduleData = {
       ]
     },
     {
-      "lesson": "l. 7-8",
+      "lesson": "l.6",
+      "teachers": [
+        {
+          "teacher": "M. Księżna - Michalska",
+          "groups": [
+            "5/6a dz. sala",
+            "5/6a dz. siłownia"
+          ]
+        },
+        {
+          "teacher": "Ł. Dąbroś",
+          "groups": [
+            "5/6a ch. siłownia",
+            "5/6a ch. sala"
+          ]
+        }
+      ]
+    },
+    {
+      "lesson": "l.7",
+      "teachers": [
+        {
+          "teacher": "M. Księżna - Michalska",
+          "groups": [
+            "1B dz. siłownia",
+            "1B dz. sala"
+          ]
+        },
+        {
+          "teacher": "Ł. Dąbroś",
+          "groups": [
+            "1B ch. sala",
+            "1B ch. siłownia"
+          ]
+        }
+      ]
+    },
+    {
+      "lesson": "l.8",
       "teachers": [
         {
           "teacher": "M. Księżna - Michalska",
@@ -88,31 +145,12 @@ const scheduleData = {
   ],
   "tuesday": [
     {
-      "lesson": "l.0",
+      "lesson": "l.1",
       "teachers": [
         {
-          "teacher": "A.Krynicka-Ślusarek",
+          "teacher": "M.Lesiuk",
           "groups": [
-            "2B dz. siłownia",
-            "2B dz. sala"
-          ]
-        },
-        {
-          "teacher": "Ł. Dąbroś",
-          "groups": [
-            "2B ch. sala",
-            "2B ch. siłownia"
-          ]
-        }
-      ]
-    },
-    {
-      "lesson": "l. 1",
-      "teachers": [
-        {
-          "teacher": "G.Grabowska",
-          "groups": [
-            "1a sala / 4a basen"
+            "1a sala sala"
           ]
         },
         {
@@ -120,22 +158,34 @@ const scheduleData = {
           "groups": [
             "1C siłownia"
           ]
-        }
-      ]
-    },
-    {
-      "lesson": "l. 2",
-      "teachers": [
+        },
         {
           "teacher": "G.Grabowska",
           "groups": [
-            "1a sala / 4a basen"
+            "4a basen"
           ]
         }
       ]
     },
     {
-      "lesson": "l. 3-4",
+      "lesson": "l.2",
+      "teachers": [
+        {
+          "teacher": "M.Lesiuk",
+          "groups": [
+            "1a sala sala"
+          ]
+        },
+        {
+          "teacher": "G.Grabowska",
+          "groups": [
+            "4a basen"
+          ]
+        }
+      ]
+    },
+    {
+      "lesson": "l.3",
       "teachers": [
         {
           "teacher": "M. Księżna - Michalska",
@@ -154,7 +204,45 @@ const scheduleData = {
       ]
     },
     {
-      "lesson": "l.5-6",
+      "lesson": "l.4",
+      "teachers": [
+        {
+          "teacher": "M. Księżna - Michalska",
+          "groups": [
+            "4C dz. siłownia",
+            "4C dz. sala"
+          ]
+        },
+        {
+          "teacher": "Ł. Dąbroś",
+          "groups": [
+            "4C ch. sala",
+            "4C ch. siłownia"
+          ]
+        }
+      ]
+    },
+    {
+      "lesson": "l.5",
+      "teachers": [
+        {
+          "teacher": "A.Krynicka-Ślusarek",
+          "groups": [
+            "4B dz. sala",
+            "4B dz. siłownia"
+          ]
+        },
+        {
+          "teacher": "Ł. Dąbroś",
+          "groups": [
+            "4B ch. siłownia",
+            "4B ch. sala"
+          ]
+        }
+      ]
+    },
+    {
+      "lesson": "l.6",
       "teachers": [
         {
           "teacher": "A.Krynicka-Ślusarek",
@@ -186,10 +274,10 @@ const scheduleData = {
   ],
   "wednesday": [
     {
-      "lesson": "l. 1-2",
+      "lesson": "l.1",
       "teachers": [
         {
-          "teacher": "G.Grabowska",
+          "teacher": "B.Leśniak",
           "groups": [
             "3a sala"
           ]
@@ -211,7 +299,32 @@ const scheduleData = {
       ]
     },
     {
-      "lesson": "l. 3",
+      "lesson": "l.2",
+      "teachers": [
+        {
+          "teacher": "B.Leśniak",
+          "groups": [
+            "3a sala"
+          ]
+        },
+        {
+          "teacher": "M. Księżna - Michalska",
+          "groups": [
+            "7a/8a dz. basen",
+            "7a/8a dz. siłownia"
+          ]
+        },
+        {
+          "teacher": "A.Krynicka-Ślusarek",
+          "groups": [
+            "7a/8a ch. siłownia",
+            "7a/8a ch. basen"
+          ]
+        }
+      ]
+    },
+    {
+      "lesson": "l.3",
       "teachers": [
         {
           "teacher": "M. Księżna - Michalska",
@@ -230,7 +343,7 @@ const scheduleData = {
       ]
     },
     {
-      "lesson": "l. 4",
+      "lesson": "l.4",
       "teachers": [
         {
           "teacher": "M. Księżna - Michalska",
@@ -249,7 +362,7 @@ const scheduleData = {
       ]
     },
     {
-      "lesson": "l. 5-6",
+      "lesson": "l.5",
       "teachers": [
         {
           "teacher": "A.Krynicka-Ślusarek",
@@ -268,7 +381,55 @@ const scheduleData = {
       ]
     },
     {
-      "lesson": "l. 7-8",
+      "lesson": "l.6",
+      "teachers": [
+        {
+          "teacher": "A.Krynicka-Ślusarek",
+          "groups": [
+            "2B dz. sala",
+            "2B dz. siłownia"
+          ]
+        },
+        {
+          "teacher": "Ł. Dąbroś",
+          "groups": [
+            "2B ch. siłownia",
+            "2B ch. sala"
+          ]
+        }
+      ]
+    },
+    {
+      "lesson": "l.7",
+      "teachers": [
+        {
+          "teacher": "M. Księżna - Michalska",
+          "groups": [
+            "3A dz. sala",
+            "3A dz. Loretańska",
+            "3A dz. siłownia"
+          ]
+        },
+        {
+          "teacher": "A.Krynicka-Ślusarek",
+          "groups": [
+            "3B dz. siłownia",
+            "3B dz. sala",
+            "3B dz. Loretańska"
+          ]
+        },
+        {
+          "teacher": "Ł. Dąbroś",
+          "groups": [
+            "3A/B ch. Loretańska",
+            "3A/B ch. siłownia",
+            "3A/B ch. sala"
+          ]
+        }
+      ]
+    },
+    {
+      "lesson": "l.8",
       "teachers": [
         {
           "teacher": "M. Księżna - Michalska",
@@ -299,7 +460,7 @@ const scheduleData = {
   ],
   "thursday": [
     {
-      "lesson": "l. 1",
+      "lesson": "l.1",
       "teachers": [
         {
           "teacher": "G.Grabowska",
@@ -324,7 +485,7 @@ const scheduleData = {
       ]
     },
     {
-      "lesson": "l. 2-3",
+      "lesson": "l.2",
       "teachers": [
         {
           "teacher": "G.Grabowska",
@@ -335,7 +496,18 @@ const scheduleData = {
       ]
     },
     {
-      "lesson": "l. 4",
+      "lesson": "l.3",
+      "teachers": [
+        {
+          "teacher": "G.Grabowska",
+          "groups": [
+            "4a sala"
+          ]
+        }
+      ]
+    },
+    {
+      "lesson": "l.4",
       "teachers": [
         {
           "teacher": "M. Księżna - Michalska",
@@ -354,7 +526,7 @@ const scheduleData = {
       ]
     },
     {
-      "lesson": "l. 5-6",
+      "lesson": "l.5",
       "teachers": [
         {
           "teacher": "M. Księżna - Michalska",
@@ -373,7 +545,26 @@ const scheduleData = {
       ]
     },
     {
-      "lesson": "l. 7",
+      "lesson": "l.6",
+      "teachers": [
+        {
+          "teacher": "M. Księżna - Michalska",
+          "groups": [
+            "2A dz. siłownia",
+            "2A dz. sala"
+          ]
+        },
+        {
+          "teacher": "A.Krynicka-Ślusarek",
+          "groups": [
+            "2A ch. sala",
+            "2A ch. siłownia"
+          ]
+        }
+      ]
+    },
+    {
+      "lesson": "l.7",
       "teachers": [
         {
           "teacher": "A.Krynicka-Ślusarek",
@@ -392,7 +583,7 @@ const scheduleData = {
       ]
     },
     {
-      "lesson": "l. 8",
+      "lesson": "l.8",
       "teachers": [
         {
           "teacher": "A.Krynicka-Ślusarek",
@@ -413,18 +604,7 @@ const scheduleData = {
   ],
   "friday": [
     {
-      "lesson": "l. 0",
-      "teachers": [
-        {
-          "teacher": "A.Krynicka-Ślusarek",
-          "groups": [
-            "3B dz sala"
-          ]
-        }
-      ]
-    },
-    {
-      "lesson": "l.1-2",
+      "lesson": "l.1",
       "teachers": [
         {
           "teacher": "M. Księżna - Michalska",
@@ -443,7 +623,26 @@ const scheduleData = {
       ]
     },
     {
-      "lesson": "l. 3",
+      "lesson": "l.2",
+      "teachers": [
+        {
+          "teacher": "M. Księżna - Michalska",
+          "groups": [
+            "1A ch. siłownia",
+            "1A ch. sala"
+          ]
+        },
+        {
+          "teacher": "A.Krynicka-Ślusarek",
+          "groups": [
+            "1A dz. sala",
+            "1A dz. siłownia"
+          ]
+        }
+      ]
+    },
+    {
+      "lesson": "l.3",
       "teachers": [
         {
           "teacher": "M. Księżna - Michalska",
@@ -462,7 +661,7 @@ const scheduleData = {
       ]
     },
     {
-      "lesson": "l. 4-5",
+      "lesson": "l.4",
       "teachers": [
         {
           "teacher": "A.Krynicka-Ślusarek",
@@ -481,7 +680,37 @@ const scheduleData = {
       ]
     },
     {
-      "lesson": "l. 7-8",
+      "lesson": "l.5",
+      "teachers": [
+        {
+          "teacher": "A.Krynicka-Ślusarek",
+          "groups": [
+            "4A dz. sala",
+            "4A dz. siłownia"
+          ]
+        },
+        {
+          "teacher": "Ł. Dąbroś",
+          "groups": [
+            "4A ch. siłownia",
+            "4A ch. sala"
+          ]
+        }
+      ]
+    },
+    {
+      "lesson": "l.7",
+      "teachers": [
+        {
+          "teacher": "A.Krynicka-Ślusarek",
+          "groups": [
+            "1C sala"
+          ]
+        }
+      ]
+    },
+    {
+      "lesson": "l.8",
       "teachers": [
         {
           "teacher": "A.Krynicka-Ślusarek",
