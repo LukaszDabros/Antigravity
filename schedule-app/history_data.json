@@ -1,6 +1,6 @@
 {
   "master": {
-    "timestamp": "2026-08-27T20:05:39.138Z",
+    "timestamp": "2026-08-27T20:16:31.733Z",
     "data": {
       "monday": [
         {
@@ -148,37 +148,24 @@
       ],
       "tuesday": [
         {
-          "lesson": "l.0",
-          "teachers": [
-            {
-              "teacher": "A.Krynicka-Ślusarek",
-              "groups": [
-                "2B dz. siłownia",
-                "2B dz. sala"
-              ]
-            },
-            {
-              "teacher": "Ł. Dąbroś",
-              "groups": [
-                "2B ch. sala",
-                "2B ch. siłownia"
-              ]
-            }
-          ]
-        },
-        {
           "lesson": "l.1",
           "teachers": [
             {
-              "teacher": "G.Grabowska",
+              "teacher": "M.Lesiuk",
               "groups": [
-                "1a sala / 4a basen"
+                "1a sala sala"
               ]
             },
             {
               "teacher": "A.Krynicka-Ślusarek",
               "groups": [
                 "1C siłownia"
+              ]
+            },
+            {
+              "teacher": "G.Grabowska",
+              "groups": [
+                "4a basen"
               ]
             }
           ]
@@ -187,9 +174,15 @@
           "lesson": "l.2",
           "teachers": [
             {
+              "teacher": "M.Lesiuk",
+              "groups": [
+                "1a sala sala"
+              ]
+            },
+            {
               "teacher": "G.Grabowska",
               "groups": [
-                "1a sala / 4a basen"
+                "4a basen"
               ]
             }
           ]
@@ -287,7 +280,7 @@
           "lesson": "l.1",
           "teachers": [
             {
-              "teacher": "G.Grabowska",
+              "teacher": "B.Leśniak",
               "groups": [
                 "3a sala"
               ]
@@ -312,7 +305,7 @@
           "lesson": "l.2",
           "teachers": [
             {
-              "teacher": "G.Grabowska",
+              "teacher": "B.Leśniak",
               "groups": [
                 "3a sala"
               ]
@@ -614,17 +607,6 @@
       ],
       "friday": [
         {
-          "lesson": "l.0",
-          "teachers": [
-            {
-              "teacher": "A.Krynicka-Ślusarek",
-              "groups": [
-                "3B dz sala"
-              ]
-            }
-          ]
-        },
-        {
           "lesson": "l.1",
           "teachers": [
             {
@@ -744,8 +726,8 @@
       ]
     },
     "offsets": {
-      "w2": 0,
-      "w3": 0
+      "w2": 1,
+      "w3": 2
     }
   },
   "backups": [
