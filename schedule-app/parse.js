@@ -1,6 +1,27 @@
 const fs = require('fs');
+const path = require('path');
 
-const csv = fs.readFileSync('C:\\Users\\dabro\\.gemini\\antigravity\\scratch\\schedule-app\\schedule.csv', 'utf8');
+function parseCSVLine(line) {
+    const res = [];
+    let current = '';
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+        const c = line[i];
+        if (c === '"') {
+            inQuotes = !inQuotes;
+        } else if (c === ',' && !inQuotes) {
+            res.push(current.trim());
+            current = '';
+        } else {
+            current += c;
+        }
+    }
+    res.push(current.trim());
+    return res;
+}
+
+const csvPath = path.join(__dirname, 'schedule.csv');
+const csv = fs.readFileSync(csvPath, 'utf8');
 const lines = csv.split('\n');
 
 const schedule = {};
@@ -8,8 +29,7 @@ let currentDay = '';
 const daysMap = { 'pon.': 'monday', 'wt.': 'tuesday', 'śr.': 'wednesday', 'cz.': 'thursday', 'piątek': 'friday' };
 
 for (let i = 0; i < lines.length; i++) {
-    const row = lines[i].split(',').map(s => s ? s.trim() : '');
-
+    const row = parseCSVLine(lines[i]);
     if (row.length < 13) continue;
 
     const dayStr = row[2];
@@ -28,20 +48,21 @@ for (let i = 0; i < lines.length; i++) {
         const tData = [];
 
         for (let t = 0; t < 4; t++) {
-            const gA = wA[t] || '';
-            const gB = wB[t] || '';
+            const gA = (wA[t] || '').replace(/\s+/g, ' ').trim();
+            const gB = (wB[t] || '').replace(/\s+/g, ' ').trim();
 
             if (gA || gB) {
                 let rota = [];
                 if (gA === gB) {
                     rota = [gA];
                 } else {
-                    // Detect 3-week specific
-                    if (currentDay === 'wednesday' && lesson.includes('7-8')) {
-                        if (gA.includes('2A dz. siłownia')) rota = ["2A dz. siłownia", "2A dz. sala", "2A dz. Loretańska"];
-                        if (gA.includes('2B dz. Loretańska')) rota = ["2B dz. Loretańska", "2B dz. siłownia", "2B dz. sala"];
-                        if (gA.includes('2A/B ch. sala')) rota = ["2A/B ch. sala", "2A/B ch. Loretańska", "2A/B ch. siłownia"];
-                    } else {
+                    // Detect 3-week specific rotation on Wednesday 7-8 for 3A dz., 3B dz., 3A/B ch.
+                    if (currentDay === 'wednesday' && (lesson.includes('7-8') || lesson.includes('7') || lesson.includes('8'))) {
+                        if (gA.includes('3A dz.')) rota = ["3A dz. sala", "3A dz. Loretańska", "3A dz. siłownia"];
+                        if (gA.includes('3B dz.')) rota = ["3B dz. siłownia", "3B dz. sala", "3B dz. Loretańska"];
+                        if (gA.includes('3A/B ch.')) rota = ["3A/B ch. Loretańska", "3A/B ch. siłownia", "3A/B ch. sala"];
+                    }
+                    if (rota.length === 0) {
                         rota = [gA, gB];
                     }
                 }
@@ -56,5 +77,7 @@ for (let i = 0; i < lines.length; i++) {
 }
 
 const jsContent = 'const scheduleData = ' + JSON.stringify(schedule, null, 2) + ';';
-fs.writeFileSync('C:\\Users\\dabro\\.gemini\\antigravity\\scratch\\schedule-app\\schedule_data.js', jsContent);
-console.log('Zapisano pomyślnie!');
+fs.writeFileSync(path.join(__dirname, 'schedule_data.js'), jsContent, 'utf8');
+fs.writeFileSync(path.join(__dirname, 'schedule_data.json'), JSON.stringify(schedule, null, 2), 'utf8');
+console.log('Zapisano pomyślnie schedule_data.js i schedule_data.json!');
+
