@@ -1,6 +1,6 @@
 {
   "master": {
-    "timestamp": "2026-08-27T20:16:31.733Z",
+    "timestamp": "2026-08-28T05:39:44.583Z",
     "data": {
       "monday": [
         {
@@ -9,7 +9,7 @@
             {
               "teacher": "G.Grabowska",
               "groups": [
-                "2/3a sala"
+                "2a/3a sala"
               ]
             }
           ]
@@ -598,8 +598,8 @@
             {
               "teacher": "Ł. Dąbroś",
               "groups": [
-                "3A ch. siłownia",
-                "3A ch. sala"
+                "3A/B ch. siłownia",
+                "3A/B ch. sala"
               ]
             }
           ]
@@ -726,8 +726,8 @@
       ]
     },
     "offsets": {
-      "w2": 1,
-      "w3": 2
+      "w2": 0,
+      "w3": 0
     }
   },
   "backups": [
