@@ -6,7 +6,7 @@ const scheduleData = {
         {
           "teacher": "G.Grabowska",
           "groups": [
-            "2/3a sala"
+            "2a/3a sala"
           ]
         }
       ]
@@ -595,8 +595,8 @@ const scheduleData = {
         {
           "teacher": "Ł. Dąbroś",
           "groups": [
-            "3A ch. siłownia",
-            "3A ch. sala"
+            "3A/B ch. siłownia",
+            "3A/B ch. sala"
           ]
         }
       ]
