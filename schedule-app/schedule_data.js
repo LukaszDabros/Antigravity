@@ -586,7 +586,7 @@ const scheduleData = {
       "lesson": "l.8",
       "teachers": [
         {
-          "teacher": "A.Krynicka-Ślusarek",
+          "teacher": "M. Księżna - Michalska",
           "groups": [
             "3A dz. sala",
             "3A dz. siłownia"
