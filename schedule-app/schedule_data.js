@@ -145,12 +145,31 @@ const scheduleData = {
   ],
   "tuesday": [
     {
+      "lesson": "l.0",
+      "teachers": [
+        {
+          "teacher": "A.Krynicka-Ślusarek",
+          "groups": [
+            "2B dz. siłownia",
+            "2B dz. sala"
+          ]
+        },
+        {
+          "teacher": "Ł. Dąbroś",
+          "groups": [
+            "2B ch. sala",
+            "2B ch. siłownia"
+          ]
+        }
+      ]
+    },
+    {
       "lesson": "l.1",
       "teachers": [
         {
-          "teacher": "M.Lesiuk",
+          "teacher": "G.Grabowska",
           "groups": [
-            "1a sala sala"
+            "4a basen"
           ]
         },
         {
@@ -160,9 +179,9 @@ const scheduleData = {
           ]
         },
         {
-          "teacher": "G.Grabowska",
+          "teacher": "M.Lesiuk",
           "groups": [
-            "4a basen"
+            "1a sala"
           ]
         }
       ]
@@ -171,15 +190,15 @@ const scheduleData = {
       "lesson": "l.2",
       "teachers": [
         {
-          "teacher": "M.Lesiuk",
-          "groups": [
-            "1a sala sala"
-          ]
-        },
-        {
           "teacher": "G.Grabowska",
           "groups": [
             "4a basen"
+          ]
+        },
+        {
+          "teacher": "M.Lesiuk",
+          "groups": [
+            "1a sala"
           ]
         }
       ]
@@ -277,7 +296,7 @@ const scheduleData = {
       "lesson": "l.1",
       "teachers": [
         {
-          "teacher": "B.Leśniak",
+          "teacher": "G.Grabowska",
           "groups": [
             "3a sala"
           ]
@@ -302,7 +321,7 @@ const scheduleData = {
       "lesson": "l.2",
       "teachers": [
         {
-          "teacher": "B.Leśniak",
+          "teacher": "G.Grabowska",
           "groups": [
             "3a sala"
           ]
@@ -603,6 +622,17 @@ const scheduleData = {
     }
   ],
   "friday": [
+    {
+      "lesson": "l.0",
+      "teachers": [
+        {
+          "teacher": "A.Krynicka-Ślusarek",
+          "groups": [
+            "3B dz sala"
+          ]
+        }
+      ]
+    },
     {
       "lesson": "l.1",
       "teachers": [
