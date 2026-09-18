@@ -145,12 +145,31 @@ const scheduleData = {
   ],
   "tuesday": [
     {
+      "lesson": "l.0",
+      "teachers": [
+        {
+          "teacher": "A.Krynicka-Ślusarek",
+          "groups": [
+            "2B dz. siłownia",
+            "2B dz. sala"
+          ]
+        },
+        {
+          "teacher": "Ł. Dąbroś",
+          "groups": [
+            "2B ch. sala",
+            "2B ch. siłownia"
+          ]
+        }
+      ]
+    },
+    {
       "lesson": "l.1",
       "teachers": [
         {
           "teacher": "G.Grabowska",
           "groups": [
-            "1a sala / 4a basen"
+            "4a basen"
           ]
         },
         {
@@ -173,7 +192,7 @@ const scheduleData = {
         {
           "teacher": "G.Grabowska",
           "groups": [
-            "1a sala / 4a basen"
+            "4a basen"
           ]
         },
         {
@@ -603,6 +622,17 @@ const scheduleData = {
     }
   ],
   "friday": [
+    {
+      "lesson": "l.0",
+      "teachers": [
+        {
+          "teacher": "A.Krynicka-Ślusarek",
+          "groups": [
+            "3B dz sala"
+          ]
+        }
+      ]
+    },
     {
       "lesson": "l.1",
       "teachers": [
