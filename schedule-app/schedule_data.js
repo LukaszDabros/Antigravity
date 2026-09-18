@@ -296,7 +296,7 @@ const scheduleData = {
       "lesson": "l.1",
       "teachers": [
         {
-          "teacher": "G.Grabowska",
+          "teacher": "B.Leśniak",
           "groups": [
             "3a sala"
           ]
@@ -321,7 +321,7 @@ const scheduleData = {
       "lesson": "l.2",
       "teachers": [
         {
-          "teacher": "G.Grabowska",
+          "teacher": "B.Leśniak",
           "groups": [
             "3a sala"
           ]
