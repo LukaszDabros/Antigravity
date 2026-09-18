@@ -192,7 +192,7 @@ const scheduleData = {
         {
           "teacher": "G.Grabowska",
           "groups": [
-            "4a basen"
+            "1a sala / 4a basen"
           ]
         },
         {
