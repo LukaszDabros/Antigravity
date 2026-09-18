@@ -4,6 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>Grafik Zajęć WF - Szkoły Prezentek</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
@@ -159,8 +162,11 @@
         let scheduleSha = '';
         let historySha = '';
         let historyData = { master: null, backups: [] };
-        // EMERGENCY RESET: Wklej w konsolę (F12), jeśli zapomnisz hasła:
-        // localStorage.removeItem('rotation_seed'); location.reload();
+
+        // NATYCHMIASTOWE USUNIĘCIE STAREGO ZABLOKOWANEGO SEEDA
+        try {
+            localStorage.removeItem('rotation_seed');
+        } catch(e) {}
 
         const daysENtoPL = {
             'monday': 'Poniedziałek', 'tuesday': 'Wtorek', 'wednesday': 'Środa', 'thursday': 'Czwartek', 'friday': 'Piątek'
@@ -171,6 +177,19 @@
         let offset2 = 0;
         let offset3 = 0;
         let configSha = '';
+
+        // Natychmiastowy synchroniczny odczyt zapisanych offsetów z pamięci przeglądarki PRZED pierwszym renderem
+        try {
+            const savedOffsets = localStorage.getItem('config_offsets');
+            if (savedOffsets) {
+                const parsed = JSON.parse(savedOffsets);
+                if (typeof parsed.offset2 === 'number' && typeof parsed.offset3 === 'number') {
+                    offset2 = parsed.offset2;
+                    offset3 = parsed.offset3;
+                }
+            }
+        } catch(e) {}
+
         if (currentDate.getDay() === 0) {
             currentDate.setDate(currentDate.getDate() + 1);
         } else if (currentDate.getDay() === 6) {
@@ -530,17 +549,6 @@
             safeAttach('saveEditorBtn', saveFullEditor);
             safeAttach('cancelPasswordBtn', closeModals);
             safeAttach('closeSettingsBtn', closeModals);
-            safeAttach('saveSeedBtn', () => {
-                const inputs = document.querySelectorAll('.rotation-input');
-                const baseOrder = Array.from(inputs).map(i => i.value.trim()).filter(v => v !== '');
-                if (baseOrder.length === 0) return;
-                const seed = { baseDate: getMonday(currentDate).toISOString(), baseOrder: baseOrder };
-                localStorage.setItem('rotation_seed', JSON.stringify(seed));
-                updateState(); closeModals();
-            });
-            safeAttach('resetRotationBtn', () => {
-                if (confirm('Przywrócić ustawienia domyślne? Lokalne zmiany znikną.')) { localStorage.removeItem('rotation_seed'); location.reload(); }
-            });
             safeAttach('resetLocalCacheBtn', () => {
                 if (confirm('Czy na pewno chcesz usunąć lokalnie zapamiętany grafik i rotację, aby pobrać aktualną wersję z serwera?')) {
                     localStorage.removeItem('schedule_data_custom');
@@ -868,11 +876,12 @@
             
             const newOffset2 = (((tempW2 - diffWeeks) % 2) + 2) % 2;
             const newOffset3 = (((tempW3 - diffWeeks) % 3) + 3) % 3;
+            const nowIso = new Date().toISOString();
             
             // 1. Natychmiastowy zapis w pamięci przeglądarki (localStorage)
             try {
-                localStorage.setItem('config_offsets', JSON.stringify({ offset2: newOffset2, offset3: newOffset3 }));
-                localStorage.setItem('config_offsets_time', new Date().toISOString());
+                localStorage.setItem('config_offsets', JSON.stringify({ offset2: newOffset2, offset3: newOffset3, updatedAt: nowIso }));
+                localStorage.setItem('config_offsets_time', nowIso);
                 localStorage.removeItem('rotation_seed'); // wyczyść ewentualny stary seed
             } catch(e) {
                 console.warn("Błąd zapisu localStorage:", e);
@@ -883,7 +892,7 @@
 
             try {
                 const token = await decryptToken(passInput.value);
-                const newConfig = { offset2: newOffset2, offset3: newOffset3 };
+                const newConfig = { offset2: newOffset2, offset3: newOffset3, updatedAt: nowIso };
                 const contentStr = JSON.stringify(newConfig, null, 2);
                 const encodedContent = btoa(unescape(encodeURIComponent(contentStr)));
 
@@ -963,7 +972,7 @@
         initListeners();
 
         async function initApp() {
-            // 1. Sprawdź pamięć podręczną przeglądarki (najświeższe zmiany na tym urządzeniu)
+            // 1. Sprawdź pamięć podręczną przeglądarki (najświeższe zmiany grafiku)
             let hasLocalCache = false;
             try {
                 const cached = localStorage.getItem('schedule_data_custom');
@@ -972,47 +981,41 @@
                     if (parsed && Object.keys(parsed).length > 0) {
                         scheduleData = normalizeScheduleData(parsed);
                         hasLocalCache = true;
-                        updateState();
                     }
                 }
             } catch(e) {
                 console.warn("Błąd parsowania localStorage:", e);
             }
 
-            // 2. Pobierz konfigurację cykli (offset2, offset3)
-            let hasLocalConfig = false;
+            // 2. Pobierz konfigurację cykli z serwera jeśli brak w localStorage lub dla aktualizacji
+            let localTimestamp = 0;
             try {
-                const savedOffsets = localStorage.getItem('config_offsets');
-                if (savedOffsets) {
-                    const parsed = JSON.parse(savedOffsets);
-                    if (typeof parsed.offset2 === 'number' && typeof parsed.offset3 === 'number') {
-                        offset2 = parsed.offset2;
-                        offset3 = parsed.offset3;
-                        hasLocalConfig = true;
-                        updateState();
+                const tStr = localStorage.getItem('config_offsets_time');
+                if (tStr) localTimestamp = new Date(tStr).getTime();
+            } catch(e) {}
+
+            try {
+                const localConfigRes = await fetch('config.json?v=' + Date.now(), { cache: 'no-store' });
+                if (localConfigRes.ok) {
+                    const configData = await localConfigRes.json();
+                    const serverTimestamp = configData.updatedAt ? new Date(configData.updatedAt).getTime() : 0;
+                    if (localTimestamp === 0 || serverTimestamp > localTimestamp) {
+                        offset2 = configData.offset2 || 0;
+                        offset3 = configData.offset3 || 0;
+                        try {
+                            localStorage.setItem('config_offsets', JSON.stringify({ offset2, offset3, updatedAt: configData.updatedAt || '' }));
+                            localStorage.setItem('config_offsets_time', configData.updatedAt || new Date().toISOString());
+                        } catch(e) {}
                     }
                 }
             } catch(e) {
-                console.warn("Błąd parsowania config_offsets z localStorage:", e);
-            }
-
-            if (!hasLocalConfig) {
-                try {
-                    const localConfigRes = await fetch('config.json?v=' + Date.now());
-                    if (localConfigRes.ok) {
-                        const configData = await localConfigRes.json();
-                        offset2 = configData.offset2 || 0;
-                        offset3 = configData.offset3 || 0;
-                    }
-                } catch(e) {
-                    console.warn("Lokalny config:", e);
-                }
+                console.warn("Lokalny config fetch:", e);
             }
 
             // 3. Pobierz dane bazowe z serwera jeśli brak pamięci podręcznej
             if (!hasLocalCache || !scheduleData || Object.keys(scheduleData).length === 0) {
                 try {
-                    const localRes = await fetch('schedule_data.js?v=' + Date.now());
+                    const localRes = await fetch('schedule_data.js?v=' + Date.now(), { cache: 'no-store' });
                     if (localRes.ok) {
                         const txt = await localRes.text();
                         const sI = txt.indexOf('{');
@@ -1026,7 +1029,7 @@
                 }
             }
 
-            // 4. Jeśli na zdalnym hostingu, pobierz SHA i ewentualnie dane z GitHuba
+            // 4. Jeśli na zdalnym hostingu, pobierz SHA i ewentualnie najświeższe dane z GitHuba
             const isLocal = window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
             if (!isLocal) {
                 try {
@@ -1034,13 +1037,20 @@
                     if (resConfig.ok) {
                         const data = await resConfig.json();
                         configSha = data.sha;
-                        if (!hasLocalConfig && data.content) {
+                        if (data.content) {
                             try {
                                 const contentStr = decodeURIComponent(escape(atob(data.content)));
                                 const conf = JSON.parse(contentStr);
-                                if (conf && typeof conf.offset2 === 'number' && typeof conf.offset3 === 'number') {
-                                    offset2 = conf.offset2;
-                                    offset3 = conf.offset3;
+                                const serverTimestamp = conf.updatedAt ? new Date(conf.updatedAt).getTime() : 0;
+                                if (localTimestamp === 0 || serverTimestamp > localTimestamp) {
+                                    if (typeof conf.offset2 === 'number' && typeof conf.offset3 === 'number') {
+                                        offset2 = conf.offset2;
+                                        offset3 = conf.offset3;
+                                        try {
+                                            localStorage.setItem('config_offsets', JSON.stringify({ offset2, offset3, updatedAt: conf.updatedAt || '' }));
+                                            localStorage.setItem('config_offsets_time', conf.updatedAt || new Date().toISOString());
+                                        } catch(e) {}
+                                    }
                                 }
                             } catch(ce) {}
                         }
@@ -1068,7 +1078,7 @@
             // 5. Ostateczna rezerwa
             if (!scheduleData || Object.keys(scheduleData).length === 0) {
                 try {
-                    const localRes = await fetch('schedule_data.js');
+                    const localRes = await fetch('schedule_data.js', { cache: 'no-store' });
                     if (localRes.ok) {
                         const txt = await localRes.text();
                         const sI = txt.indexOf('{');
