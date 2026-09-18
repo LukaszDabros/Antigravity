@@ -207,25 +207,7 @@
             let weekIndex2 = (((diffWeeks + offset2) % 2) + 2) % 2;
             let weekIndex3 = (((diffWeeks + offset3) % 3) + 3) % 3;
 
-            // OVERRIDE WITH LOCAL SEED IF EXISTS
-            const seedRaw = localStorage.getItem('rotation_seed');
-            if (seedRaw) {
-                try {
-                    const seed = JSON.parse(seedRaw);
-                    const localDiffWeeks = getDiffWeeks(currentDate, new Date(seed.baseDate));
-                    const seedIdx = ((localDiffWeeks % seed.baseOrder.length) + seed.baseOrder.length) % seed.baseOrder.length;
-                    
-                    weekIndex2 = seedIdx % 2;
-                    weekIndex3 = seedIdx % 3;
-                    
-                    weekInfoLabel.textContent = seed.baseOrder[seedIdx] || `Tydzień ${seedIdx + 1}`;
-                } catch(e) {
-                    console.error("Błąd seeda:", e);
-                    weekInfoLabel.textContent = `2T: ${weekIndex2 + 1}  •  3T: ${weekIndex3 + 1}`;
-                }
-            } else {
-                weekInfoLabel.textContent = `2T: ${weekIndex2 + 1}  •  3T: ${weekIndex3 + 1}`;
-            }
+            weekInfoLabel.textContent = `2T: ${weekIndex2 + 1}  •  3T: ${weekIndex3 + 1}`;
 
             const friday = new Date(currentMonday);
             friday.setDate(friday.getDate() + 4);
@@ -560,9 +542,12 @@
                 if (confirm('Przywrócić ustawienia domyślne? Lokalne zmiany znikną.')) { localStorage.removeItem('rotation_seed'); location.reload(); }
             });
             safeAttach('resetLocalCacheBtn', () => {
-                if (confirm('Czy na pewno chcesz usunąć lokalnie zapamiętany grafik i pobrać aktualną wersję z serwera?')) {
+                if (confirm('Czy na pewno chcesz usunąć lokalnie zapamiętany grafik i rotację, aby pobrać aktualną wersję z serwera?')) {
                     localStorage.removeItem('schedule_data_custom');
                     localStorage.removeItem('schedule_data_custom_time');
+                    localStorage.removeItem('config_offsets');
+                    localStorage.removeItem('config_offsets_time');
+                    localStorage.removeItem('rotation_seed');
                     location.reload();
                 }
             });
@@ -884,11 +869,34 @@
             const newOffset2 = (((tempW2 - diffWeeks) % 2) + 2) % 2;
             const newOffset3 = (((tempW3 - diffWeeks) % 3) + 3) % 3;
             
+            // 1. Natychmiastowy zapis w pamięci przeglądarki (localStorage)
+            try {
+                localStorage.setItem('config_offsets', JSON.stringify({ offset2: newOffset2, offset3: newOffset3 }));
+                localStorage.setItem('config_offsets_time', new Date().toISOString());
+                localStorage.removeItem('rotation_seed'); // wyczyść ewentualny stary seed
+            } catch(e) {
+                console.warn("Błąd zapisu localStorage:", e);
+            }
+            offset2 = newOffset2;
+            offset3 = newOffset3;
+            updateState();
+
             try {
                 const token = await decryptToken(passInput.value);
                 const newConfig = { offset2: newOffset2, offset3: newOffset3 };
                 const contentStr = JSON.stringify(newConfig, null, 2);
                 const encodedContent = btoa(unescape(encodeURIComponent(contentStr)));
+
+                // Pobierz aktualne SHA config.json przed zapisem, aby uniknąć konfliktów 409
+                try {
+                    const getConfRes = await fetch('https://api.github.com/repos/LukaszDabros/Antigravity/contents/schedule-app/config.json', {
+                        headers: { 'Authorization': 'Bearer ' + token }
+                    });
+                    if (getConfRes.ok) {
+                        const confData = await getConfRes.json();
+                        configSha = confData.sha;
+                    }
+                } catch(e) {}
 
                 const reqBody = {
                     message: 'Aktualizacja rotacji przez ukryty Panel Kantorek',
@@ -910,15 +918,16 @@
                 if (res.ok) {
                     const data = await res.json();
                     configSha = data.content.sha;
-                    offset2 = newOffset2;
-                    offset3 = newOffset3;
-                    updateState();
+                    alert('SUKCES: Rotacja została zapisana w przeglądarce oraz zsynchronizowana z serwerem GitHub!');
                     closeModals();
                 } else {
-                    alert('Nie udało się zapisać ustawień na serwerze! Sprawdź połączenie.');
+                    const error = await res.json();
+                    alert('ZAPISANO W PRZEGLĄDARCE: Rotacja została zapamiętana lokalnie (będzie widoczna po odświeżeniu).\n\nUwaga: Synchronizacja z GitHubem: ' + (error.message || 'Brak uprawnień'));
+                    closeModals();
                 }
             } catch(e) {
-                alert('Sesja wygasła lub wystąpił błąd autoryzacji.');
+                alert('ZAPISANO W PRZEGLĄDARCE: Rotacja została zapamiętana lokalnie.\n\nBłąd synchronizacji z serwerem: ' + e.message);
+                closeModals();
             } finally {
                 saveBtn.textContent = prevText;
                 saveBtn.disabled = false;
@@ -971,15 +980,33 @@
             }
 
             // 2. Pobierz konfigurację cykli (offset2, offset3)
+            let hasLocalConfig = false;
             try {
-                const localConfigRes = await fetch('config.json?v=' + Date.now());
-                if (localConfigRes.ok) {
-                    const configData = await localConfigRes.json();
-                    offset2 = configData.offset2 || 0;
-                    offset3 = configData.offset3 || 0;
+                const savedOffsets = localStorage.getItem('config_offsets');
+                if (savedOffsets) {
+                    const parsed = JSON.parse(savedOffsets);
+                    if (typeof parsed.offset2 === 'number' && typeof parsed.offset3 === 'number') {
+                        offset2 = parsed.offset2;
+                        offset3 = parsed.offset3;
+                        hasLocalConfig = true;
+                        updateState();
+                    }
                 }
             } catch(e) {
-                console.warn("Lokalny config:", e);
+                console.warn("Błąd parsowania config_offsets z localStorage:", e);
+            }
+
+            if (!hasLocalConfig) {
+                try {
+                    const localConfigRes = await fetch('config.json?v=' + Date.now());
+                    if (localConfigRes.ok) {
+                        const configData = await localConfigRes.json();
+                        offset2 = configData.offset2 || 0;
+                        offset3 = configData.offset3 || 0;
+                    }
+                } catch(e) {
+                    console.warn("Lokalny config:", e);
+                }
             }
 
             // 3. Pobierz dane bazowe z serwera jeśli brak pamięci podręcznej
@@ -1007,6 +1034,16 @@
                     if (resConfig.ok) {
                         const data = await resConfig.json();
                         configSha = data.sha;
+                        if (!hasLocalConfig && data.content) {
+                            try {
+                                const contentStr = decodeURIComponent(escape(atob(data.content)));
+                                const conf = JSON.parse(contentStr);
+                                if (conf && typeof conf.offset2 === 'number' && typeof conf.offset3 === 'number') {
+                                    offset2 = conf.offset2;
+                                    offset3 = conf.offset3;
+                                }
+                            } catch(ce) {}
+                        }
                     }
 
                     const resSched = await fetch('https://api.github.com/repos/LukaszDabros/Antigravity/contents/schedule-app/schedule_data.js?v=' + Date.now(), { cache: 'no-store' });
