@@ -428,6 +428,9 @@
                         <button id="closeSettingsBtn" class="px-4 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors border border-slate-700 text-xs font-bold">ANULUJ</button>
                         <button id="saveSettingsBtn" class="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-400 font-bold border border-sky-500/20 transition-colors text-xs">SYNCHRONIZUJ CYKL</button>
                     </div>
+                    <button id="resetLocalCacheBtn" class="w-full mt-2 py-2 rounded-xl bg-slate-900 hover:bg-red-950/40 text-slate-400 hover:text-red-300 text-[10px] font-bold border border-slate-800 hover:border-red-500/30 transition-all uppercase">
+                        Wyczyść pamięć podręczną (pobierz z serwera)
+                    </button>
                 </div>
 
                 <div class="mt-8 pt-6 border-t border-slate-700/50">
@@ -556,6 +559,13 @@
             safeAttach('resetRotationBtn', () => {
                 if (confirm('Przywrócić ustawienia domyślne? Lokalne zmiany znikną.')) { localStorage.removeItem('rotation_seed'); location.reload(); }
             });
+            safeAttach('resetLocalCacheBtn', () => {
+                if (confirm('Czy na pewno chcesz usunąć lokalnie zapamiętany grafik i pobrać aktualną wersję z serwera?')) {
+                    localStorage.removeItem('schedule_data_custom');
+                    localStorage.removeItem('schedule_data_custom_time');
+                    location.reload();
+                }
+            });
             document.querySelectorAll('.t2-btn').forEach(b => b.onclick = (e) => { tempW2 = parseInt(e.target.dataset.val); updateSettingsUI(); });
             document.querySelectorAll('.t3-btn').forEach(b => b.onclick = (e) => { tempW3 = parseInt(e.target.dataset.val); updateSettingsUI(); });
 
@@ -599,7 +609,7 @@
 
         const TEACHERS = ['G.Grabowska', 'M. Księżna - Michalska', 'A.Krynicka-Ślusarek', 'Ł. Dąbroś', 'B.Leśniak', 'M.Lesiuk'];
         const LOCATIONS = ['sala', 'siłownia', 'basen', 'Loretańska'];
-        const LESSON_KEYS = ['l.1', 'l.2', 'l.3', 'l.4', 'l.5', 'l.6', 'l.7', 'l.8'];
+        const LESSON_KEYS = ['l.0', 'l.1', 'l.2', 'l.3', 'l.4', 'l.5', 'l.6', 'l.7', 'l.8'];
 
         const openEditor = () => {
             document.getElementById('editorOverlay').classList.remove('hidden');
@@ -707,9 +717,13 @@
             const row = document.createElement('div');
             row.className = 'flex gap-1 items-center variant-row';
             
-            const split = groupStr.split(' ');
-            const loc = split.length > 1 ? split.slice(-1)[0] : '';
-            const gRoot = split.length > 1 ? split.slice(0, -1).join(' ') : groupStr;
+            let loc = '';
+            let gRoot = (groupStr || '').trim();
+            const split = gRoot.split(/\s+/);
+            if (split.length > 1 && LOCATIONS.includes(split[split.length - 1])) {
+                loc = split[split.length - 1];
+                gRoot = split.slice(0, -1).join(' ');
+            }
 
             let gHtml = `<input type="text" placeholder="Grupa" class="flex-1 bg-slate-950 text-white text-[10px] p-1.5 rounded-lg border border-slate-800 group-input" value="${gRoot}">`;
             let lHtml = `<select class="w-20 bg-slate-950 text-indigo-400 text-[10px] p-1.5 rounded-lg border border-indigo-500/10 font-bold loc-select cursor-pointer">`;
@@ -777,7 +791,8 @@
                             const groups = Array.from(slot.querySelectorAll('.variant-row')).map(v => {
                                 const g = v.querySelector('.group-input').value.trim();
                                 const l = v.querySelector('.loc-select').value;
-                                return l ? `${g} ${l}` : g;
+                                if (!g && !l) return '';
+                                return l ? (g ? `${g} ${l}` : l) : g;
                             }).filter(v => v !== '');
                             if (groups.length > 0) newSchedule[dayKey].push({ lesson: lName, teachers: [{ teacher, groups }] });
                         });
@@ -791,8 +806,26 @@
                     newSchedule[dayKey] = merged;
                 });
 
+                // 1. Zapis natychmiastowy w pamięci przeglądarki (localStorage)
+                try {
+                    localStorage.setItem('schedule_data_custom', JSON.stringify(newSchedule));
+                    localStorage.setItem('schedule_data_custom_time', new Date().toISOString());
+                } catch(lsErr) {
+                    console.warn("Błąd zapisu w localStorage:", lsErr);
+                }
+
+                // 2. Natychmiastowa aktualizacja stanu aplikacji w pamięci
+                scheduleData = normalizeScheduleData(newSchedule);
+                updateState();
+
+                // 3. Próba synchronizacji z repozytorium GitHub
                 const pInput = document.getElementById('passwordInput');
-                if (!pInput || !pInput.value) throw new Error("Błąd: Hasło jest puste.");
+                if (!pInput || !pInput.value) {
+                    alert('SUKCES: Grafik został zapisany w Twojej przeglądarce i będzie pamiętany po odświeżeniu!\n\n(Brak hasła do synchronizacji z serwerem GitHub).');
+                    document.getElementById('editorOverlay').classList.add('hidden');
+                    offsetModal.classList.remove('hidden');
+                    return;
+                }
 
                 const token = await decryptToken(pInput.value);
                 
@@ -820,18 +853,20 @@
                 if (res.ok) {
                     const data = await res.json();
                     scheduleSha = data.content.sha;
-                    scheduleData = normalizeScheduleData(newSchedule);
-                    updateState();
-                    alert('SUKCES: Grafik został zapisany!');
+                    alert('SUKCES: Grafik został zapisany w przeglądarce oraz zsynchronizowany z serwerem GitHub!');
                     document.getElementById('editorOverlay').classList.add('hidden');
                     offsetModal.classList.remove('hidden');
                 } else {
                     const error = await res.json();
-                    alert('BŁĄD GITHUB: ' + (error.message || 'Brak uprawnień'));
+                    alert('ZAPISANO W PRZEGLĄDARCE: Grafik został zachowany na tym urządzeniu (będzie widoczny po odświeżeniu).\n\nUwaga: Synchronizacja z GitHubem nie powiodła się: ' + (error.message || 'Brak uprawnień'));
+                    document.getElementById('editorOverlay').classList.add('hidden');
+                    offsetModal.classList.remove('hidden');
                 }
             } catch(e) {
                 console.error("Save error details:", e);
-                alert('BŁĄD: ' + (e.name === 'AbortError' ? 'Przekroczono czas (Timeout)' : e.message));
+                alert('ZAPISANO W PRZEGLĄDARCE: Grafik został zachowany na tym urządzeniu.\n\nBłąd synchronizacji z serwerem: ' + (e.name === 'AbortError' ? 'Przekroczono czas połączenia (Timeout)' : e.message));
+                document.getElementById('editorOverlay').classList.add('hidden');
+                offsetModal.classList.remove('hidden');
             } finally {
                 saveBtn.textContent = prevText;
                 saveBtn.disabled = false;
@@ -919,16 +954,37 @@
         initListeners();
 
         async function initApp() {
-            const isLocal = window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-
-            if (isLocal) {
-                try {
-                    const localConfigRes = await fetch('config.json?v=' + Date.now());
-                    if (localConfigRes.ok) {
-                        const configData = await localConfigRes.json();
-                        offset2 = configData.offset2 || 0;
-                        offset3 = configData.offset3 || 0;
+            // 1. Sprawdź pamięć podręczną przeglądarki (najświeższe zmiany na tym urządzeniu)
+            let hasLocalCache = false;
+            try {
+                const cached = localStorage.getItem('schedule_data_custom');
+                if (cached) {
+                    const parsed = JSON.parse(cached);
+                    if (parsed && Object.keys(parsed).length > 0) {
+                        scheduleData = normalizeScheduleData(parsed);
+                        hasLocalCache = true;
+                        updateState();
                     }
+                }
+            } catch(e) {
+                console.warn("Błąd parsowania localStorage:", e);
+            }
+
+            // 2. Pobierz konfigurację cykli (offset2, offset3)
+            try {
+                const localConfigRes = await fetch('config.json?v=' + Date.now());
+                if (localConfigRes.ok) {
+                    const configData = await localConfigRes.json();
+                    offset2 = configData.offset2 || 0;
+                    offset3 = configData.offset3 || 0;
+                }
+            } catch(e) {
+                console.warn("Lokalny config:", e);
+            }
+
+            // 3. Pobierz dane bazowe z serwera jeśli brak pamięci podręcznej
+            if (!hasLocalCache || !scheduleData || Object.keys(scheduleData).length === 0) {
+                try {
                     const localRes = await fetch('schedule_data.js?v=' + Date.now());
                     if (localRes.ok) {
                         const txt = await localRes.text();
@@ -939,32 +995,32 @@
                         }
                     }
                 } catch(e) {
-                    console.error("Local load failed:", e);
+                    console.warn("Lokalne schedule_data:", e);
                 }
-            } else {
+            }
+
+            // 4. Jeśli na zdalnym hostingu, pobierz SHA i ewentualnie dane z GitHuba
+            const isLocal = window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            if (!isLocal) {
                 try {
-                    // Fetch Config
                     const resConfig = await fetch('https://api.github.com/repos/LukaszDabros/Antigravity/contents/schedule-app/config.json?v=' + Date.now(), { cache: 'no-store' });
                     if (resConfig.ok) {
                         const data = await resConfig.json();
                         configSha = data.sha;
-                        const contentStr = decodeURIComponent(escape(atob(data.content)));
-                        const configData = JSON.parse(contentStr);
-                        offset2 = configData.offset2 || 0;
-                        offset3 = configData.offset3 || 0;
                     }
 
-                    // Fetch Schedule Data
                     const resSched = await fetch('https://api.github.com/repos/LukaszDabros/Antigravity/contents/schedule-app/schedule_data.js?v=' + Date.now(), { cache: 'no-store' });
                     if (resSched.ok) {
                         const data = await resSched.json();
                         scheduleSha = data.sha;
-                        let contentStr = decodeURIComponent(escape(atob(data.content)));
-                        const sI = contentStr.indexOf('{');
-                        const eI = contentStr.lastIndexOf('}');
-                        if (sI !== -1 && eI !== -1) {
-                            const rawData = JSON.parse(contentStr.substring(sI, eI + 1));
-                            scheduleData = normalizeScheduleData(rawData);
+                        if (!hasLocalCache) {
+                            let contentStr = decodeURIComponent(escape(atob(data.content)));
+                            const sI = contentStr.indexOf('{');
+                            const eI = contentStr.lastIndexOf('}');
+                            if (sI !== -1 && eI !== -1) {
+                                const rawData = JSON.parse(contentStr.substring(sI, eI + 1));
+                                scheduleData = normalizeScheduleData(rawData);
+                            }
                         }
                     }
                 } catch (err) {
@@ -972,7 +1028,7 @@
                 }
             }
 
-            // Fallback
+            // 5. Ostateczna rezerwa
             if (!scheduleData || Object.keys(scheduleData).length === 0) {
                 try {
                     const localRes = await fetch('schedule_data.js');
@@ -985,7 +1041,7 @@
                         }
                     }
                 } catch(e) {
-                   console.error("Local load failed:", e);
+                   console.error("Local fallback failed:", e);
                 }
             }
             updateState();
